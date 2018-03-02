@@ -13,7 +13,7 @@ use Magento\Framework\Config\ConfigOptionsListConstants;
  * Class AdminNotificationFeedextends
  * @package Magefan\Community\Model
  */
-class AdminNotificationFeedextends extends \Magento\AdminNotification\Model\Feed
+class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
 {
     /**
      * @var \Magento\Backend\Model\Auth\Session

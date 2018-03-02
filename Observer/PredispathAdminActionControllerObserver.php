@@ -35,7 +35,7 @@ class PredispathAdminActionControllerObserver implements ObserverInterface
      * @param \Magefan\Blog\Model\Comment\Notification $commentNotification,
      */
     public function __construct(
-        \Magefan\Blog\Model\AdminNotificationFeedFactory $feedFactory,
+        \Magefan\Community\Model\AdminNotificationFeedFactory $feedFactory,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magefan\Blog\Model\Comment\Notification $commentNotification
     ) {
@@ -54,10 +54,10 @@ class PredispathAdminActionControllerObserver implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         if ($this->_backendAuthSession->isLoggedIn()) {
-            $feedModel = $this->_feedFactory->create();
-            /* @var $feedModel \Magefan\Blog\Model\AdminNotificationFeed */
-            $feedModel->checkUpdate();
 
+            $feedModel = $this->_feedFactory->create();
+            /* @var $feedModel \Magefan\Community\Model\AdminNotificationFeed */
+            $feedModel->checkUpdate();
             /** Check pending blog comments */
             $this->commentNotification->checkComments();
         }
