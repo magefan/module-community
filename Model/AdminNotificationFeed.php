@@ -9,7 +9,7 @@ namespace Magefan\Community\Model;
 use Magento\Framework\Config\ConfigOptionsListConstants;
 
 /**
- * Class AdminNotificationFeedextends
+ * Class AdminNotificationFeed
  * @package Magefan\Community\Model
  */
 class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
@@ -95,6 +95,7 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         if (count($modulesParams)) {
             $url .= '/modules/'.base64_encode(implode(';', $modulesParams));
         }
+
         return $url;
     }
 

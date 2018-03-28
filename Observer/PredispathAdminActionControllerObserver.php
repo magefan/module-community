@@ -9,7 +9,7 @@ namespace Magefan\Community\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
- * community observer
+ * Community observer
  */
 class PredispathAdminActionControllerObserver implements ObserverInterface
 {
