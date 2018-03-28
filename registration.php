@@ -1,7 +1,7 @@
 <?php
 /**
  * Copyright © Magefan (support@magefan.com). All rights reserved.
- * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ * See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
  */
 
 \Magento\Framework\Component\ComponentRegistrar::register(
