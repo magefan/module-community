@@ -1,8 +1,7 @@
 <?php
-
-/** Copyright © Magefan (support@magefan.com).
- *  All rights reserved.
- *  See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
 namespace Magefan\Community\Model;
@@ -16,17 +15,25 @@ use Magento\Framework\Config\ConfigOptionsListConstants;
 class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
 {
     /**
+     * @var string
+     */
+    const MAGEFAN_CACHE_KEY = 'magefan_admin_notifications_lastcheck' ;
+
+    /**
      * @var \Magento\Backend\Model\Auth\Session
      */
     protected $_backendAuthSession;
+
     /**
      * @var \Magento\Framework\Module\ModuleListInterface
      */
     protected $_moduleList;
+
     /**
      * @var \Magento\Framework\Module\Manager
      */
     protected $_moduleManager;
+
     /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -92,7 +99,7 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
     }
 
     /**
-     * Get Magefan Modules Info
+     * Retrieve Magefan modules info
      *
      * @return $this
      */
@@ -127,13 +134,13 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
     }
 
     /**
-     * Retrieve Update Frequency
+     * Retrieve update аrequency
      *
      * @return int
      */
     public function getFrequency()
     {
-        return 86400;
+        return 86400 * 2;
     }
 
     /**
@@ -143,7 +150,7 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
      */
     public function getLastUpdate()
     {
-        return $this->_cacheManager->load('magefan_admin_notifications_lastcheck');
+        return $this->_cacheManager->load(self::MAGEFAN_CACHE_KEY);
     }
 
     /**
@@ -153,7 +160,7 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
      */
     public function setLastUpdate()
     {
-        $this->_cacheManager->save(time(), 'magefan_admin_notifications_lastcheck');
+        $this->_cacheManager->save(time(), self::MAGEFAN_CACHE_KEY);
         return $this;
     }
 }

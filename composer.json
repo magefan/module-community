@@ -1,15 +1,12 @@
 {
     "name": "magefan/module-community",
     "description": "",
-    "license": "proprietary",
-    "authors": [
-        {
-            "email": "info@mage2gen.com",
-            "name": "Mage2Gen"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "php": "~5.6.5 || >=7.0"
+    },
+    "license": "EULA",
+    "version": "2.0.0",
+    "type": "magento2-module",
     "autoload": {
         "files": [
             "registration.php"
