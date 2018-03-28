@@ -83,7 +83,6 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * @param Action\Context $context
-     * @param PostDataProcessor $dataProcessor
      * @param DataPersistorInterface $dataPersistor
      */
     public function __construct(
