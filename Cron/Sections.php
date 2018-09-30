@@ -79,16 +79,12 @@ class Sections
             foreach ($data as $module => $item) {
                 $section = $sections[$module];
                 if (!$section->validate($data)) {
-                    $path = $section->getName() . '/' . $path;
                     $connection->update(
                         $table,
                         [
-                            'scope' => 'default',
-                            'scope_id' => 0,
-                            'path' => $path,
                             'value' => 0
                         ],
-                        ['path = ? ' => $path]
+                        ['path = ? ' => $section->getName() . '/' . $path]
                     );
                 }
             }
