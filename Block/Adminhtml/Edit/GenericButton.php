@@ -8,25 +8,36 @@ namespace Magefan\Community\Block\Adminhtml\Edit;
 
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
+use \Magento\Framework\AuthorizationInterface;
 
 /**
  * Class GenericButton
  */
 class GenericButton
 {
+    const ADMIN_RESOURCE = '';
+
     /**
      * @var Context
      */
     protected $context;
 
     /**
+     * @var AuthorizationInterface
+     */
+    protected  $authorization;
+
+    /**
+     * GenericButton constructor.
      * @param Context $context
-     * @param BlockRepositoryInterface $blockRepository
+     * @param AuthorizationInterface $authorization
      */
     public function __construct(
-        Context $context
+        Context $context,
+        AuthorizationInterface   $authorization
     ) {
         $this->context = $context;
+        $this->authorization = $authorization;
     }
 
     /**
@@ -49,5 +60,12 @@ class GenericButton
     public function getUrl($route = '', $params = [])
     {
         return $this->context->getUrlBuilder()->getUrl($route, $params);
+    }
+
+    public function isAllowed() {
+        if (!self::ADMIN_RESOURCE) {
+            return true;
+        }
+        return $this->authorization->isAllowed(self::ADMIN_RESOURCE);
     }
 }
