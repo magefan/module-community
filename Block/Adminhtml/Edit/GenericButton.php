@@ -8,6 +8,7 @@ namespace Magefan\Community\Block\Adminhtml\Edit;
 
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\AuthorizationInterface;
 
 /**
  * Class GenericButton
@@ -20,13 +21,24 @@ class GenericButton
     protected $context;
 
     /**
+     * @var AuthorizationInterface
+     */
+    protected  $authorization;
+
+    /**
+     * GenericButton constructor.
      * @param Context $context
-     * @param BlockRepositoryInterface $blockRepository
+     * @param AuthorizationInterface|null $authorization
      */
     public function __construct(
-        Context $context
+        Context $context,
+        $authorization = null
     ) {
         $this->context = $context;
+        $this->authorization = $authorization
+            ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
+                \Magento\Framework\AuthorizationInterface::class
+            );
     }
 
     /**
