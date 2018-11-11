@@ -1,9 +1,6 @@
 {
     "name": "magefan/module-community",
     "description": "",
-    "require": {
-        "php": "~5.6.5 || >=7.0"
-    },
     "license": [
         "OSL-3.0",
         "AFL-3.0"
