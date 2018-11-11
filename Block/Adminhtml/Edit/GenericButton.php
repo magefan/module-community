@@ -23,7 +23,7 @@ class GenericButton
     /**
      * @var AuthorizationInterface
      */
-    protected  $authorization;
+    protected $authorization;
 
     /**
      * GenericButton constructor.
