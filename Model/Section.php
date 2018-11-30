@@ -103,10 +103,10 @@ final class Section
         $k = $this->getKey();
 
         $l = substr($id, 1, 1);
-        $d = strlen($id);
-        return (substr($k, 5, 1) == $l)
-            && (substr($k, 19, 1) == $d)
-            && strlen($k) == '3' . '2';
+        $d = (string) strlen($id);
+        return (strpos($k, $l, 5) == 5)
+            && (strpos($k, $d, 19) == 19)
+            && (strlen($k) >= '3' . '2');
     }
 
     /**
