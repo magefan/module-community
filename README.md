@@ -1,5 +1,8 @@
 # Magefan Community Extension by [Magefan](https://magefan.com/magento2-extensions)
 
+[![Total Downloads](https://poser.pugx.org/magefan/module-community/downloads)](https://packagist.org/packages/magefan/module-community)
+[![Latest Stable Version](https://poser.pugx.org/magefan/module-community/v/stable)](https://packagist.org/packages/magefan/module-community)
+
 This module is required for other Magefan extensions for Magento 2
 
 ## Requirements
