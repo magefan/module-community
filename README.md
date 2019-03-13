@@ -39,6 +39,7 @@ then if you still need help, open a bug report in GitHub's
 The code is licensed under [Open Software License ("OSL") v. 3.0](http://opensource.org/licenses/osl-3.0.php).
 
 ## Other Magefan Extensions That Can Be Installed Via Composer
+  * [Magento 2 Blog Extension](https://magefan.com/magento2-blog-extension)
   * [Magento 2 Auto Currency Switcher Extension](https://magefan.com/magento-2-currency-switcher-auto-currency-by-country)
   * [Magento 2 Login As Customer Extension](https://magefan.com/login-as-customer-magento-2-extension)
   * [Magento 2 Conflict Detector Extension](https://magefan.com/magento2-conflict-detector)
