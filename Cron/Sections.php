@@ -27,6 +27,11 @@ class Sections
     protected $info;
 
     /**
+     * @var ResourceConnection
+     */
+    protected $resource;
+
+    /**
      * Sections constructor.
      * @param ResourceConnection $resource
      * @param SectionFactory $sectionFactory
