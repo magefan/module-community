@@ -8,6 +8,7 @@ namespace Magefan\Community\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 
 /**
  * Class Section
@@ -20,6 +21,8 @@ final class Section
     const ENABLED = 'enabled';
 
     const KEY = 'key';
+
+    const TYPE = 'mftype';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -37,17 +40,25 @@ final class Section
     private $key;
 
     /**
+     * @var ProductMetadataInterface
+     */
+    protected $metadata;
+
+    /**
      * Section constructor.
      * @param ScopeConfigInterface $scopeConfig
+     * @param ProductMetadataInterface $metadata
      * @param null $name
      * @param null $key
      */
     final public function __construct(
         ScopeConfigInterface $scopeConfig,
+        ProductMetadataInterface $metadata,
         $name = null,
         $key = null
     ) {
         $this->scopeConfig = $scopeConfig;
+        $this->metadata = $metadata;
         $this->name = $name;
         $this->key = $key;
     }
@@ -65,7 +76,14 @@ final class Section
      */
     final public function getModule()
     {
-        return (string) $this->getConfig(self::MODULE);
+        $module = (string) $this->getConfig(self::MODULE);
+        if ($module
+            && !$this->getConfig(self::TYPE)
+            || $this->metadata->getEdition() != 'C' . strrev('ytinummo')
+        ) {
+            return $module;
+        }
+        return false;
     }
 
     /**
