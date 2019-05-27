@@ -122,9 +122,10 @@ final class Section
 
         $l = substr($id, 1, 1);
         $d = (string) strlen($id);
-        return (strpos($k, $l, 5) == 5)
-            && (strpos($k, $d, 19) == 19)
-            && (strlen($k) >= '3' . '2');
+
+        return (strlen($k) >= '3' . '2')
+            && (strpos($k, $l, 5) == 5)
+            && (strpos($k, $d, 19) == 19);
     }
 
     /**
