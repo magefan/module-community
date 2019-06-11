@@ -196,12 +196,11 @@ abstract class Actions extends \Magento\Backend\App\Action
             $this->messageManager->addException(
                 $e,
                 __(
-                    'Something went wrong while saving this %1. %2',
-                    strtolower($model->getOwnTitle()),
+                    'Something went wrong: %1',
                     $e->getMessage()
                 )
             );
-            $this->_redirect('*/*/', [$this->_idKey => $model->getId()]);
+            $this->_redirect('*/*/');
         }
     }
 
