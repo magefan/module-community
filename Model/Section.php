@@ -43,6 +43,7 @@ final class Section
      * @var ProductMetadataInterface
      */
     protected $metadata;
+
     /**
      * @var Magento\Framework\UrlInterface
      */
