@@ -91,7 +91,6 @@ final class Section
             ) {
                 return $module;
             }
-            return true;
         }
         return false;
     }
