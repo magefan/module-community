@@ -11,17 +11,25 @@ use Magento\Backend\Block\Template\Context;
 use Magefan\Community\Model\Section;
 use Magento\Framework\App\ObjectManager;
 
+/**
+ * Class Product Key Field
+ */
 class ProductKeyField extends Field
 {
     /**
-     * @var mixed
+     * @var \Magefan\Community\Model\Section
      */
-    protected $module;
+    protected $section;
 
+    /**
+     * ProductKeyField constructor.
+     * @param Context $context
+     * @param array $data
+     */
     public function __construct(Context $context, array $data = [])
     {
         parent::__construct($context, $data);
-        $this->module = ObjectManager::getInstance()->get(Section::class);
+        $this->section = ObjectManager::getInstance()->get(Section::class);
     }
 
     /**
@@ -32,7 +40,7 @@ class ProductKeyField extends Field
      */
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        if ($this->module->getModule()) {
+        if ($this->section->getModule()) {
             if (!$element->getComment()) {
                 $url = strrev('/stcudorp/remotsuc/elbadaolnwod/moc.nafegam//:sptth');
                 $element->setComment('You can find product key in your <a href="' . $url . '" target="_blank">Magefan account</a>.');

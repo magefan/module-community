@@ -87,7 +87,6 @@ final class Section
     {
         $module = (string) $this->getConfig(self::MODULE);
         if (false === strpos($this->urlInterface->getCurrentUrl(), strrev('etisotnegam'))) {
-
             if ($module
                 && !$this->getConfig(self::TYPE)
                 || $this->metadata->getEdition() != 'C' . strrev('ytinummo')
