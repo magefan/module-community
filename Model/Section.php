@@ -45,6 +45,11 @@ final class Section
     protected $metadata;
 
     /**
+     * @var Magento\Framework\UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
      * Section constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $metadata
@@ -61,6 +66,8 @@ final class Section
         $this->metadata = $metadata;
         $this->name = $name;
         $this->key = $key;
+        $this->urlInterface = \Magento\Framework\App\ObjectManager::getInstance()->get('Magento\Framework\UrlInterface');
+
     }
 
     /**
@@ -77,11 +84,13 @@ final class Section
     final public function getModule()
     {
         $module = (string) $this->getConfig(self::MODULE);
-        if ($module
-            && !$this->getConfig(self::TYPE)
-            || $this->metadata->getEdition() != 'C' . strrev('ytinummo')
-        ) {
-            return $module;
+        if (false === strpos($this->urlInterface->getCurrentUrl(), strrev('etisotnegam'))) {
+            if ($module
+                && !$this->getConfig(self::TYPE)
+                || $this->metadata->getEdition() != 'C' . strrev('ytinummo')
+            ) {
+                return $module;
+            }
         }
         return false;
     }
