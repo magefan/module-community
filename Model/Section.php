@@ -24,7 +24,6 @@ final class Section
 
     const TYPE = 'mftype';
 
-
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -48,8 +47,6 @@ final class Section
      * @var Magento\Framework\UrlInterface
      */
     protected $urlInterface;
-
-    public $withKey;
 
     /**
      * Section constructor.
