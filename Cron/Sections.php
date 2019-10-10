@@ -67,6 +67,9 @@ class Sections
         foreach ($connection->fetchAll($select) as $config) {
             $matches = false;
             preg_match("/(.*)\/" . str_replace('/', '\/', $path) . "/", $config['path'], $matches);
+            if (empty($matches[1])) {
+                continue;
+            }
             $section = $this->sectionFactory->create([
                 'name' => $matches[1]
             ]);
