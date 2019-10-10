@@ -17,22 +17,6 @@ use Magento\Framework\App\ObjectManager;
 class ProductKeyField extends Field
 {
     /**
-     * @var \Magefan\Community\Model\Section
-     */
-    protected $section;
-
-    /**
-     * ProductKeyField constructor.
-     * @param Context $context
-     * @param array $data
-     */
-    public function __construct(Context $context, array $data = [])
-    {
-        parent::__construct($context, $data);
-        $this->section = ObjectManager::getInstance()->get(Section::class);
-    }
-
-    /**
      * Retrieve HTML markup for given form element
      *
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
@@ -40,13 +24,15 @@ class ProductKeyField extends Field
      */
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        if ($this->section->getModule()) {
+        $fieldConfig = $element->getFieldConfig();
+        $path = explode('/', $fieldConfig['path']);
+        $path = $path[0];
+
+        $section = ObjectManager::getInstance()->create(Section::class, ['name' => $path]);
+        if ($section->getModule()) {
             if (!$element->getComment()) {
                 $url = strrev('/stcudorp/remotsuc/elbadaolnwod/moc.nafegam//:sptth');
                 $element->setComment('You can find product key in your <a href="' . $url . '" target="_blank">Magefan account</a>.');
-            }
-            if (!$element->getLabel()) {
-                $element->setLabel('Product Key');
             }
             return parent::render($element);
         } else {
