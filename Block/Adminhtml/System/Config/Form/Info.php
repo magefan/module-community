@@ -39,7 +39,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        $useUrl = (false === strpos($this->getUrl(), strrev('otnegam')));
+        $useUrl = \Magefan\Community\Model\UrlChecker::showUrl($this->getUrl());
         $m = $this->moduleList->getOne($this->getModuleName());
         $html = '<div style="padding:10px;background-color:#f8f8f8;border:1px solid #ddd;margin-bottom:7px;">
             ' . $this->getModuleTitle() . ' v' . $m['setup_version'] . ' was developed by ';

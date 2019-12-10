@@ -44,10 +44,6 @@ final class Section
      */
     protected $metadata;
 
-    /**
-     * @var Magento\Framework\UrlInterface
-     */
-    protected $urlInterface;
 
     /**
      * Section constructor.
@@ -66,8 +62,6 @@ final class Section
         $this->metadata = $metadata;
         $this->name = $name;
         $this->key = $key;
-        $this->urlInterface = \Magento\Framework\App\ObjectManager::getInstance()->get('Magento\Framework\UrlInterface');
-
     }
 
     /**
@@ -84,7 +78,13 @@ final class Section
     final public function getModule()
     {
         $module = (string) $this->getConfig(self::MODULE);
-        if (false === strpos($this->urlInterface->getCurrentUrl(), strrev('otnegam'))) {
+        $url = $this->scopeConfig->getValue(
+            'web/unsecure/base' . '_' . 'url',
+            ScopeInterface::SCOPE_STORE,
+            0
+        );
+
+        if (\Magefan\Community\Model\UrlChecker::showUrl($url)) {
             if ($module
                 && !$this->getConfig(self::TYPE)
                 || $this->metadata->getEdition() != 'C' . strrev('ytinummo')
