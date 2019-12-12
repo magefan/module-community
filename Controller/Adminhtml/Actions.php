@@ -302,7 +302,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                 $e,
                 __(
                     'Something went wrong while saving this %1. %2',
-                    strtolower($model->getOwnTitle()),
+                    strtolower(isset($model) ? $model->getOwnTitle() : 'item'),
                     $e->getMessage()
                 )
             );
