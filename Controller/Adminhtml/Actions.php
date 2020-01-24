@@ -515,7 +515,7 @@ abstract class Actions extends \Magento\Backend\App\Action
 
             $id = (int)$this->getRequest()->getParam($this->_idKey);
             $idFieldName = $this->_model->getResource()->getIdFieldName();
-            if (!$id && 'id' !== $idFieldName) {
+            if (!$id && $this->_idKey !== $idFieldName) {
                 $id = (int)$this->getRequest()->getParam($idFieldName);
             }
 
