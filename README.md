@@ -6,7 +6,7 @@
 This module is required for other Magefan extensions for Magento 2
 
 ## Requirements
-  * Magento Community Edition 2.1.x-2.3.x or Magento Enterprise Edition 2.1.x-2.3.x
+  * Magento Community Edition 2.1.x-2.4.0 or Magento Enterprise Edition 2.1.x-2.4.0
 
 ## Installation Method 1 - Installing via composer
   * Open command line
