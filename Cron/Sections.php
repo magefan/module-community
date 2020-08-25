@@ -84,16 +84,18 @@ class Sections
         if (count($sections)) {
             $data = $this->info->load($sections);
 
-            foreach ($data as $module => $item) {
-                $section = $sections[$module];
-                if (!$section->validate($data)) {
-                    $connection->update(
-                        $table,
-                        [
-                            'value' => 0
-                        ],
-                        ['path = ? ' => $section->getName() . '/' . $path]
-                    );
+            if ($data && is_array($data)) {
+                foreach ($data as $module => $item) {
+                    $section = $sections[$module];
+                    if (!$section->validate($data)) {
+                        $connection->update(
+                            $table,
+                            [
+                                'value' => 0
+                            ],
+                            ['path = ? ' => $section->getName() . '/' . $path]
+                        );
+                    }
                 }
             }
         }
