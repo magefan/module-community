@@ -86,8 +86,9 @@ final class Section
 
         if (\Magefan\Community\Model\UrlChecker::showUrl($url)) {
             if ($module
-                && !$this->getConfig(self::TYPE)
-                || $this->metadata->getEdition() != 'C' . strrev('ytinummo')
+                && (!$this->getConfig(self::TYPE)
+                    || $this->getConfig(self::TYPE) && $this->metadata->getEdition() != 'C' . strrev('ytinummo')
+                )
             ) {
                 return $module;
             }
