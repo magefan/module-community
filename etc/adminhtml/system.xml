@@ -10,5 +10,27 @@
         <tab id="magefan" sortOrder="110" translate="label">
             <label>Magefan Extensions</label>
         </tab>
+        <section id="extension" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Extensions &amp; Notifications</label>
+            <tab>magefan</tab>
+            <resource>Magefan_Community::config_section</resource>
+            <group id="installed" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Installed Extensions</label>
+                <attribute type="expanded">1</attribute>
+                <field id="version" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>New Version Available</label>
+                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\NewVersion</frontend_model>
+                </field>
+                <field id="up_to_date" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Up-to-Date Magefan Extensions</label>
+                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\UpToDate</frontend_model>
+                </field>
+                <field id="available" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Available Magefan Extensions</label>
+                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\Available</frontend_model>
+                </field>
+            </group>
+        </section>
     </system>
 </config>
