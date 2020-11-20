@@ -46,8 +46,8 @@
                     <label>Receive News</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="tip_tricks" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Receive Tip &amp; Tricks</label>
+                <field id="tip_trick" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Receive Tips &amp; Tricks</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="general" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
