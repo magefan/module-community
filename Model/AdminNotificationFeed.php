@@ -35,6 +35,11 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
     protected $_moduleManager;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Backend\App\ConfigInterface $backendConfig
@@ -46,6 +51,7 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
      * @param \Magento\Framework\App\DeploymentConfig $deploymentConfig
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param Config $config
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
@@ -65,12 +71,14 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        Config $config = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $backendConfig, $inboxFactory, $curlFactory, $deploymentConfig, $productMetadata, $urlBuilder, $resource, $resourceCollection, $data);
         $this->_backendAuthSession  = $backendAuthSession;
         $this->_moduleList = $moduleList;
         $this->_moduleManager = $moduleManager;
+        $this->config = $config ?: \Magento\Framework\App\ObjectManager::getInstance()->get(Config::class);
     }
 
     /**
@@ -94,6 +102,16 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         }
         if (count($modulesParams)) {
             $url .= '/modules/'.base64_encode(implode(';', $modulesParams));
+        }
+
+        $receiveNotifications = $this->config->receiveNotifications();
+        $notificationsParams = [];
+        foreach ($receiveNotifications as $notification => $notificationStatus) {
+            $notificationsParams[] = $notification . ',' . $notificationStatus;
+        }
+
+        if (count($notificationsParams)) {
+            $url .= '/notifications/' . base64_encode(implode(';', $notificationsParams));
         }
 
         return $url;

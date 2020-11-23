@@ -106,6 +106,23 @@ class Config
     }
 
     /**
+     * Receive Notifications
+     *
+     * @param null $storeId
+     * @return array
+     */
+    public function receiveNotifications($storeId = null)
+    {
+        return [
+            'update' => $this->receiveProductUpdates(),
+            'offer' => $this->receiveSpecialOffers(),
+            'news' => $this->receiveNews(),
+            'tip_trick' => $this->receiveTipsAndTricks(),
+            'general' => $this->receiveGeneralInformation()
+        ];
+    }
+
+    /**
      * Retrieve store config value
      *
      * @param string $path
