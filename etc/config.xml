@@ -16,6 +16,9 @@
                 <tip_trick>1</tip_trick>
                 <general>1</general>
             </notification>
+            <menu>
+                <display>1</display>
+            </menu>
         </extension>
     </default>
 </config>

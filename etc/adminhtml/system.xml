@@ -35,23 +35,31 @@
                 <label>Magefan Notifications</label>
                 <attribute type="expanded">1</attribute>
                 <field id="update" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Receive Product Updates</label>
+                    <label>Product Updates</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="offer" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Receive Special Offers</label>
+                    <label>Special Offers</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="news" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Receive News</label>
+                    <label>News</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="tip_trick" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Receive Tips &amp; Tricks</label>
+                    <label>Tips &amp; Tricks</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="general" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Receive General Information</label>
+                    <label>General Information</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="menu" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Magefan Menu</label>
+                <attribute type="expanded">1</attribute>
+                <field id="display" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Display Magefan Menu Item</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>

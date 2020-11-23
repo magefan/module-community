@@ -21,6 +21,11 @@ class Config
     const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'extension/notification/general';
 
     /**
+     * Display Menu
+     */
+    const XML_PATH_MENU_ENABLED = 'extension/menu/display';
+
+    /**
      * @var ScopeConfigInterface
      */
     private $scopeConfig;
@@ -120,6 +125,20 @@ class Config
             'tip_trick' => $this->receiveTipsAndTricks(),
             'general' => $this->receiveGeneralInformation()
         ];
+    }
+
+    /**
+     * Display Menu
+     *
+     * @param null $storeId
+     * @return string
+     */
+    public function menuEnabled($storeId = null)
+    {
+        return $this->getConfig(
+            self::XML_PATH_MENU_ENABLED,
+            $storeId
+        );
     }
 
     /**

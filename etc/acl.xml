@@ -9,6 +9,7 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
+                <resource id="Magefan_Community::elements" title="Magefan" sortOrder="60" />
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
