@@ -10,6 +10,8 @@ use Magento\Backend\Model\Menu\Builder;
 use Magento\Backend\Model\Menu;
 use Magento\Backend\Model\Menu\ItemFactory;
 use Magefan\Community\Model\Config;
+use Magento\Framework\Module\Manager;
+use Magento\Framework\Module\ModuleListInterface;
 
 class BuilderPlugin
 {
@@ -24,17 +26,33 @@ class BuilderPlugin
     private $config;
 
     /**
+     * @var ModuleListInterface
+     */
+    private $moduleList;
+
+    /**
+     * @var Manager
+     */
+    private $moduleManager;
+
+    /**
      * BuilderPlugin constructor.
      *
      * @param ItemFactory $menuItemFactory
      * @param Config $config
+     * @param ModuleListInterface $moduleList
+     * @param Manager $moduleManager
      */
     public function __construct(
         ItemFactory $menuItemFactory,
-        Config $config
+        Config $config,
+        ModuleListInterface $moduleList,
+        Manager $moduleManager
     ) {
         $this->menuItemFactory = $menuItemFactory;
         $this->config = $config;
+        $this->moduleList = $moduleList;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -51,27 +69,67 @@ class BuilderPlugin
                 'data' => [
                     'id' => 'Magefan_Community::elements',
                     'title' => 'Magefan',
-                    'module '=> 'Magefan_Community',
+                    'module' => 'Magefan_Community',
                     'resource' => 'Magefan_Community::elements'
                 ]
             ]);
             $menu->add($item, null, 20);
-            // add submenu for the menu item added above
-            /*
-            foreach (loop through my dynamic list as $dynamicItem) {
-                $item = $this->menuItemFactory->create([
+
+            $subItems = $this->getSubItem($menu->toArray());
+            $this->createMenuItem($menu, $subItems, 'Magefan_Community::elements');
+        }
+
+        return $result;
+    }
+
+    private function createMenuItem($menu, $items, $parentId)
+    {
+        foreach ($items as $item) {
+            if ('Magefan_Community::elements' == $parentId && !empty($item['action'])) {
+                $subItem = $this->menuItemFactory->create([
                     'data' => [
-                        'parent_id' => '[Vendor]_[Module]::some_key_here', //id of menu above
-                        'id' => '[Vendor]_[Module]::some_key_here_'.$dynamicItem->getCode(), //give it a unique id
-                        'title' => $dynamicItem->getTitle(), //title of the submenu
-                        'resource' => '[Vendor]_[Module]::some_key_here', //same ACL key as above, or it can be different
-                        'action' => $dynamicItem->getUrl() //url for the main menu
+                        'id' => $item['id'] . '3',
+                        'title' => str_replace('Magefan_', '', $item['module']),
+                        'resource' => $item['resource'],
+                        'module' => $item['module']
                     ]
                 ]);
-                $menu->add($item, [Vendor]_[Module]::some_key_here'); //add is as a child for the menu item above
+
+                $menu->add($subItem, $parentId);
+                $parentId = $item['id'] . '3';
             }
-            */
+
+            $subItem = $this->menuItemFactory->create([
+                'data' => [
+                    'id' => $item['id'] . '2',
+                    'title' => $item['title'],
+                    'resource' => $item['resource'],
+                    'action' => $item['action'],
+                    'module' => $item['module']
+                ]
+            ]);
+
+            $menu->add($subItem, $parentId);
+
+            if (!empty($item['sub_menu'])) {
+                $this->createMenuItem($menu, $item['sub_menu'], $item['id'] . '2');
+            }
         }
-        return $result;
+    }
+
+    private function getSubItem($items)
+    {
+        $subItems = [];
+        if (!empty($items)) {
+            foreach ($items as $item) {
+                if (0 === strpos($item['module'], 'Magefan_')) {
+                    $subItems[] = $item;
+                } elseif (!empty($item['sub_menu'])) {
+                    $subItems = array_merge($subItems, $this->getSubItem($item['sub_menu']));
+                }
+            }
+        }
+
+        return $subItems;
     }
 }
