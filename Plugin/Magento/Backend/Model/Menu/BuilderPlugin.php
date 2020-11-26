@@ -47,6 +47,11 @@ class BuilderPlugin
     private $configSections;
 
     /**
+     * @var array
+     */
+    private $magefanModules;
+
+    /**
      * BuilderPlugin constructor.
      *
      * @param ItemFactory $menuItemFactory
@@ -67,6 +72,7 @@ class BuilderPlugin
         $this->structure = $structure;
         $this->moduleList = $moduleList;
         $this->moduleManager = $moduleManager;
+        $this->magefanModules = $this->getMagefanModules();
     }
 
     /**
@@ -77,8 +83,6 @@ class BuilderPlugin
      */
     public function afterGetResult(Builder $subject, Menu $menu, $result)
     {
-        echo '<pre>';
-        print_r($this->getMagefanModules()); exit;
         $menuEnabled = $this->config->menuEnabled();
         if ($menuEnabled) {
             $item = $this->menuItemFactory->create([
@@ -113,6 +117,35 @@ class BuilderPlugin
                 ]
             ]);
             $menu->add($item, 'Magefan_Community::extension_and_notification', 1000);
+
+            unset($this->configSections['Magefan_Community']);
+
+            foreach ($this->magefanModules as $moduleName)
+            {
+                $section = $this->getConfigSections($moduleName);
+                if ($section) {
+                    $item = $this->menuItemFactory->create([
+                        'data' => [
+                            'id' => $section['resource'],
+                            'title' => $section['label'],
+                            'module' => $moduleName,
+                            'resource' => $section['resource']
+                        ]
+                    ]);
+                    $menu->add($item, 'Magefan_Community::elements');
+
+                    $item = $this->menuItemFactory->create([
+                        'data' => [
+                            'id' => $section['resource'] . '_menu',
+                            'title' => 'Configuration',
+                            'resource' => $section['resource'],
+                            'action' => 'adminhtml/system_config/edit/section/' . $section['key'],
+                            'module' => $moduleName
+                        ]
+                    ]);
+                    $menu->add($item, $section['resource'], 1000);
+                }
+            }
         }
 
         return $result;
@@ -175,6 +208,11 @@ class BuilderPlugin
             $title = trim(str_replace('Magefan_', '', $title));
             $needCreateMenuItem = ('Magefan_Community::elements' == $parentId && !empty($item['action']));
             if ($needCreateMenuItem) {
+
+                /*
+                 $subItem = $this->setItems($item, $moduleName, '3', $parentId);
+                */
+
                 $subItem = $this->menuItemFactory->create([
                     'data' => [
                         'id' => $item['id'] . '3',
@@ -183,9 +221,12 @@ class BuilderPlugin
                         'module' => $item['module']
                     ]
                 ]);
-
                 $menu->add($subItem, $parentId);
             }
+
+            /*
+            $subItem = $this->setItems($item, null, '2');
+            */
 
             $subItem = $this->menuItemFactory->create([
                 'data' => [
@@ -196,7 +237,6 @@ class BuilderPlugin
                     'module' => $item['module']
                 ]
             ]);
-
             if ($needCreateMenuItem) {
                 $menu->add($subItem, $item['id'] . '3');
             } else {
@@ -221,6 +261,14 @@ class BuilderPlugin
                 if ($addConfig) {
                     $section = $this->getConfigSections($moduleName);
                     if ($section) {
+
+                        /*
+                        $section['id'] = $section['resource'];
+                        $section['title'] = 'Configuration';
+                        $section['action'] = 'adminhtml/system_config/edit/section/' . $section['key'];
+                        $subItem = $this->setItems($section, $moduleName, '_menu');
+                        */
+
                         $subItem = $this->menuItemFactory->create([
                             'data' => [
                                 'id' => $section['resource'] . '_menu',
@@ -230,7 +278,6 @@ class BuilderPlugin
                                 'module' => $moduleName
                             ]
                         ]);
-
                         if ($needCreateMenuItem) {
                             $menu->add($subItem, $item['id'] . '3');
                         } else {
@@ -239,6 +286,8 @@ class BuilderPlugin
                     }
                 }
             }
+            unset($this->configSections[$moduleName]);
+            unset($this->magefanModules[array_search($moduleName, $this->magefanModules)]);
         }
     }
 
@@ -272,11 +321,36 @@ class BuilderPlugin
     private function getMagefanModules()
     {
         $modules = [];
-        foreach ($this->moduleList->getAll() as $moduleName => $module) {
+        foreach ($this->moduleList->getNames() as $moduleName) {
             if (strpos($moduleName, 'Magefan_') !== false && $this->moduleManager->isEnabled($moduleName)) {
-                $modules[$moduleName] = $module;
+                $modules[] = $moduleName;
             }
         }
         return $modules;
     }
+
+    /*
+    private function setItems($item, $moduleName = null, $postfix = null, $parentId = null)
+    {
+        $title = $item['title'];
+        $action = $item['action'];
+        if ($needCreateMenuItem = ('Magefan_Community::elements' == $parentId && !empty($item['action']))) {
+            $title = preg_replace('/(?<!\ )[A-Z]/', ' $0', $moduleName);
+            $title = trim(str_replace('Magefan_', '', $title));
+            $action = null;
+        }
+
+        $subItem = $this->menuItemFactory->create([
+            'data' => [
+                'id' => $item['id'] . $postfix ?: $postfix,
+                'title' => $title,
+                'resource' => $item['resource'],
+                'action' => $action,
+                'module' => $moduleName ? $moduleName : $item['module']
+            ]
+        ]);
+
+        return $subItem;
+    }
+    */
 }
