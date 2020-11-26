@@ -7,7 +7,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="magefan" sortOrder="110" translate="label">
+        <tab id="magefan" sortOrder="110" translate="label" class="magefan-tab">
             <label>Magefan Extensions</label>
         </tab>
         <section id="extension" translate="label" sortOrder="0" showInDefault="1" showInWebsite="0" showInStore="0">
