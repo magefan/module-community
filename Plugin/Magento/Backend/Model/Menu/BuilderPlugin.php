@@ -208,11 +208,6 @@ class BuilderPlugin
             $title = trim(str_replace('Magefan_', '', $title));
             $needCreateMenuItem = ('Magefan_Community::elements' == $parentId && !empty($item['action']));
             if ($needCreateMenuItem) {
-
-                /*
-                 $subItem = $this->setItems($item, $moduleName, '3', $parentId);
-                */
-
                 $subItem = $this->menuItemFactory->create([
                     'data' => [
                         'id' => $item['id'] . '3',
@@ -223,10 +218,6 @@ class BuilderPlugin
                 ]);
                 $menu->add($subItem, $parentId);
             }
-
-            /*
-            $subItem = $this->setItems($item, null, '2');
-            */
 
             $subItem = $this->menuItemFactory->create([
                 'data' => [
@@ -261,14 +252,6 @@ class BuilderPlugin
                 if ($addConfig) {
                     $section = $this->getConfigSections($moduleName);
                     if ($section) {
-
-                        /*
-                        $section['id'] = $section['resource'];
-                        $section['title'] = 'Configuration';
-                        $section['action'] = 'adminhtml/system_config/edit/section/' . $section['key'];
-                        $subItem = $this->setItems($section, $moduleName, '_menu');
-                        */
-
                         $subItem = $this->menuItemFactory->create([
                             'data' => [
                                 'id' => $section['resource'] . '_menu',
@@ -328,29 +311,4 @@ class BuilderPlugin
         }
         return $modules;
     }
-
-    /*
-    private function setItems($item, $moduleName = null, $postfix = null, $parentId = null)
-    {
-        $title = $item['title'];
-        $action = $item['action'];
-        if ($needCreateMenuItem = ('Magefan_Community::elements' == $parentId && !empty($item['action']))) {
-            $title = preg_replace('/(?<!\ )[A-Z]/', ' $0', $moduleName);
-            $title = trim(str_replace('Magefan_', '', $title));
-            $action = null;
-        }
-
-        $subItem = $this->menuItemFactory->create([
-            'data' => [
-                'id' => $item['id'] . $postfix ?: $postfix,
-                'title' => $title,
-                'resource' => $item['resource'],
-                'action' => $action,
-                'module' => $moduleName ? $moduleName : $item['module']
-            ]
-        ]);
-
-        return $subItem;
-    }
-    */
 }

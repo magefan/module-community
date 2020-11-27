@@ -28,14 +28,16 @@ class Available extends Field
         $products = $this->getJsonObject();
 
         $html = '<strong>' . $element->getLabel() . '</strong>';
-        $html .= '<table>';
-
+        $html .= '<table class="data-grid">';
+        $html .= '<thead>';
         $html .= '<tr>';
-        $html .= '<th>Product Name</th>';
-        $html .= '<th>Version</th>';
-        $html .= '<th>Change Log</th>';
-        $html .= '<th>Documentation</th>';
+        $html .= '<th class="data-grid-th">Product Name</th>';
+        $html .= '<th class="data-grid-th">Version</th>';
+        $html .= '<th class="data-grid-th">Change Log</th>';
+        $html .= '<th class="data-grid-th">Documentation</th>';
         $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody class="magefan-section">';
 
         foreach ($products as $key => $product) {
             $module = $this->moduleList->getOne('Magefan_' . $key);
@@ -51,6 +53,7 @@ class Available extends Field
             $html .= '</tr>';
         }
 
+        $html .= '</tbody>';
         $html .= '</table></br>';
         return $html;
     }
