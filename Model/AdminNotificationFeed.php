@@ -182,4 +182,19 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         $this->_cacheManager->save(time(), self::MAGEFAN_CACHE_KEY);
         return $this;
     }
+
+    /**
+     * Retrieve feed data as XML element
+     *
+     * @return \SimpleXMLElement
+     */
+    public function getFeedData()
+    {
+        $receiveNotifications = $this->config->receiveNotifications();
+        if (count(array_unique(array_values($receiveNotifications))) === 1) {
+            return new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>');
+        }
+
+        return parent::getFeedData();
+    }
 }
