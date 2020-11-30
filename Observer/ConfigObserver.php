@@ -10,6 +10,8 @@ use Magento\Framework\Event\ObserverInterface;
 use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Cache\Frontend\Pool;
 
 /**
  * Community observer
@@ -32,19 +34,35 @@ class ConfigObserver implements ObserverInterface
     private $messageManager;
 
     /**
+     * @var TypeListInterface
+     */
+    private $cacheTypeList;
+
+    /**
+     * @var Pool
+     */
+    private $cacheFrontendPool;
+
+    /**
      * ConfigObserver constructor.
      * @param SectionFactory $sectionFactory
      * @param Info $info
      * @param ManagerInterface $messageManager
+     * @param TypeListInterface $cacheTypeList
+     * @param Pool $cacheFrontendPool
      */
     final public function __construct(
         SectionFactory $sectionFactory,
         Info $info,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        TypeListInterface $cacheTypeList,
+        Pool $cacheFrontendPool
     ) {
         $this->sectionFactory = $sectionFactory;
         $this->info = $info;
         $this->messageManager = $messageManager;
+        $this->cacheTypeList = $cacheTypeList;
+        $this->cacheFrontendPool = $cacheFrontendPool;
     }
 
     /**
@@ -53,6 +71,10 @@ class ConfigObserver implements ObserverInterface
     final public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $request = $observer->getEvent()->getRequest();
+        $section = $request->getParam('section');
+        if ($section == 'extension') {
+            $this->flushCache();
+        }
         $groups = $request->getParam('groups');
         if (empty($groups['general']['fields']['enabled']['value'])) {
             return;
@@ -88,6 +110,26 @@ class ConfigObserver implements ObserverInterface
                     ]
                 ))
             );
+        }
+    }
+
+    /**
+     * Flush cash on config save
+     *
+     * @return void
+     */
+    private function flushCache()
+    {
+        $types = [
+            'config',
+            'full_page'
+        ];
+
+        foreach ($types as $type) {
+            $this->cacheTypeList->cleanType($type);
+        }
+        foreach ($this->cacheFrontendPool as $cacheFrontend) {
+            $cacheFrontend->getBackend()->clean();
         }
     }
 }
