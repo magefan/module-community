@@ -65,7 +65,7 @@ class GetModuleVersion implements GetModuleVersionInterface
         $data = $this->serializer->unserialize($data);
 
         if (empty($data['version'])) {
-            $module = $this->moduleList->getOne($this->getModuleName());
+            $module = $this->moduleList->getOne($moduleName);
             return $module['setup_version'] ? $module['setup_version'] : '0.0.0';
         }
 
