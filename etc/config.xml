@@ -8,7 +8,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <extension>
+        <mfextension>
             <notification>
                 <update>1</update>
                 <offer>1</offer>
@@ -19,6 +19,6 @@
             <menu>
                 <display>1</display>
             </menu>
-        </extension>
+        </mfextension>
     </default>
 </config>

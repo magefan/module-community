@@ -93,7 +93,7 @@ class BuilderPlugin
                     'resource' => 'Magefan_Community::elements'
                 ]
             ]);
-            $menu->add($item, null, 20);
+            $menu->add($item, null, 61);
             $subItems = $this->getSubItem($menu->toArray());
             $this->createMenuItem($menu, $subItems, 'Magefan_Community::elements');
 
@@ -113,7 +113,7 @@ class BuilderPlugin
                     'title' => 'Manage',
                     'module' => 'Magefan_Community',
                     'resource' => 'Magefan_Community::elements',
-                    'action' => 'adminhtml/system_config/edit/section/extension',
+                    'action' => 'adminhtml/system_config/edit/section/mfextension',
                 ]
             ]);
             $menu->add($item, 'Magefan_Community::extension_and_notification', 1000);

@@ -190,8 +190,15 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
      */
     public function getFeedData()
     {
-        $receiveNotifications = $this->config->receiveNotifications();
-        if (count(array_unique(array_values($receiveNotifications))) === 1) {
+        $getNotification = false;
+        foreach ($this->config->receiveNotifications() as $key => $value) {
+            if ($value) {
+                $getNotification = true;
+                break;
+            }
+        }
+
+        if (!$getNotification) {
             return new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>');
         }
 

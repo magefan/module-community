@@ -14,16 +14,16 @@ class Config
     /**
      * Receive Notifications
      */
-    const XML_PATH_RECEIVE_PRODUCT_UPDATES = 'extension/notification/update';
-    const XML_PATH_RECEIVE_SPECIAL_OFFERS = 'extension/notification/offer';
-    const XML_PATH_RECEIVE_NEWS = 'extension/notification/news';
-    const XML_PATH_RECEIVE_TIPS_AND_TRICKS = 'extension/notification/tip_trick';
-    const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'extension/notification/general';
+    const XML_PATH_RECEIVE_PRODUCT_UPDATES = 'mfextension/notification/update';
+    const XML_PATH_RECEIVE_SPECIAL_OFFERS = 'mfextension/notification/offer';
+    const XML_PATH_RECEIVE_NEWS = 'mfextension/notification/news';
+    const XML_PATH_RECEIVE_TIPS_AND_TRICKS = 'mfextension/notification/tip_trick';
+    const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'mfextension/notification/general';
 
     /**
      * Display Menu
      */
-    const XML_PATH_MENU_ENABLED = 'extension/menu/display';
+    const XML_PATH_MENU_ENABLED = 'mfextension/menu/display';
 
     /**
      * @var ScopeConfigInterface

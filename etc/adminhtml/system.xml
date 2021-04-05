@@ -10,7 +10,7 @@
         <tab id="magefan" sortOrder="110" translate="label" class="magefan-tab">
             <label>Magefan Extensions</label>
         </tab>
-        <section id="extension" translate="label" sortOrder="0" showInDefault="1" showInWebsite="0" showInStore="0">
+        <section id="mfextension" translate="label" sortOrder="999999" showInDefault="1" showInWebsite="0" showInStore="0">
             <class>separator-top</class>
             <label>Extensions &amp; Notifications</label>
             <tab>magefan</tab>
@@ -18,17 +18,9 @@
             <group id="installed" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Installed Extensions</label>
                 <attribute type="expanded">1</attribute>
-                <field id="version" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>New Version Available</label>
-                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\NewVersion</frontend_model>
-                </field>
-                <field id="up_to_date" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Up-to-Date Magefan Extensions</label>
-                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\UpToDate</frontend_model>
-                </field>
-                <field id="available" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Available Magefan Extensions</label>
-                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\Available</frontend_model>
+                <field id="extensions_info" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Extensions Info</label>
+                    <frontend_model>Magefan\Community\Block\Adminhtml\System\Config\Form\ExtensionsInfo</frontend_model>
                 </field>
             </group>
             <group id="notification" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
@@ -61,6 +53,7 @@
                 <field id="display" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Display Magefan Menu Item</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Note that, after you save the config you have to flush the Magento cache for this option to be applied.</comment>
                 </field>
             </group>
         </section>
