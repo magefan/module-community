@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <mfextension>
+            <notification>
+                <update>1</update>
+                <offer>1</offer>
+                <news>1</news>
+                <tip_trick>1</tip_trick>
+                <general>1</general>
+            </notification>
+            <menu>
+                <display>1</display>
+            </menu>
+        </mfextension>
+    </default>
+</config>
