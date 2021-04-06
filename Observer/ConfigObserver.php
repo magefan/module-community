@@ -53,7 +53,6 @@ class ConfigObserver implements ObserverInterface
     final public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $request = $observer->getEvent()->getRequest();
-        $section = $request->getParam('section');
         $groups = $request->getParam('groups');
         if (empty($groups['general']['fields']['enabled']['value'])) {
             return;
