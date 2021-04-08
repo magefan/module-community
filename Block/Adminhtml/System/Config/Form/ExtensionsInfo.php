@@ -9,6 +9,7 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Backend\Block\Template\Context;
+use Magefan\Community\Api\GetModuleVersionInterface;
 
 class ExtensionsInfo extends Field
 {
@@ -18,18 +19,26 @@ class ExtensionsInfo extends Field
     private $moduleList;
 
     /**
+     * @var GetModuleVersionInterface
+     */
+    private $getModuleVersion;
+
+    /**
      * ExtensionsInfo constructor.
      * @param Context $context
      * @param ModuleListInterface $moduleList
+     * @param GetModuleVersionInterface $getModuleVersion
      * @param array $data
      */
     public function __construct(
         Context $context,
         ModuleListInterface $moduleList,
+        GetModuleVersionInterface $getModuleVersion,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->moduleList = $moduleList;
+        $this->getModuleVersion = $getModuleVersion;
     }
 
     /**
@@ -44,18 +53,18 @@ class ExtensionsInfo extends Field
         }
 
         $lists = [
-            'new_versions' => __('New Version Available'),
-            'up_to_date' => __('Up-to-Date Magefan Extensions'),
-            'available' => __('Available Magefan Extensions'),
+            'need_update' => __('Extensions to Update'),
+            'up_to_date' => __('Up-to-Date Extensions'),
+            'new_extensions' => __('Available NEW Extensions'),
         ];
 
         $html = '';
-        foreach ($lists as $key => $lable) {
-            $html .= '<strong>' . $this->escapeHtml($lable) . '</strong>';
+        foreach ($lists as $listKey => $lable) {
+            $html .= '<h3>' . $this->escapeHtml($lable) . '</h3>';
             $html .= '<table class="data-grid">';
             $html .= '<thead>';
             $html .= '<tr>';
-            $html .= '<th class="data-grid-th">' . $this->escapeHtml(__('Product Name')) . '</th>';
+            $html .= '<th class="data-grid-th">' . $this->escapeHtml(__('Extension')) . '</th>';
             $html .= '<th class="data-grid-th">' . $this->escapeHtml(__('Version')) . '</th>';
             $html .= '<th class="data-grid-th">' . $this->escapeHtml(__('Change Log')) . '</th>';
             $html .= '<th class="data-grid-th">' . $this->escapeHtml(__('User Guide')) . '</th>';
@@ -63,45 +72,35 @@ class ExtensionsInfo extends Field
             $html .= '</thead>';
             $html .= '<tbody class="magefan-section">';
 
-            foreach ($products as $key => $product) {
-                $module = $this->moduleList->getOne('Magefan_' . $key);
-                $continue = false;
+            foreach ($products as $productKey => $product) {
 
-                switch ($key) {
-                    case 'new_versions':
-                        $version = $module['setup_version'];
-                        if (!$module) {
-                            $continue = true;
-                        }
-                        break;
-                    case 'up_to_date':
-                        $version = $module['setup_version'];
-                        if (!$module) {
-                            $continue = true;
-                        }
-                        if ($product->version != $module['setup_version']) {
-                            $continue = true;
-                        }
-                        break;
-                    case 'available':
-                        $version = $product->version;
-                        if ($module) {
-                            $continue = true;
-                        }
-                        break;
-                    default:
-                        $version  = '';
+                $moduleName = 'Magefan_' . $productKey;
+                $module = $this->moduleList->getOne($moduleName);
+
+                if ((!$module && $listKey != 'new_extensions') || ($module && $listKey == 'new_extensions')) {
+                    continue;
                 }
-
-                if ($continue) {
+                if ($listKey == 'up_to_date' && version_compare($this->getModuleVersion->execute($moduleName), $product->version) < 0) {
+                    continue;
+                }
+                if ($listKey == 'need_update' && version_compare($this->getModuleVersion->execute($moduleName), $product->version) >= 0) {
                     continue;
                 }
 
+                if ($listKey == 'need_update') {
+                    $version = $this->getModuleVersion->execute($moduleName) . ' -> ' . $product->version;
+                } elseif ($listKey == 'new_extensions') {
+                    $version = $product->version;
+                } else {
+                    $version = $this->getModuleVersion->execute($moduleName);
+                }
+
+
                 $html .= '<tr>';
-                $html .= '<td><a href="' . $this->escapeHtml($product->product_url) . '">' . $this->escapeHtml($product->product_name) . '</a></td>';
-                $html .= '<td>' . $this->escapeHtml($product->version) . '</td>';
-                $html .= '<td><a href="' . $this->escapeHtml($product->change_log_url) . '">' . $this->escapeHtml(__('Change Log')) . '</a></td>';
-                $html .= '<td><a href="' . $this->escapeHtml($product->documentation_url) . '">'. $this->escapeHtml(__('User Guide')). '</a></td>';
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($product->product_url) . '">' . $this->escapeHtml($product->product_name) . '</a></td>';
+                $html .= '<td>' . $this->escapeHtml($version) . '</td>';
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($product->change_log_url) . '">' . $this->escapeHtml(__('Change Log')) . '</a></td>';
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($product->documentation_url) . '">'. $this->escapeHtml(__('User Guide')). '</a></td>';
                 $html .= '</tr>';
             }
 

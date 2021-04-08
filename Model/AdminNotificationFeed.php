@@ -6,7 +6,7 @@
 
 namespace Magefan\Community\Model;
 
-use Magento\Framework\Config\ConfigOptionsListConstants;
+use Magefan\Community\Api\GetModuleVersionInterface;
 
 /**
  * Class AdminNotificationFeed
@@ -40,22 +40,28 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
     protected $config;
 
     /**
+     * @var GetModuleVersionInterface
+     */
+    private $getModuleVersion;
+
+    /**
+     * AdminNotificationFeed constructor.
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Backend\App\ConfigInterface $backendConfig
-     * @param InboxFactory $inboxFactory
+     * @param \Magento\AdminNotification\Model\InboxFactory $inboxFactory
      * @param \Magento\Backend\Model\Auth\Session $backendAuthSession
      * @param \Magento\Framework\Module\ModuleListInterface $moduleList
-     * @param \Magento\Framework\Module\Manager $moduleManager,
+     * @param \Magento\Framework\Module\Manager $moduleManager
      * @param \Magento\Framework\HTTP\Adapter\CurlFactory $curlFactory
      * @param \Magento\Framework\App\DeploymentConfig $deploymentConfig
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
      * @param Config $config
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param GetModuleVersionInterface $getModuleVersion
      * @param array $data
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -71,14 +77,16 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        Config $config = null,
+        Config $config,
+        GetModuleVersionInterface $getModuleVersion,
         array $data = []
     ) {
         parent::__construct($context, $registry, $backendConfig, $inboxFactory, $curlFactory, $deploymentConfig, $productMetadata, $urlBuilder, $resource, $resourceCollection, $data);
         $this->_backendAuthSession  = $backendAuthSession;
         $this->_moduleList = $moduleList;
         $this->_moduleManager = $moduleManager;
-        $this->config = $config ?: \Magento\Framework\App\ObjectManager::getInstance()->get(Config::class);
+        $this->config = $config;
+        $this->getModuleVersion = $getModuleVersion;
     }
 
     /**
@@ -96,9 +104,9 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         $domain = isset($urlInfo['host']) ? $urlInfo['host'] : '';
         $url = $this->_feedUrl . 'domain/' . urlencode($domain);
         $modulesParams = [];
-        foreach ($this->getMagefanModules() as $key => $module) {
-            $key = str_replace('Magefan_', '', $key);
-            $modulesParams[] = $key . ',' . $module['setup_version'];
+        foreach ($this->getMagefanModules() as $moduleName => $module) {
+            $key = str_replace('Magefan_', '', $moduleName);
+            $modulesParams[] = $key . ',' . $this->getModuleVersion->execute($moduleName);
         }
         if (count($modulesParams)) {
             $url .= '/modules/'.base64_encode(implode(';', $modulesParams));
@@ -113,7 +121,6 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         if (count($notificationsParams)) {
             $url .= '/notifications/' . base64_encode(implode(';', $notificationsParams));
         }
-
         return $url;
     }
 
@@ -199,7 +206,10 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         }
 
         if (!$getNotification) {
-            return new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>');
+            return new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel></channel>
+</rss>');
         }
 
         return parent::getFeedData();

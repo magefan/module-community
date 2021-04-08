@@ -15,8 +15,8 @@
             <label>Extensions &amp; Notifications</label>
             <tab>magefan</tab>
             <resource>Magefan_Community::config_section</resource>
-            <group id="installed" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                <label>Installed Extensions</label>
+            <group id="magefan_extensions" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Magefan Extensions</label>
                 <attribute type="expanded">1</attribute>
                 <field id="extensions_info" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Extensions Info</label>

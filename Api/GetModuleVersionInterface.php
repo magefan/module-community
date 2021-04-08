@@ -6,6 +6,12 @@
 
 namespace Magefan\Community\Api;
 
+/**
+ * Return module version by module name
+ *
+ * @api
+ * @since 2.1.0
+ */
 interface GetModuleVersionInterface
 {
     /**

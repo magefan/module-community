@@ -37,6 +37,11 @@ class GetModuleVersion implements GetModuleVersionInterface
     private $moduleList;
 
     /**
+     * @var array
+     */
+    private $versions = [];
+
+    /**
      * GetModuleVersion constructor.
      * @param SerializerInterface $serializer
      * @param File $file
@@ -56,19 +61,28 @@ class GetModuleVersion implements GetModuleVersionInterface
     }
 
     /**
-     * @inheritDoc
+     * @param string $moduleName
+     * @return string
      */
     public function execute(string $moduleName): string
     {
-        $fileDir = $this->moduleReader->getModuleDir('', $moduleName) . '/composer.json';
-        $data = $this->file->read($fileDir);
-        $data = $this->serializer->unserialize($data);
-
-        if (empty($data['version'])) {
+        if (!isset($this->versions[$moduleName])) {
             $module = $this->moduleList->getOne($moduleName);
-            return $module['setup_version'] ? $module['setup_version'] : '0.0.0';
+            if (!$module) {
+                $this->versions[$moduleName] = '';
+            } else {
+                $fileDir = $this->moduleReader->getModuleDir('', $moduleName) . '/composer.json';
+                $data = $this->file->read($fileDir);
+                $data = $this->serializer->unserialize($data);
+
+                if (empty($data['version'])) {
+                    return !empty($module['setup_version']) ? $module['setup_version'] : '';
+                }
+
+                $this->versions[$moduleName] = !empty($data['version']) ? $data['version'] : '';
+            }
         }
 
-        return $data['version'];
+        return $this->versions[$moduleName];
     }
 }

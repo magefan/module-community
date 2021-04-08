@@ -120,8 +120,7 @@ class BuilderPlugin
 
             unset($this->configSections['Magefan_Community']);
 
-            foreach ($this->magefanModules as $moduleName)
-            {
+            foreach ($this->magefanModules as $moduleName) {
                 $section = $this->getConfigSections($moduleName);
                 if ($section) {
                     $item = $this->menuItemFactory->create([
