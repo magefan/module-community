@@ -73,10 +73,15 @@ class GetModuleVersion implements GetModuleVersionInterface
             } else {
                 $fileDir = $this->moduleReader->getModuleDir('', $moduleName) . '/composer.json';
                 $data = $this->file->read($fileDir);
-                $data = $this->serializer->unserialize($data);
-
-                if (empty($data['version'])) {
-                    return !empty($module['setup_version']) ? $module['setup_version'] : '';
+                if ($data) {
+                    try {
+                        $data = $this->serializer->unserialize($data);
+                    } catch (\Exception $e) {
+                        $data = [];
+                    }
+                    if (empty($data['version'])) {
+                        return !empty($module['setup_version']) ? $module['setup_version'] : '';
+                    }
                 }
 
                 $this->versions[$moduleName] = !empty($data['version']) ? $data['version'] : '';
