@@ -282,7 +282,7 @@ class BuilderPlugin
         $subItems = [];
         if (!empty($items)) {
             foreach ($items as $item) {
-                if (0 === strpos($item['module'], 'Magefan_')) {
+                if (isset($item['module']) &&  0 === strpos($item['module'], 'Magefan_')) {
                     if ('Magefan_Community::elements' != $item['id']) {
                         $subItems[] = $item;
                     }
