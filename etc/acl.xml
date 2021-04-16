@@ -13,7 +13,7 @@
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
-                            <resource id="Magefan_Community::config_section" title="Community Section" />
+                            <resource id="Magefan_Community::config_section" title="Magefan Extensions & Notifications Section" />
                         </resource>
                     </resource>
                 </resource>
