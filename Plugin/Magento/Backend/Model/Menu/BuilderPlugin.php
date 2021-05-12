@@ -122,10 +122,11 @@ class BuilderPlugin
 
             foreach ($this->magefanModules as $moduleName) {
                 $section = $this->getConfigSections($moduleName);
-                if ($section) {
+
+                if (isset($section['id']) && 'mfextension' != $section['id']) {
                     $item = $this->menuItemFactory->create([
                         'data' => [
-                            'id' => $section['resource'],
+                            'id' => $section['resource'] . '_custom',
                             'title' => $section['label'],
                             'module' => $moduleName,
                             'resource' => $section['resource']
@@ -142,7 +143,7 @@ class BuilderPlugin
                             'module' => $moduleName
                         ]
                     ]);
-                    $menu->add($item, $section['resource'], 1000);
+                    $menu->add($item, $section['resource'] . '_custom', 1000);
                 }
             }
         }
@@ -202,7 +203,7 @@ class BuilderPlugin
     private function createMenuItem($menu, $items, $parentId)
     {
         foreach ($items as $item) {
-            $moduleName = $item['module'];
+            $moduleName = isset($item['module']) ? $item['module'] : null;
             $title = preg_replace('/(?<!\ )[A-Z]/', ' $0', $moduleName);
             $title = trim(str_replace('Magefan_', '', $title));
             $needCreateMenuItem = ('Magefan_Community::elements' == $parentId && !empty($item['action']));
@@ -212,7 +213,7 @@ class BuilderPlugin
                         'id' => $item['id'] . '3',
                         'title' => $title,
                         'resource' => $item['resource'],
-                        'module' => $item['module']
+                        'module' => isset($item['module']) ? $item['module'] : null,
                     ]
                 ]);
                 $menu->add($subItem, $parentId);
@@ -224,7 +225,7 @@ class BuilderPlugin
                     'title' => $item['title'],
                     'resource' => $item['resource'],
                     'action' => $item['action'],
-                    'module' => $item['module']
+                    'module' => isset($item['module']) ? $item['module'] : null,
                 ]
             ]);
             if ($needCreateMenuItem) {
@@ -282,7 +283,9 @@ class BuilderPlugin
         $subItems = [];
         if (!empty($items)) {
             foreach ($items as $item) {
-                if (isset($item['module']) &&  0 === strpos($item['module'], 'Magefan_')) {
+                if (isset($item['module']) &&  0 === strpos($item['module'], 'Magefan_')
+                    || !isset($item['module']) && isset($item['id']) && 0 === strpos($item['id'], 'Magefan_')
+                ) {
                     if ('Magefan_Community::elements' != $item['id']) {
                         $subItems[] = $item;
                     }
