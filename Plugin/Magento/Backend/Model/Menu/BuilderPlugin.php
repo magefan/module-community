@@ -270,7 +270,10 @@ class BuilderPlugin
                 }
             }
             unset($this->configSections[$moduleName]);
-            unset($this->magefanModules[array_search($moduleName, $this->magefanModules)]);
+            $index = array_search($moduleName, $this->magefanModules);
+            if (false !== $index) {
+                unset($this->magefanModules[$index]);
+            }
         }
     }
 
