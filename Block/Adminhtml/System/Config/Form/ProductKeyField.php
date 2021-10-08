@@ -16,6 +16,8 @@ use Magento\Framework\App\ObjectManager;
  */
 class ProductKeyField extends Field
 {
+    const ACCOUNT_URL = 'https://magefan.com/downloadable/customer/products/';
+
     /**
      * Retrieve HTML markup for given form element
      *
@@ -31,8 +33,7 @@ class ProductKeyField extends Field
         $section = ObjectManager::getInstance()->create(Section::class, ['name' => $path]);
         if ($section->getModule()) {
             if (!$element->getComment()) {
-                $url = strrev('/stcudorp/remotsuc/elbadaolnwod/moc.nafegam//:sptth');
-                $element->setComment('You can find product key in your <a href="' . $url . '" target="_blank">Magefan account</a>.');
+                $element->setComment('You can find product key in your <a href="' . self::ACCOUNT_URL . '" target="_blank">Magefan account</a>.');
             }
             return parent::render($element);
         } else {
