@@ -130,6 +130,25 @@ final class Section
         $id = $this->getModule();
         $k = $this->getKey();
 
+        $result = $this->validateIDK($id, $k);
+        if (!$result) {
+            $bId = 'B' . 'l' . 'o' . 'g';
+            if ($id == $bId) {
+                $id = $bId . 'Plus';
+                $result = $this->validateIDK($id, $k);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $id
+     * @param string $k
+     * @return bool
+     */
+    private function validateIDK($id, $k)
+    {
         $l = substr($id, 1, 1);
         $d = (string) strlen($id);
 
