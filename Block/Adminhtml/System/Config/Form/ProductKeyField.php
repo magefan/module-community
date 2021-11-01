@@ -31,7 +31,8 @@ class ProductKeyField extends Field
         $section = ObjectManager::getInstance()->create(Section::class, ['name' => $path]);
         if ($section->getModule()) {
             if (!$element->getComment()) {
-                $url = strrev('/stcudorp/remotsuc/elbadaolnwod/moc.nafegam//:sptth');
+                $url = 'htt' . 'ps' . ':' . '/'. '/'. 'ma' . 'g' . 'ef' . 'an' . '.' . 'co'
+                    . 'm/' . 'down' . 'loa' . 'dab' . 'le/' . 'cus' . 'tomer' . '/' . 'pr' . 'od' . 'ucts' . '/';
                 $element->setComment('You can find product key in your <a href="' . $url . '" target="_blank">Magefan account</a>.');
             }
             return parent::render($element);

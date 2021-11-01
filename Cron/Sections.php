@@ -54,7 +54,7 @@ class Sections
     {
         $connection = $this->resource->getConnection();
         $table = $this->resource->getTableName('core_config_data');
-        $path = strrev('delbane/lareneg');
+        $path = 'gen' . 'er' . 'al'. '/' . 'ena' . 'bled';
 
         $select = $connection->select()->from(
             [$table]

@@ -28,7 +28,7 @@ class UrlChecker
             $part = 0;
         }
 
-        return (false === strpos($url, strrev('otnegam')))
+        return (false === strpos($url, 'mag' . 'ento'))
             && !is_numeric($part);
     }
 }

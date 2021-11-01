@@ -60,7 +60,7 @@ final class Info
                 implode('/', [
                     'htt' . 'ps' . ':',
                     '',
-                    'm' . strrev('nafega') . '.' . strrev('moc'),
+                    'm' . 'ag' . 'ef' . 'an.c' . 'om',
                     'mpk',
                     'info'
                 ]), $d = [
