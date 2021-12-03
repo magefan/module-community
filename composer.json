@@ -2,7 +2,7 @@
     "name": "magefan/module-community",
     "description": "",
     "require": {
-        "magefan/module-admin-user-guide" : ">=2.0.0",
+        "magefan/module-admin-user-guide" : ">=2.0.0"
     },
     "version": "2.1.7",
     "type": "magento2-module",
