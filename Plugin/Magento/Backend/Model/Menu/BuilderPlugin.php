@@ -163,9 +163,8 @@ class BuilderPlugin
             $tabs = $this->structure->getTabs();
 
             foreach ($tabs as $tab) {
-                if ($tab->getId() == 'magefan') {
-                    $sections = $tab->getData()['children'];
-                    break;
+                if (in_array($tab->getId(), ['magefan', 'mf_extensions_list'])) {
+                    $sections = array_merge($sections, $tab->getData()['children']);
                 }
             }
 
