@@ -3,6 +3,8 @@
 [![Total Downloads](https://poser.pugx.org/magefan/module-community/downloads)](https://packagist.org/packages/magefan/module-community)
 [![Latest Stable Version](https://poser.pugx.org/magefan/module-community/v/stable)](https://packagist.org/packages/magefan/module-community)
 
+<img width="150" height="100" src="https://magefan.com/media/wysiwyg/made_in_ukraine.jpg">
+
 This module is required for other Magefan extensions for Magento 2
 
 ## Requirements
