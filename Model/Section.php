@@ -161,7 +161,7 @@ final class Section
      * @param string $field
      * @return mixed
      */
-    final private function getConfig($field)
+    private function getConfig($field)
     {
         $g = 'general';
         return $this->scopeConfig->getValue(
