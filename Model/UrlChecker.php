@@ -14,7 +14,7 @@ class UrlChecker
     /**
      * @return bool
      */
-    public static function showUrl($url)
+    final public static function showUrl($url)
     {
         $url = (string)$url;
         $info = parse_url($url);
