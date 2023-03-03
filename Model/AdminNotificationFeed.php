@@ -156,7 +156,12 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
             return $this;
         }
         $session->setMfNoticeLastUpdate($time);
-        return parent::checkUpdate();
+
+        if ($this->_moduleManager->isEnabled('Magento_AdminNotification')) {
+            return parent::checkUpdate();
+        } else {
+            return $this;
+        }
     }
 
     /**
