@@ -525,4 +525,29 @@ abstract class Actions extends \Magento\Backend\App\Action
         }
         return $this->_model;
     }
+
+    /**
+     * @param array $filterRules
+     * @param array $validatorRules
+     * @param array|null $data
+     * @return mixed
+     */
+    protected function getFilterInput($filterRules, $validatorRules, $data)
+    {
+        if (class_exists('\Magento\Framework\Filter\FilterInput')) {
+            $inputFilter = new \Magento\Framework\Filter\FilterInput(
+                $filterRules,
+                [],
+                $data
+            );
+        } else {
+            $inputFilter = new \Zend_Filter_Input(
+                $filterRules,
+                [],
+                $data
+            );
+        }
+
+        return $inputFilter;
+    }
 }
