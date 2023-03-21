@@ -53,9 +53,9 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         $useUrl = \Magefan\Community\Model\UrlChecker::showUrl($this->getUrl());
         $version = $this->getModuleVersion->execute($this->getModuleName());
         $html = '<div style="padding:10px;background-color:#f8f8f8;border:1px solid #ddd;margin-bottom:7px;">
-            <a href="' . $this->escapeHtml($this->getModuleUrl()) . '" target="_blank"><strong>' . $this->escapeHtml($this->getModuleTitle()) . '</strong></a> v' . $this->escapeHtml($version) . ' was developed by ';
+            ' . $this->escapeHtml($this->getModuleTitle()) . ' v' . $this->escapeHtml($version) . ' was developed by ';
         if ($useUrl) {
-            $html .= '<a href="https://magefan.com/" target="_blank">Magefan</a>';
+            $html .= '<a href="' . $this->escapeHtml($this->getModuleUrl()) . '" target="_blank">Magefan</a>';
         } else {
             $html .= '<strong>Magefan</strong>';
         }
