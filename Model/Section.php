@@ -132,8 +132,10 @@ final class Section
 
         $result = $this->validateIDK($id, $k);
         if (!$result) {
-            $id .= 'Plus';
-            $result = $this->validateIDK($id, $k);
+            $result = $this->validateIDK($id . 'Plus', $k);
+            if (!$result) {
+                $result = $this->validateIDK($id . 'Extra', $k);
+            }
         }
 
         return $result;
