@@ -76,6 +76,11 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
             throw new \Magento\Framework\Exception\LocalizedException(__('Invalid field'));
         }
 
+        if ('<=>' === $condition->getOperatorForValidate()) {
+            $condition->setOperator('==');
+            $condition->setValue('');
+        }
+
         $conditionOperator = $condition->getOperatorForValidate();
 
         if (!isset($this->_conditionOperatorMap[$conditionOperator])) {
