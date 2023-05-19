@@ -18,6 +18,9 @@ use Magento\Rule\Model\Condition\Sql\ExpressionFactory;
 
 class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
 {
+    const UNDEFINED_OPERATOR = '<=>';
+    const IS_OPERATOR = '==';
+
     /**
      * @var array
      */
@@ -76,8 +79,8 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
             throw new \Magento\Framework\Exception\LocalizedException(__('Invalid field'));
         }
 
-        if ('<=>' === $condition->getOperatorForValidate()) {
-            $condition->setOperator('==');
+        if (self::UNDEFINED_OPERATOR === $condition->getOperatorForValidate()) {
+            $condition->setOperator(self::IS_OPERATOR);
             $condition->setValue('');
         }
 
