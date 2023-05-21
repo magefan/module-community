@@ -2,9 +2,9 @@
     "name": "magefan/module-community",
     "description": "",
     "require": {
-        "magefan/module-admin-user-guide" : ">=2.0.2"
+        "magefan/module-admin-user-guide" : ">=2.0.3"
     },
-    "version": "2.1.15",
+    "version": "2.1.16",
     "type": "magento2-module",
     "autoload": {
         "files": [
