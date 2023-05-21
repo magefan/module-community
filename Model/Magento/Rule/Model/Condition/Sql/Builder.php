@@ -18,6 +18,9 @@ use Magento\Rule\Model\Condition\Sql\ExpressionFactory;
 
 class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
 {
+    const UNDEFINED_OPERATOR = '<=>';
+    const IS_OPERATOR = '==';
+
     /**
      * @var array
      */
@@ -74,6 +77,11 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
             return (string) $this->_expressionFactory->create(['expression' => '1 = -1']);
         } elseif (preg_match('/[^a-z0-9\-_\.\`]/i', $argument) > 0 && !$argument instanceof \Zend_Db_Expr) {
             throw new \Magento\Framework\Exception\LocalizedException(__('Invalid field'));
+        }
+
+        if (self::UNDEFINED_OPERATOR === $condition->getOperatorForValidate()) {
+            $condition->setOperator(self::IS_OPERATOR);
+            $condition->setValue('');
         }
 
         $conditionOperator = $condition->getOperatorForValidate();
