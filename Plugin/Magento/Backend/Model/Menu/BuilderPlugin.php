@@ -160,7 +160,12 @@ class BuilderPlugin
         if (null === $this->configSections) {
             $sections = [];
             $this->configSections = [];
-            $tabs = $this->structure->getTabs();
+
+            try {
+                $tabs = $this->structure->getTabs();    
+            } catch (\Exception $e) {
+                $tabs = [];
+            }
 
             foreach ($tabs as $tab) {
                 if (in_array($tab->getId(), ['magefan', 'mf_extensions_list'])) {
