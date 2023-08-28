@@ -13,7 +13,7 @@ use Magento\Store\Model\Store;
  * Return category by product
  *
  * @api
- * @since 2.1.0
+ * @since 2.1.10
  */
 interface GetCategoryByProductInterface
 {
