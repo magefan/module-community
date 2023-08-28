@@ -5,9 +5,9 @@
  */
 
 namespace Magefan\Community\Api;
+
 use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Catalog\Model\Product;
-use Magento\Store\Model\Store;
 
 /**
  * Return category by product
@@ -21,9 +21,9 @@ interface GetCategoryByProductInterface
      * Get product category
      *
      * @param Product $product
-     * @param Store $store
+     * @param int $storeId
      * @return CategoryInterface|null
      * @api
      */
-    public function execute(Product $product, Store $store): ?CategoryInterface;
+    public function execute(Product $product, int $storeId): ?CategoryInterface;
 }
