@@ -21,7 +21,7 @@ interface GetCategoryByProductInterface
      * Get product category
      *
      * @param Product $product
-     * @param int $storeId
+     * @param int|null $storeId
      * @return CategoryInterface|null
      * @api
      */
