@@ -25,5 +25,5 @@ interface GetCategoryByProductInterface
      * @return CategoryInterface|null
      * @api
      */
-    public function execute(Product $product, int $storeId): ?CategoryInterface;
+    public function execute(Product $product, int $storeId = null): ?CategoryInterface;
 }
