@@ -48,11 +48,11 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
 
     /**
      * @param Product $product
-     * @param null $storeId
+     * @param int|null $storeId
      * @return CategoryInterface|null
      * @throws NoSuchEntityException
      */
-    public function execute(Product $product, $storeId = null): ?CategoryInterface
+    public function execute(Product $product, int $storeId = null): ?CategoryInterface
     {
         if (!isset($this->productCategory[$product->getId()])) {
             if (is_null($storeId)) {
