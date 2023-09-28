@@ -73,11 +73,18 @@ final class Section
     }
 
     /**
-     * @return string
+     * @param false $e
+     * @return false|string
      */
-    final public function getModule()
+    final public function getModule($e = false)
     {
-        $module = (string) $this->getConfig(self::MODULE);
+        $fs = $e ? [self::MODULE] : [self::MODULE . 'e', self::MODULE . 'p', self::MODULE];
+        foreach ($fs as $f) {
+            $module = (string)$this->getConfig($f);
+            if ($module) {
+                break;
+            }
+        }
         $url = $this->scopeConfig->getValue(
             'web/unsecure/base' . '_' . 'url',
             ScopeInterface::SCOPE_STORE,
@@ -127,18 +134,17 @@ final class Section
             return !empty($data[$this->getModule()]);
         }
 
-        $id = $this->getModule();
         $k = $this->getKey();
 
-        $result = $this->validateIDK($id, $k);
-        if (!$result) {
-            $result = $this->validateIDK($id . 'Plus', $k);
-            if (!$result) {
-                $result = $this->validateIDK($id . 'Extra', $k);
+        foreach ([$this->getModule(), $this->getModule(true)] as $id) {
+            foreach (['', 'Plus', 'Extra'] as $e) {
+                if ($result = $this->validateIDK($id . $e, $k)) {
+                    return true;
+                }
             }
         }
 
-        return $result;
+        return false;
     }
 
     /**
