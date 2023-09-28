@@ -10,9 +10,6 @@ namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\GetCategoryByProductInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
-use Magento\Catalog\Model\Product;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class GetCategoryByProduct implements GetCategoryByProductInterface
@@ -47,17 +44,20 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
     }
 
     /**
-     * @param Product $product
-     * @param int|null $storeId
-     * @return CategoryInterface|null
-     * @throws NoSuchEntityException
+     * @param mixed $product
+     * @param mixed $storeId
+     * @returnmixed
      */
-    public function execute(Product $product, int $storeId = null): ?CategoryInterface
+    public function execute($product, $storeId = null)
     {
-        if (!isset($this->productCategory[$product->getId()])) {
-            if (is_null($storeId)) {
-                $storeId = $this->storeManager->getStore()->getId();
-            }
+        if (null === $storeId) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
+        $key = $product->getId() . '_' . $storeId;
+        if (!isset($this->productCategory[$key])) {
+
+            $this->productCategory[$key] = false;
 
             $categoryIds = $product->getCategoryIds();
             if ($categoryIds) {
@@ -72,7 +72,7 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
                             && in_array($rootCategoryId, $category->getPathIds())
                         ) {
                             $level = $category->getLevel();
-                            $this->productCategory[$product->getId()] = $category;
+                            $this->productCategory[$key] = $category;
                         }
                     } catch (\Exception $e) { // phpcs:ignore
                         /* Do nothing */
@@ -81,10 +81,7 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
             }
         }
 
-        if (!isset($this->productCategory[$product->getId()])) {
-            $this->productCategory[$product->getId()] = null;
-        }
 
-        return $this->productCategory[$product->getId()];
+        return $this->productCategory[$key] ?: null;
     }
 }
