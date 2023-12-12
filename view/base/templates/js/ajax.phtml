@@ -1,0 +1,30 @@
+<script>
+    window.MagefanJs = window.MagefanJs || {};
+    window.MagefanJs.ajax = function ajax(type, url, callback) {
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
+                var data = xmlhttp.responseText;
+                if (callback) callback(data);
+            }
+        };
+
+        xmlhttp.open(type, url, true);
+        xmlhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xmlhttp.send();
+    }
+
+    window.MagefanJs.objToUrlParams = function objToUrlParams(obj) {
+        var out, key;
+        out = [];
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                out.push(key + '=' + encodeURIComponent(obj[key]));
+            }
+        }
+
+        return out.join('&');
+    }
+</script>
