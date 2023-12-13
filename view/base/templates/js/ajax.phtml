@@ -1,30 +1,35 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\JsScript
+ */
+?>
 <script>
     window.MagefanJs = window.MagefanJs || {};
-    window.MagefanJs.ajax = function ajax(type, url, callback) {
+    window.MagefanJs.ajax = function ajax(options) {
         var xmlhttp = new XMLHttpRequest();
-
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
                 var data = xmlhttp.responseText;
-                if (callback) callback(data);
+                if (options.success) options.success(data);
             }
         };
 
-        xmlhttp.open(type, url, true);
-        xmlhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xmlhttp.send();
-    }
+        xmlhttp.open(options.type, options.url, true);
 
-    window.MagefanJs.objToUrlParams = function objToUrlParams(obj) {
-        var out, key;
-        out = [];
-        for (key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                out.push(key + '=' + encodeURIComponent(obj[key]));
-            }
+        var requestHeader = Object.assig({}, {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-type', 'application/x-www-form-urlencoded'
+        }, options.requestHeader ? options.requestHeader : {});
+
+        for (var header in requestHeader) {
+            xmlhttp.setRequestHeader(header, requestHeader[header]);
         }
-
-        return out.join('&');
+        xmlhttp.send(options.data);
     }
 </script>

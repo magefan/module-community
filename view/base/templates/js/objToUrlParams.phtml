@@ -1,0 +1,31 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\JsScript
+ */
+?>
+<script>
+    window.MagefanJs = window.MagefanJs || {};
+    window.MagefanJs.objToUrlParams = function objToUrlParams(obj) {
+        let getPairs = (obj, keys = []) =>
+            Object.entries(obj).reduce((pairs, [key, value]) => {
+                if (typeof value === 'object')
+                    pairs.push(...getPairs(value, [...keys, key]));
+                else
+                    pairs.push([[...keys, key], value]);
+                return pairs;
+            }, []);
+
+        let x = getPairs(obj)
+            .map(([[key0, ...keysRest], value]) =>
+                `${key0}${keysRest.map(a => `[${a}]`).join('')}=${value}`)
+            .join('&');
+
+        return x;
+    }
+</script>
