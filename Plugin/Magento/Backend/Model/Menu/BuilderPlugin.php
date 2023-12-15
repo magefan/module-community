@@ -162,7 +162,7 @@ class BuilderPlugin
             $this->configSections = [];
 
             try {
-                $tabs = $this->structure->getTabs();    
+                $tabs = $this->structure->getTabs();
             } catch (\Exception $e) {
                 $tabs = [];
             }
@@ -290,7 +290,7 @@ class BuilderPlugin
         $subItems = [];
         if (!empty($items)) {
             foreach ($items as $item) {
-                if (isset($item['module']) &&  0 === strpos($item['module'], 'Magefan_')
+                if (isset($item['module']) && 0 === strpos($item['module'], 'Magefan_')
                     || !isset($item['module']) && isset($item['id']) && 0 === strpos($item['id'], 'Magefan_')
                 ) {
                     if ('Magefan_Community::elements' != $item['id']) {

@@ -15,7 +15,7 @@ class JsScript extends Template
     /**
      * @var array
      */
-    static private $rendered = [];
+    private static $rendered = [];
 
     /**
      * @var string
@@ -43,13 +43,12 @@ class JsScript extends Template
     /**
      * @return string
      */
-    public function toHtml() {
+    public function toHtml()
+    {
         if (isset(self::$rendered[$this->jsMethod])) {
             return '';
         }
         self::$rendered[$this->jsMethod] = 1;
         return parent::toHtml();
     }
-
-
 }

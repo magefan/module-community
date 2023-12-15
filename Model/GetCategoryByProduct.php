@@ -37,8 +37,7 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
     public function __construct(
         CategoryRepositoryInterface $categoryRepository,
         StoreManagerInterface       $storeManager
-    )
-    {
+    ) {
         $this->categoryRepository = $categoryRepository;
         $this->storeManager = $storeManager;
     }
@@ -62,7 +61,7 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
             $categoryIds = $product->getCategoryIds();
             if ($categoryIds) {
                 $level = -1;
-                $rootCategoryId = $this->storeManager->getStore($storeId)->getRootCategoryId();;
+                $rootCategoryId = $this->storeManager->getStore($storeId)->getRootCategoryId();
 
                 foreach ($categoryIds as $categoryId) {
                     try {
