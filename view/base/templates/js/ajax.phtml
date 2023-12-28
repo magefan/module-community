@@ -22,9 +22,9 @@
 
         xmlhttp.open(options.type, options.url, true);
 
-        var requestHeader = Object.assig({}, {
+        var requestHeader = Object.assign({}, {
             'X-Requested-With': 'XMLHttpRequest',
-            'Content-type', 'application/x-www-form-urlencoded'
+            'Content-type': 'application/x-www-form-urlencoded'
         }, options.requestHeader ? options.requestHeader : {});
 
         for (var header in requestHeader) {
