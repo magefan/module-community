@@ -107,7 +107,6 @@ class Sections
                         $this->setLinvFlag->execute($moduleName, 1);
                     } else {
                         $this->setLinvFlag->execute($moduleName, 0);
-                        $request->setPostValue('groups', $groups);
                     }
                 }
             }

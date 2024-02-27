@@ -12,18 +12,17 @@ use Magento\Backend\Block\Template;
 use Magento\Framework\App\ResourceConnection;
 use Magefan\Community\Model\SectionFactory;
 
-class ModulesLinv extends Template
+class Linv extends Template
 {
     /**
      * @var ResourceConnection
      */
-    protected $resource;
+    private $resource;
 
     /**
      * @var SectionFactory
      */
     private $sectionFactory;
-
 
     /**
      * @param SectionFactory $sectionFactory
@@ -45,36 +44,30 @@ class ModulesLinv extends Template
     /**
      * @return array
      */
-    public function getModulesLinv()
+    public function getItems()
     {
         $connection = $this->resource->getConnection();
         $table = $this->resource->getTableName('core_config_data');
         $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v';
-        $select = $connection->select()->from(
-            [$table]
-        )->where(
-            'path LIKE ?',
-            '%' . $path
-        )->where(
-            'value LIKE ?',
-            '1'
-        );
-        $disabledConfigs = $connection->fetchAll($select);
-        $disabledModules = [];
+        $select = $connection->select()
+            ->from([$table])
+            ->where( 'path LIKE ?', '%' . $path )
+            ->where('value = ?',1);
+        $items = $connection->fetchAll($select);
+        $result = [];
 
-        foreach ($disabledConfigs as $config) {
-
+        foreach ($items as $config) {
             $configPath = explode('/', $config['path']);
             $moduleName = $configPath[0];
             $section = $this->sectionFactory->create([
                 'name' => $moduleName
             ]);
             $module = $section->getModule(true);
-            if($module){
-                $disabledModules[] = $module;
+            if ($module) {
+                $result[] = $module;
             }
 
         }
-        return $disabledModules;
+        return $result;
     }
 }

@@ -99,7 +99,6 @@ class ConfigObserver implements ObserverInterface
             );
         } else {
             $this->setLinvFlag->execute($module, 0);
-            $request->setPostValue('groups', $groups);
         }
     }
 }
