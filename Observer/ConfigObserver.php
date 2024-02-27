@@ -20,12 +20,12 @@ class ConfigObserver implements ObserverInterface
     /**
      * @var SectionFactory
      */
-    protected $sectionFactory;
+    private $sectionFactory;
 
     /**
      * @var Info
      */
-    protected $info;
+    private $info;
 
     /**
      * @var ManagerInterface
