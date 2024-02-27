@@ -20,17 +20,17 @@ class Sections
     /**
      * @var SectionFactory
      */
-    protected $sectionFactory;
+    private $sectionFactory;
 
     /**
      * @var Info
      */
-    protected $info;
+    private $info;
 
     /**
      * @var ResourceConnection
      */
-    protected $resource;
+    private $resource;
 
     /**
      * @var SetLinvFlag
