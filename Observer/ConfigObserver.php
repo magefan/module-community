@@ -10,6 +10,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
 use Magento\Framework\Message\ManagerInterface;
+use Magefan\Community\Model\SetLinvFlag;
 
 /**
  * Community observer
@@ -32,6 +33,11 @@ class ConfigObserver implements ObserverInterface
     private $messageManager;
 
     /**
+     * @var SetLinvFlag
+     */
+    private $setLinvFlag;
+
+    /**
      * ConfigObserver constructor.
      * @param SectionFactory $sectionFactory
      * @param Info $info
@@ -40,11 +46,13 @@ class ConfigObserver implements ObserverInterface
     final public function __construct(
         SectionFactory $sectionFactory,
         Info $info,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        SetLinvFlag $setLinvFlag
     ) {
         $this->sectionFactory = $sectionFactory;
         $this->info = $info;
         $this->messageManager = $messageManager;
+        $this->setLinvFlag = $setLinvFlag;
     }
 
     /**
@@ -70,11 +78,12 @@ class ConfigObserver implements ObserverInterface
         if (!$section->getModule()) {
             return;
         }
-
+        $module = $section->getName();
         $data = $this->info->load([$section]);
 
         if (!$section->validate($data)) {
             $groups['general']['fields']['enabled']['value'] = 0;
+            $this->setLinvFlag->execute($module, 1);
             $request->setPostValue('groups', $groups);
 
             $this->messageManager->addError(
@@ -88,6 +97,8 @@ class ConfigObserver implements ObserverInterface
                     ]
                 ))
             );
+        } else {
+            $this->setLinvFlag->execute($module, 0);
         }
     }
 }

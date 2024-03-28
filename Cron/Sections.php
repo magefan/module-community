@@ -8,6 +8,7 @@ namespace Magefan\Community\Cron;
 
 use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
+use Magefan\Community\Model\SetLinvFlag;
 use Magento\Framework\App\ResourceConnection;
 
 /**
@@ -32,6 +33,11 @@ class Sections
     protected $resource;
 
     /**
+     * @var SetLinvFlag
+     */
+    private $setLinvFlag;
+
+    /**
      * Sections constructor.
      * @param ResourceConnection $resource
      * @param SectionFactory $sectionFactory
@@ -40,11 +46,13 @@ class Sections
     public function __construct(
         ResourceConnection $resource,
         SectionFactory $sectionFactory,
-        Info $info
+        Info $info,
+        SetLinvFlag $setLinvFlag
     ) {
         $this->resource = $resource;
         $this->sectionFactory = $sectionFactory;
         $this->info = $info;
+        $this->setLinvFlag = $setLinvFlag;
     }
 
     /**
@@ -87,6 +95,7 @@ class Sections
             if ($data && is_array($data)) {
                 foreach ($data as $module => $item) {
                     $section = $sections[$module];
+                    $moduleName = $section->getName();
                     if (!$section->validate($data)) {
                         $connection->update(
                             $table,
@@ -95,6 +104,9 @@ class Sections
                             ],
                             ['path = ? ' => $section->getName() . '/' . $path]
                         );
+                        $this->setLinvFlag->execute($moduleName, 1);
+                    } else {
+                        $this->setLinvFlag->execute($moduleName, 0);
                     }
                 }
             }
