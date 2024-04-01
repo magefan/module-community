@@ -1,0 +1,35 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\JsScript
+ */
+?>
+<script data-mfmofile="true">
+    window.MagefanJs = window.MagefanJs || {};
+    window.MagefanJs.setCookie = function(name, value, params) {
+        if (!name) {
+            return;
+        }
+
+        params = params || {};
+        
+        var expires = params.expires;
+        var path = params.path || '/';
+        var domain = params.domain || window.location.hostname;
+
+        var cookieString = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+
+        if (expires instanceof Date) {
+            cookieString += '; expires=' + expires.toUTCString();
+        }
+        cookieString += '; path=' + path;
+        cookieString += '; domain=' + domain;
+        document.cookie = cookieString;
+    };
+
+</script>
