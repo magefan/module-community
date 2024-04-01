@@ -1,0 +1,35 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * Help template
+ *
+ * @var $block \Magefan\Community\Block\Adminhtml\Linv
+ */
+?>
+<?php if ($items = $block->getItems()) { ?>
+
+        <div class="messages">
+            <div class="message message-notice notice">
+                <div data-ui-id="messages-message-notice" class="linv">
+                    <?= 'Important! So' . 'me ' . 'Mag'.'efan'.' Ex'.'tensions'.' a'.'re'.' dis'.'abl'.'ed d'.'ue '.'to i'.'nva'.'lid'.' Product K'.'ey: ' ?>
+                    <div style="margin-left: 30px">
+                        <br/>
+                        <ul>
+                            <?php foreach ($items as $key => $name) { ?>
+                                <li>
+                                    <?= $block->escapeHtml($result = preg_replace('/([A-Z])/', ' $1', $name)); ?>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                    <?= 'Ple' . 'ase che' . 'ck exten' . 'sions config' . 'uration' ?>.
+                </div>
+            </div>
+        </div>
+
+<?php } ?>
