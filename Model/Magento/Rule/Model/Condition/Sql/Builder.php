@@ -133,6 +133,18 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
                     $item
                 ));
             }
+        } elseif (is_array($bindValue) && \in_array($conditionOperator, ['!()', '!{}'], true)) {
+            foreach ($bindValue as $item) {
+                $ifNullSqlQuoteIdentifier = (string) $this->_connection->getIfNullSql(
+                    $this->_connection->quoteIdentifier($argument),
+                    $defaultValue
+                );
+
+                $expression .= ($e = $this->_connection->quoteInto(
+                    " AND (FIND_IN_SET (?, {$ifNullSqlQuoteIdentifier}) = 0)",
+                    $item
+                ));
+            }
         }
 
         return (string) $this->_expressionFactory->create(
