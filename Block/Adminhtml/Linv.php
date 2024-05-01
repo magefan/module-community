@@ -63,7 +63,7 @@ class Linv extends Template
                 'name' => $moduleName
             ]);
             $module = $section->getModule(true);
-            if ($module) {
+            if ($module && !$section->isEnabled()) {
                 $result[] = $module;
             }
 
