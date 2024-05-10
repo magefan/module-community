@@ -30,6 +30,17 @@ final class Section
     private $scopeConfig;
 
     /**
+     * @var \Magefan\Community\Model\GetModuleVersion
+     */
+    private $getModuleVersion;
+
+    /**
+     * @var \Magefan\Community\Model\HyvaThemeDetection
+     */
+
+    private $hyvaThemeDetection;
+
+    /**
      * @var string
      */
     private $name;
@@ -46,20 +57,25 @@ final class Section
 
 
     /**
-     * Section constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $metadata
-     * @param null $name
-     * @param null $key
+     * @param \Magefan\Community\Model\GetModuleVersion $getModuleVersion
+     * @param \Magefan\Community\Model\HyvaThemeDetection $hyvaThemeDetection
+     * @param $name
+     * @param $key
      */
     final public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $metadata,
+        GetModuleVersion $getModuleVersion,
+        HyvaThemeDetection $hyvaThemeDetection,
         $name = null,
         $key = null
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->metadata = $metadata;
+        $this->getModuleVersion = $getModuleVersion;
+        $this->hyvaThemeDetection = $hyvaThemeDetection;
         $this->name = $name;
         $this->key = $key;
     }
@@ -96,6 +112,13 @@ final class Section
                 && (!$this->getConfig(self::TYPE)
                     || $this->getConfig(self::TYPE) && $this->metadata->getEdition() != 'C' . 'omm' . 'un' . 'ity'
                 )
+            ) {
+                return $module;
+            }
+
+            if ($module == ('B' . 'l' . 'o' . 'g')
+                && version_compare($this->getModuleVersion->execute('Ma' . 'ge' . 'fa' . 'n_' . $module), '2.' . '11' . '.4', '>=')
+                && $this->hyvaThemeDetection->execute()
             ) {
                 return $module;
             }
