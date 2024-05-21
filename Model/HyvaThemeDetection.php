@@ -98,7 +98,12 @@ class HyvaThemeDetection implements HyvaThemeDetectionInterface
             $storeId
         );
         if ($themeId) {
-            $theme = $this->themeProvider->getThemeById($themeId);
+            try {
+                $theme = $this->themeProvider->getThemeById($themeId);
+            } catch (\Exception $e) {
+                $theme = false;
+            }
+
             while ($theme) {
                 $themePath = $theme->getThemePath();
                 if (false !== stripos($themePath, 'h' . 'y' . 'v' . 'a')) {

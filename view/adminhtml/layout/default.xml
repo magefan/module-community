@@ -8,7 +8,8 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="page.wrapper">
-                <block class="Magefan\Community\Block\Adminhtml\Linv" name="magefan_community_linv" template="Magefan_Community::linv.phtml" after="header" />
+            <block class="Magefan\Community\Block\Adminhtml\Linv" name="magefan_community_linv" template="Magefan_Community::linv.phtml" after="header" />
+            <block class="Magefan\Community\Block\Adminhtml\HyvaThemeChecker" name="magefan.hyva.theme.checker" template="Magefan_Community::hyvathemechecker.phtml" after="header"/>
         </referenceContainer>
     </body>
 </page>
