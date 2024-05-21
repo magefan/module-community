@@ -11,4 +11,5 @@
 
     <preference for="Magefan\Community\Api\GetParentProductIdsInterface" type="Magefan\Community\Model\GetParentProductIds"/>
     <preference for="Magefan\Community\Api\GetWebsitesMapInterface" type="Magefan\Community\Model\GetWebsitesMap"/>
+    <preference for="Magefan\Community\Api\HyvaThemeDetectionInterface" type="Magefan\Community\Model\HyvaThemeDetection"/>
 </config>
