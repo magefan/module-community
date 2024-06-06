@@ -12,4 +12,7 @@
     <preference for="Magefan\Community\Api\GetParentProductIdsInterface" type="Magefan\Community\Model\GetParentProductIds"/>
     <preference for="Magefan\Community\Api\GetWebsitesMapInterface" type="Magefan\Community\Model\GetWebsitesMap"/>
     <preference for="Magefan\Community\Api\HyvaThemeDetectionInterface" type="Magefan\Community\Model\HyvaThemeDetection"/>
+    <type name="Magento\Framework\View\TemplateEngine\Php">
+        <plugin name="Magefan_Community_Plugin_Magento_Framework_View_TemplateEngine_Php" type="Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine\Php" sortOrder="10" disabled="false"/>
+    </type>
 </config>
