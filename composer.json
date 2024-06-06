@@ -4,7 +4,7 @@
     "require": {
         "magefan/module-admin-user-guide" : ">=2.0.3"
     },
-    "version": "2.1.23",
+    "version": "2.1.24",
     "type": "magento2-module",
     "autoload": {
         "files": [
