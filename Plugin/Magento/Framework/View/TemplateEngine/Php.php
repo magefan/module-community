@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine;
 
 use Magefan\Community\View\Helper\SecureHtmlRenderer\Proxy as SecureHtmlRenderer;
+use Magefan\Community\Model\HyvaThemeDetection\Proxy as HyvaThemeDetection;
 
 class Php
 {
@@ -13,13 +14,21 @@ class Php
     private $mfSecureRenderer;
 
     /**
+     * @var HyvaThemeDetection
+     */
+    private $mfHyvaThemeDetection;
+
+    /**
      * @param SecureHtmlRenderer $mfSecureRenderer
+     * @param HyvaThemeDetection $mfHyvaThemeDetection
      */
     public function __construct(
-        SecureHtmlRenderer $mfSecureRenderer
+        SecureHtmlRenderer $mfSecureRenderer,
+        HyvaThemeDetection $mfHyvaThemeDetection
     )
     {
         $this->mfSecureRenderer  = $mfSecureRenderer;
+        $this->mfHyvaThemeDetection = $mfHyvaThemeDetection;
     }
 
     /**
@@ -36,6 +45,7 @@ class Php
         array $dictionary = []
     ) {
         $dictionary['mfSecureRenderer'] = $this->mfSecureRenderer;
+        $dictionary['mfHyvaThemeDetection'] = $this->mfHyvaThemeDetection;
 
         return [$block, $fileName, $dictionary];
     }

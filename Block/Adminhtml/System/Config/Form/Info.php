@@ -7,6 +7,7 @@
 namespace Magefan\Community\Block\Adminhtml\System\Config\Form;
 
 use Magefan\Community\Api\GetModuleVersionInterface;
+use Magefan\Community\Api\SecureHtmlRendererInterface;
 
 /**
  * Admin Magefan configurations information block
@@ -24,23 +25,31 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     protected $getModuleVersion;
 
     /**
-     * Info constructor.
+     * @var SecureHtmlRendererInterface
+     */
+    protected $mfSecureRenderer;
+
+    /**
      * @param \Magento\Framework\Module\ModuleListInterface $moduleList
      * @param \Magento\Backend\Block\Template\Context $context
      * @param array $data
      * @param GetModuleVersionInterface|null $getModuleVersion
+     * @param SecureHtmlRendererInterface|null $mfSecureRenderer
      */
     public function __construct(
         \Magento\Framework\Module\ModuleListInterface $moduleList,
         \Magento\Backend\Block\Template\Context $context,
         array $data = [],
-        GetModuleVersionInterface $getModuleVersion = null
+        GetModuleVersionInterface $getModuleVersion = null,
+        SecureHtmlRendererInterface $mfSecureRenderer = null
     ) {
         parent::__construct($context, $data);
         $this->moduleList = $moduleList;
         $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
             \Magefan\Community\Api\GetModuleVersionInterface::class
         );
+        $this->mfSecureRenderer = $mfSecureRenderer ?: \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(SecureHtmlRendererInterface::class);
     }
 
     /**

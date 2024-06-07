@@ -7,9 +7,10 @@
 <?php
 /**
  * @var $block \Magefan\Community\Block\JsScript
+ * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
  */
 ?>
-<script>
+<?php $script = <<<script
     window.MagefanJs = window.MagefanJs || {};
     window.MagefanJs.ajax = function(options) {
         var xmlhttp = new XMLHttpRequest();
@@ -31,5 +32,6 @@
             xmlhttp.setRequestHeader(header, requestHeader[header]);
         }
         xmlhttp.send(options.data);
-    }
-</script>
+    };
+script; ?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>

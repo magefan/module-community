@@ -17,26 +17,31 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\View\Design\Theme\ThemeProviderInterface;
 class HyvaThemeDetection implements HyvaThemeDetectionInterface
 {
-
     /**
      * @var ModuleManager
      */
-    protected $moduleManager;
+    private $moduleManager;
 
     /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    private $storeManager;
 
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var ThemeProviderInterface
      */
-    protected $themeProvider;
+    private $themeProvider;
+
+    /**
+     * @var array
+     */
+    private $result;
+
 
     /**
      * @param ModuleManager $moduleManager
@@ -64,6 +69,11 @@ class HyvaThemeDetection implements HyvaThemeDetectionInterface
      */
     public function execute($storeId = null): bool
     {
+        $key = 'store_' . $storeId;
+        if (isset($this->result[$key])) {
+            return $this->result[$key];
+        }
+
         $hyvaThemeEnabled = $this->moduleManager->isEnabled('Hyva_Theme');
 
         if ($hyvaThemeEnabled) {
@@ -76,14 +86,17 @@ class HyvaThemeDetection implements HyvaThemeDetectionInterface
                 $stores = $this->storeManager->getStores();
                 foreach ($stores as $store) {
                     if ($this->isHyvaThemeInUse($store->getId())) {
-                        return true;
+                        $this->result[$key] = true;
+                        return $this->result[$key];
                     }
                 }
             } else {
-                return $this->isHyvaThemeInUse($storeId);
+                $this->result[$key] = $this->isHyvaThemeInUse($storeId);
+                return $this->result[$key];
             }
         }
-        return false;
+        $this->result[$key] = false;
+        return $this->result[$key];
     }
 
     /**

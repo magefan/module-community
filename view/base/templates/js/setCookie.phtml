@@ -7,9 +7,10 @@
 <?php
 /**
  * @var $block \Magefan\Community\Block\JsScript
+ * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
  */
 ?>
-<script>
+<?php $script = <<<script
     window.MagefanJs = window.MagefanJs || {};
     window.MagefanJs.setCookie = function(name, value, params) {
         if (!name) {
@@ -31,5 +32,5 @@
         cookieString += '; domain=' + domain;
         document.cookie = cookieString;
     };
-
-</script>
+script; ?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>

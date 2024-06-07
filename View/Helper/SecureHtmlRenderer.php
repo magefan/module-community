@@ -10,8 +10,9 @@ namespace Magefan\Community\View\Helper;
 
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\ObjectManagerInterface;
+use Magefan\Community\Api\SecureHtmlRendererInterface;
 
-class SecureHtmlRenderer
+class SecureHtmlRenderer implements SecureHtmlRendererInterface
 {
     /**
      * @var ProductMetadataInterface
