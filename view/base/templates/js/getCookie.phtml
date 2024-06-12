@@ -10,7 +10,7 @@
  * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
  */
 ?>
-<?php $script = <<<script
+<?php $script = "
     window.MagefanJs = window.MagefanJs || {};
     window.MagefanJs.getCookie = function(cookieName) {
         let name = cookieName + '=';
@@ -27,6 +27,5 @@
         }
         return '';
     };
-script;
-?>
+"; ?>
 <?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
