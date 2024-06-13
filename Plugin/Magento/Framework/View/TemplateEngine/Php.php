@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine;
 
-use Magefan\Community\View\Helper\SecureHtmlRenderer\Proxy as SecureHtmlRenderer;
+use Magefan\Community\Model\View\Helper\SecureHtmlRenderer\Proxy as SecureHtmlRenderer;
 use Magefan\Community\Model\HyvaThemeDetection\Proxy as HyvaThemeDetection;
 
 class Php
