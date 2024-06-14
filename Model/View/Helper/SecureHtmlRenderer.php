@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\View\Helper;
+namespace Magefan\Community\Model\View\Helper;
 
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\ObjectManagerInterface;
