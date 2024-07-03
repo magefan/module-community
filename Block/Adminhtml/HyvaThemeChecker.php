@@ -49,24 +49,32 @@ class HyvaThemeChecker extends Template
      */
     public function getWitchModuleIsInstalled(): array
     {
-        $modules = [
-            'Magefan_Blog' => 'https://github.com/magefan/hyva-theme-blog',
-            'Magefan_BlogPlus' => 'https://github.com/magefan/hyva-theme-blog-plus',
-            'Magefan_BlogExtra' => 'https://github.com/magefan/hyva-theme-blog-extra',
-            'Magefan_BlogAuthor' => 'https://github.com/magefan/hyva-theme-blog-author',
-            'Magefan_AutoRelatedProduc' => 'https://github.com/magefan/hyva-theme-auto-related-product',
-            'Magefan_AutoRelatedProductPlus' => 'https://github.com/magefan/hyva-theme-auto-related-product-plus',
-            'Magefan_AutoLanguageSwitcher' => 'https://github.com/magefan/hyva-theme-auto-language-switcher'
+        $moduleGroups = [
+            'Blog' => [
+                'Magefan_BlogExtra' => 'magefan/hyva-theme-blog-extra',
+                'Magefan_BlogPlus' => 'magefan/hyva-theme-blog-plus',
+                'Magefan_Blog' => 'magefan/hyva-theme-blog'
+            ],
+            'AutoRelatedProduc' => [
+                'Magefan_AutoRelatedProductPlus' => 'magefan/hyva-theme-auto-related-product-plus',
+                'Magefan_AutoRelatedProduc' => 'magefan/hyva-theme-auto-related-product'
+            ],
+            'AutoLanguageSwitcher' => [
+                'Magefan_AutoLanguageSwitcher' => 'magefan/hyva-theme-auto-language-switcher'
+            ]
         ];
 
         $hyvaModules = [];
-        foreach ($modules as $module => $url){
-           if ($this->moduleManager->isEnabled($module)) {
-               $hyvaModule = 'Hyva_' . str_replace('_', '', $module);
-               if (!$this->moduleManager->isEnabled($hyvaModule)) {
-                   $hyvaModules[$hyvaModule] = $url;
-               }
-           }
+        foreach ($moduleGroups as $groupKey => $modules) {
+            foreach ($modules as $module => $packageName) {
+                if ($this->moduleManager->isEnabled($module)) {
+                    $hyvaModule = 'Hyva_' . str_replace('_', '', $module);
+                    if (!$this->moduleManager->isEnabled($hyvaModule)) {
+                        $hyvaModules[$hyvaModule] = $packageName;
+                        break;
+                    }
+                }
+            }
         }
         return $hyvaModules;
     }

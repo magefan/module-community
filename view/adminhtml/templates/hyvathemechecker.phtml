@@ -17,16 +17,18 @@
             <div data-ui-id="messages-message-notice" class="linv">
                 <?= $block->escapeHtml(__('It looks like you are using the Hyva theme, ' .
                     'but the Hyva Magefan extensions for Hyva compatibility are not installed. ' .
-                    'Please install these modules for the proper functioning of the blog module on the Hyva theme:')) ?>
-                <div style="margin-left: 30px">
-                    <br/>
-                    <ul>
-                        <?php foreach ($items as $name => $url) { ?>
-                            <li>
-                                <a href="<?= $block->escapeHtml($url) ?>" target="_blank"><?= $block->escapeHtml($name) ?></a>
-                            </li>
-                        <?php } ?>
-                    </ul>
+                    'Please install these packages for the proper functioning of the modules on the Hyva theme. Run the CLI commands:')) ?>
+                <div>
+                    <?php
+                        $commands = '';
+                        foreach ($items as $name => $packageName) {
+                            $commands .= 'composer require ' . $block->escapeHtml($packageName) . PHP_EOL;
+                            $commands .= 'bin/magento setup:upgrade' . PHP_EOL;
+                            $commands .= 'bin/magento setup:di:compile' . PHP_EOL;
+                            $commands .= 'bin/magento setup:static-content:deploy' . PHP_EOL;
+                        }
+                    ?>
+                    <pre><?=  /* @noEscape */  $commands ?>
                 </div>
             </div>
         </div>
