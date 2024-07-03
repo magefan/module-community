@@ -22,6 +22,7 @@
                     <?php
                         $commands = '';
                         foreach ($items as $name => $packageName) {
+                            $commands .= 'composer require hyva-themes/magento2-compat-module-fallback' . PHP_EOL;
                             $commands .= 'composer require ' . $block->escapeHtml($packageName) . PHP_EOL;
                             $commands .= 'bin/magento setup:upgrade' . PHP_EOL;
                             $commands .= 'bin/magento setup:di:compile' . PHP_EOL;
