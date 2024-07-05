@@ -55,9 +55,9 @@ class HyvaThemeChecker extends Template
                 'Magefan_BlogPlus' => 'magefan/hyva-theme-blog-plus',
                 'Magefan_Blog' => 'magefan/hyva-theme-blog'
             ],
-            'AutoRelatedProduc' => [
+            'AutoRelatedProduct' => [
                 'Magefan_AutoRelatedProductPlus' => 'magefan/hyva-theme-auto-related-product-plus',
-                'Magefan_AutoRelatedProduc' => 'magefan/hyva-theme-auto-related-product'
+                'Magefan_AutoRelatedProduct' => 'magefan/hyva-theme-auto-related-product'
             ],
             'AutoLanguageSwitcher' => [
                 'Magefan_AutoLanguageSwitcher' => 'magefan/hyva-theme-auto-language-switcher'
