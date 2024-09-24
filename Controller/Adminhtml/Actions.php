@@ -236,8 +236,13 @@ abstract class Actions extends \Magento\Backend\App\Action
             }
             $model->addData($params);
 
+            $this->_eventManager->dispatch('magefan_controller_actions_before_save', ['model' => $model]);
+
             $this->_beforeSave($model, $request);
             $model->save();
+
+            $this->_eventManager->dispatch('magefan_controller_actions_after_save');
+
             $this->_afterSave($model, $request);
 
             $this->messageManager->addSuccess(__('%1 has been saved.', $model->getOwnTitle()));
@@ -521,6 +526,7 @@ abstract class Actions extends \Magento\Backend\App\Action
 
             if ($id && $load) {
                 $this->_model->load($id);
+                $this->_eventManager->dispatch('magefan_controller_actions_load_model_after',['model' => $this->_model]);
             }
         }
         return $this->_model;
