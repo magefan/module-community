@@ -236,9 +236,14 @@ abstract class Actions extends \Magento\Backend\App\Action
             }
             $model->addData($params);
 
+            $this->_eventManager->dispatch('magefan_' . $this->getRequest()->getModuleName() . '_' . $this->getRequest()->getControllerName()  . '_form_before_save', ['model' => $model]);
+
             $this->_beforeSave($model, $request);
             $model->save();
+
             $this->_afterSave($model, $request);
+
+            $this->_eventManager->dispatch('magefan_' . $this->getRequest()->getModuleName() . '_' . $this->getRequest()->getControllerName()  . '_form_after_save', ['model' => $model]);
 
             $this->messageManager->addSuccess(__('%1 has been saved.', $model->getOwnTitle()));
             $this->_setFormData(false);
@@ -521,6 +526,7 @@ abstract class Actions extends \Magento\Backend\App\Action
 
             if ($id && $load) {
                 $this->_model->load($id);
+                $this->_eventManager->dispatch('magefan_' . $this->getRequest()->getModuleName() . '_' . $this->getRequest()->getControllerName()  . '_form_load_model_after', ['model' => $this->_model]);
             }
         }
         return $this->_model;
