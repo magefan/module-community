@@ -56,6 +56,14 @@
                     <comment>Note that, after you save the config you have to flush the Magento cache for this option to be applied.</comment>
                 </field>
             </group>
+            <group id="extension_vendors" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Extension Vendors</label>
+                <attribute type="expanded">1</attribute>
+                <field id="display" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Display Magefan</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
         </section>
     </system>
 </config>

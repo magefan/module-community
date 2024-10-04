@@ -19,6 +19,9 @@
             <menu>
                 <display>1</display>
             </menu>
+            <extension_vendors>
+                <display>1</display>
+            </extension_vendors>
         </mfextension>
     </default>
 </config>
