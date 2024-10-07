@@ -25,6 +25,7 @@ class Config
      */
     const XML_PATH_MENU_ENABLED = 'mfextension/menu/display';
 
+    const XML_PATH_EXTENSION_VENDORS_ENABLED = 'mfextension/extension_vendors/display';
     /**
      * @var ScopeConfigInterface
      */
@@ -137,6 +138,15 @@ class Config
     {
         return $this->getConfig(
             self::XML_PATH_MENU_ENABLED,
+            $storeId
+        );
+    }
+
+
+    public function extensionVendorsEnabled($storeId = null)
+    {
+        return (bool)$this->getConfig(
+            self::XML_PATH_EXTENSION_VENDORS_ENABLED,
             $storeId
         );
     }
