@@ -1,0 +1,66 @@
+<div class="section-info">
+    <div class="col-info">
+
+    </div>
+     
+    <div class="col-actions">
+        <div class="actions">
+            <button id="upgrade" title="Upgrade Plan" class="action- upgrade"><span>Upgrade Plan</span></button>
+            <button id="update" title="Upgrade to new Version" class="action-default update _action-primary"><span>Upgrade to new Version</span></button>
+        </div>
+    </div>
+</div>
+
+<style>
+.section-info {
+    border: 1px solid rgba(0, 0, 0, 0.10);
+	background: #F8F8F8;
+    padding: 24px 24px 38px;
+}
+.section-info button {
+	padding: 1rem 1.8rem 1rem;
+	text-align: center;
+	position: relative;
+    /*height: 44px;*/
+}
+.section-info button span {
+	font-size: 1.8rem;
+	font-weight: 500;
+	line-height: 26px;
+	vertical-align: baseline;
+}
+.section-info button.upgrade {
+    background: #ffffff;
+    border: 1px solid #D0D5DD;
+	box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+}
+
+.section-info button.update {
+    color: #ffffff;
+	background: #494542;
+	padding-right: 56px;
+	border-color: #494542;
+}
+.section-info button.update:after {
+    display: inline-block;
+	content: '\e626';
+	margin: 0;
+    padding: 14px;
+    transform: rotateY(180deg);
+    position: absolute;
+    top: -1px;
+    right: -1px;
+	background: #363330;
+
+	-webkit-font-smoothing: antialiased;
+	font-family: 'Admin Icons';
+	font-style: normal;
+	font-weight: normal;
+	font-size: 2rem;
+	line-height: 1;
+	speak: none;
+}
+.section-info button.update:hover {
+	border-color: #494542;
+}
+</style>
