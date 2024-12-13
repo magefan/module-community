@@ -20,16 +20,3 @@
         </div>
     </div>
 </section>
-
-<script type="text/x-magento-init">
-    {
-        "*": {
-            "Magento_Marketplace/default": {
-                "url": "<?= $block->escapeUrl($block->getUrl(
-        'marketplace/partners/index',
-        ['_current' => true, 'block' => '', 'period' => '']
-    )) ?>"
-            }
-        }
-    }
-</script>
