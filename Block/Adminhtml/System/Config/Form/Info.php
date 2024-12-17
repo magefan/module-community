@@ -30,7 +30,13 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     protected $mfSecureRenderer;
 
     /**
+     * @var ExtensionsInfo
+     */
+    protected $extensionsInfo;
+
+    /**
      * @param \Magento\Framework\Module\ModuleListInterface $moduleList
+     * @param ExtensionsInfo $extensionsInfo
      * @param \Magento\Backend\Block\Template\Context $context
      * @param array $data
      * @param GetModuleVersionInterface|null $getModuleVersion
@@ -38,6 +44,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function __construct(
         \Magento\Framework\Module\ModuleListInterface $moduleList,
+        \Magefan\Community\Block\Adminhtml\System\Config\Form\ExtensionsInfo $extensionsInfo,
         \Magento\Backend\Block\Template\Context $context,
         array $data = [],
         GetModuleVersionInterface $getModuleVersion = null,
@@ -45,6 +52,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     ) {
         parent::__construct($context, $data);
         $this->moduleList = $moduleList;
+        $this->extensionsInfo = $extensionsInfo;
         $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
             \Magefan\Community\Api\GetModuleVersionInterface::class
         );
@@ -59,27 +67,32 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        /*$useUrl = \Magefan\Community\Model\UrlChecker::showUrl($this->getUrl());
-        $version = $this->getModuleVersion->execute($this->getModuleName());
-        $html = '<div style="padding:10px;background-color:#f8f8f8;border:1px solid #ddd;margin-bottom:7px;">
-            ' . $this->escapeHtml($this->getModuleTitle()) . ' v' . $this->escapeHtml($version) . ' was developed by ';
-        if ($useUrl) {
-            $html .= '<a href="' . $this->escapeHtml($this->getModuleUrl()) . '" target="_blank">Magefan</a>';
-        } else {
-            $html .= '<strong>Magefan</strong>';
-        }
-        $html .= '.</div>';
-
-        return $html;*/
-
-
         $useUrl = \Magefan\Community\Model\UrlChecker::showUrl($this->getUrl());
         $version = $this->getModuleVersion->execute($this->getModuleName());
+
+        if (!$this->getModuleImage()) {
+            $html = '<div style="padding:10px;background-color:#f8f8f8;border:1px solid #ddd;margin-bottom:7px;">
+            ' . $this->escapeHtml($this->getModuleTitle()) . ' v' . $this->escapeHtml($version) . ' was developed by ';
+            if ($useUrl) {
+                $html .= '<a href="' . $this->escapeHtml($this->getModuleUrl()) . '" target="_blank">Magefan</a>';
+            } else {
+                $html .= '<strong>Magefan</strong>';
+            }
+            $html .= '.</div>';
+
+            return $html;
+        }
+
         $titleAndVersion = $this->escapeHtml($this->getModuleTitle()) . ' v' . $this->escapeHtml($version);
+        $newVersionAvailable = version_compare($this->getModuleInfo()['version'], $this->getModuleVersion->execute($this->getModuleName())) > 0;
 
         $html = '<div class="section-info">
     <div class="col-info">
-        <div class="product-icon"></div>
+        <div class="product-icon">';
+        if ($this->getModuleImage()) {
+            $html .= '<img src="' .  $this->escapeHtml($this->getModuleImage()) . '" alt=""/>';
+        }
+        $html .= '</div>
         <div class="product-info-wrapper">
             <div class="row-1">
                 <div class="block-title">' . $titleAndVersion . '</div>
@@ -101,28 +114,27 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                         <path d="M10.9987 12.8333C11.2418 12.8333 11.475 12.7368 11.6469 12.5648C11.8188 12.3929 11.9154 12.1598 11.9154 11.9167V9.16667C11.9154 8.92355 11.8188 8.69039 11.6469 8.51849C11.475 8.34658 11.2418 8.25 10.9987 8.25C10.7556 8.25 10.5224 8.34658 10.3505 8.51849C10.1786 8.69039 10.082 8.92355 10.082 9.16667V11.9167C10.082 12.1598 10.1786 12.3929 10.3505 12.5648C10.5224 12.7368 10.7556 12.8333 10.9987 12.8333Z" fill="#DA5D28"/>
                         <path d="M10.9987 7.33333C11.505 7.33333 11.9154 6.92293 11.9154 6.41667C11.9154 5.91041 11.505 5.5 10.9987 5.5C10.4924 5.5 10.082 5.91041 10.082 6.41667C10.082 6.92293 10.4924 7.33333 10.9987 7.33333Z" fill="#DA5D28"/>
                     </svg>
-                    <span><a href="#">User Guide</a></span>
+                    <span><a href="' .  $this->escapeHtml($this->getModuleInfo()['documentation_url']) . '" target="_blank">User Guide</a></span>
                 </span>
             </div>
         </div>
     </div>
 
     <div class="col-actions">
-        <div class="actions">
-            <button id="upgrade" title="Upgrade Plan" class="action- upgrade"><span>Upgrade Plan</span></button>
-            <button id="update" title="Upgrade to new Version" class="action-default update _action-primary"><span>Upgrade to new Version</span></button>
+        <div class="actions">';
+        if (!$this->getModuleVersion->execute($this->getModuleName() . $this->getModuleMaxPlan()) && $this->getModuleUpgradePlanUrl()) {
+            $html .= '<button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open(\'' . $this->escapeHtml($this->getModuleUrl() . '/pricing') . '\', \'_blank\'); return false;"><span>Upgrade Plan</span></button>';
+        }
+
+        if ($newVersionAvailable) {
+            $html .= '<button id="update" title="Upgrade to new Version" class="action-default update _action-primary" onclick="window.open(\'https://mage\' + \'fan.com/downloadable/customer/products\', \'_blank\'); return false;"><span>Upgrade to new Version</span></button>
+            <div class="available-version">Version v' . $this->escapeHtml($this->getModuleInfo()['version']) . ' is available</div>';
+        }
+        $html .= '</div>
         </div>
-        <div class="available-version">Version v2.13.0 is available</div>
-    </div>
-</div>';
-
-
+    </div>';
 
         return $html;
-
-//        return $this->getLayout()->createBlock(\Magefan\Community\Block\Adminhtml\System\Config\Form\Info::class)
-//            ->setTemplate('Magefan_Community::info.phtml')
-//            ->toHtml();
     }
 
     /**
@@ -141,5 +153,39 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     protected function getModuleTitle()
     {
         return ucwords(str_replace('_', ' ', $this->getModuleName())) . ' Extension';
+    }
+
+    /**
+     * Return extension image
+     * @return string
+     */
+    protected function getModuleImage() {
+        return '';
+    }
+
+    /**
+     * Return extension info
+     * @return array
+     */
+    protected function getModuleInfo(): array
+    {
+        $data = (array)$this->extensionsInfo->getJsonObject();
+        return (array)$data[$this->getModuleKey()];
+    }
+
+    /**
+     * Return extension Module Key
+     * @return string
+     */
+    protected function getModuleKey() {
+        return '';
+    }
+
+    /**
+     * Return extension Max Plan
+     * @return string
+     */
+    protected function getModuleMaxPlan() {
+        return '';
     }
 }
