@@ -70,7 +70,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         $useUrl = \Magefan\Community\Model\UrlChecker::showUrl($this->getUrl());
         $version = $this->getModuleVersion->execute($this->getModuleName());
 
-        if (!$this->getModuleImage()) {
+        if (!$this->getModuleKey()) {
             $html = '<div style="padding:10px;background-color:#f8f8f8;border:1px solid #ddd;margin-bottom:7px;">
             ' . $this->escapeHtml($this->getModuleTitle()) . ' v' . $this->escapeHtml($version) . ' was developed by ';
             if ($useUrl) {
