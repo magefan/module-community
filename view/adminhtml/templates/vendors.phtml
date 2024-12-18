@@ -7,11 +7,11 @@
 
 <section class="page-partners">
     <h2 class="page-sub-title"><?= $block->escapeHtml(__('Extension Vendors')) ?></h2>
-    <div data-role="vendors-block" class="vendors-block">
-        <div class="vendor">
-            <img class="partner-image" src="<?= $this->getViewFileUrl('Magefan_Community::images/logo-config-section.png') ?>" alt="Magefan">
-            <h3 class="vendor-title">Magefan</h3>
-            <p class="vendor-description">
+    <div data-role="vendors-block" class="partner-block">
+        <div class="partner">
+            <img class="vendor-image" src="<?= $this->getViewFileUrl('Magefan_Community::images/Logo-2-1.svg') ?>" alt="Magefan">
+            <h3 class="partner-title">Magefan</h3>
+            <p class="partner-description">
                 Magefan is an eCommerce agency delivering top-notch solutions for various B2B businesses on Magento 2. We help companies generate more revenue and reach their business goals faster.<br>
                 <a href="<?= 'https://mage' . 'fan.com/' ?>" target="_blank">
                     Vendor Page
@@ -20,3 +20,12 @@
         </div>
     </div>
 </section>
+
+<style>
+   .page-partners .vendor-image{
+       margin-bottom:2.2rem;
+       margin-top:0.8rem;
+       max-height:14rem;
+       min-width:30rem;
+   }
+</style>
