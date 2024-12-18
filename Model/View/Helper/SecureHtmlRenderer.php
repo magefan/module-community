@@ -51,7 +51,7 @@ class SecureHtmlRenderer implements SecureHtmlRendererInterface
     )
     {
         $version = $this->productMetadata->getVersion();
-        if (version_compare($version, '2.4.0',">=")) {
+        if (version_compare($version, '2.4.0',">")) {
             return $this->objectManager->get(\Magento\Framework\View\Helper\SecureHtmlRenderer::class)->renderTag($tagName, $attributes, $content, $textContent);
         } else {
             $attrs = [];
