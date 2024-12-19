@@ -10,7 +10,8 @@
     <policies>
         <policy id="img-src">
             <values>
-                <value id="magefan" type="host">https://magefan.com</value>
+                <value id="magefan-com" type="host">magefan.com</value>
+                <value id="cm-magefan-com" type="host">cm.magefan.com</value>
             </values>
         </policy>
     </policies>

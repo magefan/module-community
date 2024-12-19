@@ -102,13 +102,13 @@
 
 
 // Magefan Info Block
-@color_1: #000000;
-@color_2: #98A2B3;
-@color_3: #DA5D28;
-@color_4: #ffffff;
-@color_5: #8D8D8D;
-@font_family_1: 'Admin Icons';
-@border_color_1: #494542;
+@mfcommunity_color_1: #000000;
+@mfcommunity_color_2: #98A2B3;
+@mfcommunity_color_3: #DA5D28;
+@mfcommunity_color_4: #ffffff;
+@mfcommunity_color_5: #8D8D8D;
+@mfcommunity_font_family_1: 'Admin Icons';
+@mfcommunity_border_color_1: #494542;
 
 .section-info {
     display: flex;
@@ -132,7 +132,7 @@
     .row-1 {
         margin-bottom: 14px;
         .block-title {
-            color: @color_1;
+            color: @mfcommunity_color_1;
             font-size: 24px;
             line-height: 32px;
             font-weight: 600;
@@ -142,14 +142,14 @@
         display: flex;
         align-items: center;
         .block-dev {
-            color: @color_2;
+            color: @mfcommunity_color_2;
             a {
-                color: @color_3;
+                color: @mfcommunity_color_3;
             }
         }
         .block-dot {
             margin: 0 12px;
-            color: @color_2;
+            color: @mfcommunity_color_2;
         }
         .block-guide {
             display: flex;
@@ -158,7 +158,7 @@
             a {
                 font-size: 18px;
                 font-weight: 500;
-                color: @color_3;
+                color: @mfcommunity_color_3;
             }
         }
     }
@@ -183,10 +183,10 @@
             box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
         }
         button.update {
-            color: @color_4;
+            color: @mfcommunity_color_4;
             background: #494542;
             padding-right: 56px;
-            border-color: @border_color_1;
+            border-color: @mfcommunity_border_color_1;
             &:after {
                 display: inline-block;
                 content: '\e626';
@@ -198,7 +198,7 @@
                 right: -1px;
                 background: #363330;
                 -webkit-font-smoothing: antialiased;
-                font-family: @font_family_1;
+                font-family: @mfcommunity_font_family_1;
                 font-style: normal;
                 font-weight: normal;
                 font-size: 2rem;
@@ -206,7 +206,7 @@
                 speak: none;
             }
             &:hover {
-                border-color: @border_color_1;
+                border-color: @mfcommunity_border_color_1;
             }
         }
         .available-version {
@@ -215,7 +215,7 @@
             line-height: 24px;
             margin-top: 10px;
             margin-right: 36px;
-            color: @color_5;
+            color: @mfcommunity_color_5;
         }
     }
 }

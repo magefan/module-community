@@ -67,7 +67,6 @@ class UpdateWelcomeBlogPost implements DataPatchInterface
                 '\'Magefan\'',
                 '\'Magento Blog\'',
                 '\'Magento 2 Blog\''
-                '\'Magento 2 Blog\''
             ];
 
             $replaceTo = '\'\'';

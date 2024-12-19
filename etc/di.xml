@@ -7,6 +7,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Magefan\Community\Api\GetModuleVersionInterface" type="Magefan\Community\Model\GetModuleVersion" />
+    <preference for="Magefan\Community\Api\GetModuleInfoInterface" type="Magefan\Community\Model\GetModuleInfo" />
     <preference for="Magefan\Community\Api\GetCategoryByProductInterface" type="Magefan\Community\Model\GetCategoryByProduct"/>
 
     <preference for="Magefan\Community\Api\GetParentProductIdsInterface" type="Magefan\Community\Model\GetParentProductIds"/>
