@@ -99,3 +99,123 @@
 .accordion .form-inline .config .magefan-section tr:nth-child(even) td {
     background-color: #f5f5f5;
 }
+
+
+// Magefan Info Block
+@color_1: #000000;
+@color_2: #98A2B3;
+@color_3: #DA5D28;
+@color_4: #ffffff;
+@color_5: #8D8D8D;
+@font_family_1: 'Admin Icons';
+@border_color_1: #494542;
+
+.section-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    background: #F8F8F8;
+    padding: 24px 24px 38px;
+    font-size: 18px;
+    font-weight: 500;
+    .col-info {
+        display: flex;
+        align-items: flex-start;
+        .product-icon {
+            width: 64px;
+            height: 64px;
+            margin-right: 24px;
+            border: 1px solid #98A2B3;
+        }
+    }
+    .row-1 {
+        margin-bottom: 14px;
+        .block-title {
+            color: @color_1;
+            font-size: 24px;
+            line-height: 32px;
+            font-weight: 600;
+        }
+    }
+    .row-2 {
+        display: flex;
+        align-items: center;
+        .block-dev {
+            color: @color_2;
+            a {
+                color: @color_3;
+            }
+        }
+        .block-dot {
+            margin: 0 12px;
+            color: @color_2;
+        }
+        .block-guide {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            a {
+                font-size: 18px;
+                font-weight: 500;
+                color: @color_3;
+            }
+        }
+    }
+    .col-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        button {
+            padding: 1rem 1.8rem 1rem;
+            text-align: center;
+            position: relative;
+            span {
+                font-size: 1.8rem;
+                font-weight: 500;
+                line-height: 26px;
+                vertical-align: baseline;
+            }
+        }
+        button.upgrade {
+            background: #ffffff;
+            border: 1px solid #D0D5DD;
+            box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+        }
+        button.update {
+            color: @color_4;
+            background: #494542;
+            padding-right: 56px;
+            border-color: @border_color_1;
+            &:after {
+                display: inline-block;
+                content: '\e626';
+                margin: 0;
+                padding: 14px;
+                transform: rotateY(180deg);
+                position: absolute;
+                top: -1px;
+                right: -1px;
+                background: #363330;
+                -webkit-font-smoothing: antialiased;
+                font-family: @font_family_1;
+                font-style: normal;
+                font-weight: normal;
+                font-size: 2rem;
+                line-height: 1;
+                speak: none;
+            }
+            &:hover {
+                border-color: @border_color_1;
+            }
+        }
+        .available-version {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 24px;
+            margin-top: 10px;
+            margin-right: 36px;
+            color: @color_5;
+        }
+    }
+}
