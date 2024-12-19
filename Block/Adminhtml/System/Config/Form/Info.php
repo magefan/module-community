@@ -76,8 +76,9 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
 
         $plan = '';
         foreach (['Extra', 'Plus'] as $_plan) {
-            if ($this->getModuleVersion->execute($moduleName . $_plan)) {
+            if ($_currentVersion = $this->getModuleVersion->execute($moduleName . $_plan)) {
                 $plan = $_plan;
+                $currentVersion = $_currentVersion;
                 break;
             }
         }
