@@ -146,7 +146,10 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             }
 
             if ($newVersionAvailable) {
-                $html .= '<button id="update" title="Upgrade to new Version" class="action-update" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '\', \'_blank\'); return false;"><span>Upgrade to new Version</span></button>';
+                $html .= '<button id="update" title="Upgrade to new Version" class="action-update" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '\', \'_blank\'); return false;"><span>Upgrade to new Version</span><span class="mf-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+<path d="M15.5664 10.9766H3.92578C3.38633 10.9766 2.94922 10.5395 2.94922 10C2.94922 9.46055 3.38633 9.02344 3.92578 9.02344H15.5664C16.1059 9.02344 16.543 9.46055 16.543 10C16.543 10.5395 16.1059 10.9766 15.5664 10.9766Z" fill="white"/>
+<path d="M11.0942 15.5938C10.8321 15.5938 10.5703 15.4887 10.3778 15.2813C10.011 14.886 10.0344 14.268 10.4297 13.9012L14.6278 10.0078L10.3028 6.10392C9.90236 5.7426 9.87072 5.12502 10.2321 4.72463C10.5934 4.32424 11.211 4.2926 11.6113 4.65393L16.7285 9.27307C16.9321 9.45666 17.0488 9.71721 17.0508 9.99142C17.0528 10.2656 16.9395 10.5278 16.7383 10.7141L11.7578 15.3332C11.5699 15.5074 11.3317 15.5938 11.0942 15.5938Z" fill="white"/>
+</svg></span></button>';
             }
             $html .= '</div>
            ';
@@ -163,7 +166,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                 font-display: swap;
                 src: url("' . $this->getViewFileUrl("Magefan_Community::fonts/variable/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") .'") format("woff2");
                 unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-        }
+            }
             .section-config a[id$="_general-head"] {display: none;}
             
             .section-info {display: flex;flex-wrap: wrap;justify-content: space-between;gap: 36px;border: 1px solid rgba(0,0,0,0.1);background: #F8F8F8;padding: 24px 24px;font-size: 18px;font-weight: 500;font-family: "Plus Jakarta Sans", sans-serif;margin-bottom: 30px;}
@@ -182,9 +185,11 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .col-actions .actions {display: flex;align-items: center;gap: 18px;}
             .section-info .col-actions button {padding: 9px 16px 9px;text-align: center;position: relative;box-sizing: border-box;}
             .section-info .col-actions button span {font-family: "Plus Jakarta Sans", sans-serif;font-size: 18px;font-weight: 500;line-height: 24px;vertical-align: baseline;}
-            .section-info .col-actions button.action-upgrade {color: #344054;background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
-            .section-info .col-actions button.action-update {color: #ffffff;background: #494542;padding-right: 56px;border-color: #494542;}
-            .section-info .col-actions button.action-update:after {display: inline-block;content: "\e626";margin: 0;padding: 12px;transform: rotateY(180deg);position: absolute;top: -1px;right: -1px;background: #363330;-webkit-font-smoothing: antialiased;font-family: "Admin Icons";font-style: normal;font-weight: normal;font-size: 2rem;line-height: 1;speak: none;}
+            .section-info .col-actions button.action-upgrade {color: #344054;background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0 1px 2px 0 rgba(16,24,40,0.05);}
+            
+            .section-info .col-actions button.action-update {display: flex;align-items: center;color: #ffffff;background: #494542;border-color: #494542;padding: 0;}
+            .section-info .col-actions button.action-update span:first-child {padding: 9px 16px;}
+            .section-info .col-actions button.action-update .mf-icon {width: 44px;height: 42px;display: flex;align-items: center;justify-content: center;background: #363330;}
             .section-info .col-actions button.action-update:hover {border-color: #494542;}
             .section-info .col-actions .available-version {font-size: 16px;font-weight: 500;line-height: 24px;margin-top: 10px;margin-right: 36px;color: #8D8D8D;}
         </style>
