@@ -156,9 +156,17 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
          $html .= ' </div>
 </div>
         <style>
+            @font-face {
+                font-family: "Plus Jakarta Sans";
+                font-style: normal;
+                font-weight: 200 800;
+                font-display: swap;
+                src: url("' . $this->getViewFileUrl("Magefan_Community::fonts/variable/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") .'") format("woff2");
+                unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
             .section-config a[id$="_general-head"] {display: none;}
             
-            .section-info {display: flex;flex-wrap: wrap;justify-content: space-between;gap: 36px;border: 1px solid rgba(0,0,0,0.1);background: #F8F8F8; padding: 24px 24px;font-size: 18px;font-weight: 500;}
+            .section-info {display: flex;flex-wrap: wrap;justify-content: space-between;gap: 36px;border: 1px solid rgba(0,0,0,0.1);background: #F8F8F8; padding: 24px 24px;font-size: 18px;font-weight: 500;font-family: "Plus Jakarta Sans", sans-serif;}
             .section-info .col-info {display: flex;align-items: flex-start;}
             .section-info .col-info .product-icon {width: 64px;height: 64px;margin-right: 24px;}
             .section-info .col-info .product-icon img {border-radius: 6px;}
@@ -171,9 +179,9 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .row-2 .block-guide {display: flex;align-items: center;gap: 5px;}
             .section-info .row-2 .block-guide a {font-size: 18px;font-weight: 500;color: #DA5D28;}
             .section-info .col-actions {display: flex;flex-direction: column;align-items: flex-end;}
-            .section-info .col-actions .actions {display: flex;align-items: center;gap: 28px;}
+            .section-info .col-actions .actions {display: flex;align-items: center;gap: 18px;}
             .section-info .col-actions button {padding: 9px 16px 9px;text-align: center;position: relative;box-sizing: border-box;}
-            .section-info .col-actions button span {font-size: 18px;font-weight: 500;line-height: 24px;vertical-align: baseline;}
+            .section-info .col-actions button span {font-family: "Plus Jakarta Sans", sans-serif;font-size: 18px;font-weight: 500;line-height: 24px;vertical-align: baseline;}
             .section-info .col-actions button.action-upgrade {background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
             .section-info .col-actions button.action-update {color: #ffffff;background: #494542;padding-right: 56px;border-color: #494542;}
             .section-info .col-actions button.action-update:after {display: inline-block;content: "\e626";margin: 0;padding: 12px;transform: rotateY(180deg);position: absolute;top: -1px;right: -1px;background: #363330;-webkit-font-smoothing: antialiased;font-family: "Admin Icons";font-style: normal;font-weight: normal;font-size: 2rem;line-height: 1;speak: none;}
