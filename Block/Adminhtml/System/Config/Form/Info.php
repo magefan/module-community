@@ -186,7 +186,6 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .col-actions button {padding: 9px 16px 9px;text-align: center;position: relative;box-sizing: border-box;}
             .section-info .col-actions button span {font-family: "Plus Jakarta Sans", sans-serif;font-size: 18px;font-weight: 500;line-height: 24px;vertical-align: baseline;}
             .section-info .col-actions button.action-upgrade {color: #344054;background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0 1px 2px 0 rgba(16,24,40,0.05);}
-            
             .section-info .col-actions button.action-update {display: flex;align-items: center;color: #ffffff;background: #494542;border-color: #494542;padding: 0;}
             .section-info .col-actions button.action-update span:first-child {padding: 9px 16px;}
             .section-info .col-actions button.action-update .mf-icon {width: 44px;height: 42px;display: flex;align-items: center;justify-content: center;background: #363330;}
