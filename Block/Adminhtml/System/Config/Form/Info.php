@@ -126,7 +126,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                     <span class="block-dev">developed by 
                         <a href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_content=magefan" target="_blank">Mage' . 'fan</a>
                     </span>
-                    <span class="block-dot">&middot;</span>
+                    <span class="block-dot"></span>
                     <span class="block-guide">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
                             <path d="M6.41797 16.4987H15.5846C16.314 16.4987 17.0135 16.209 17.5292 15.6932C18.0449 15.1775 18.3346 14.478 18.3346 13.7487V4.58203C18.3346 3.85269 18.0449 3.15321 17.5292 2.63749C17.0135 2.12176 16.314 1.83203 15.5846 1.83203H6.41797C5.68862 1.83203 4.98915 2.12176 4.47343 2.63749C3.9577 3.15321 3.66797 3.85269 3.66797 4.58203V17.4154C3.66797 18.1447 3.9577 18.8442 4.47343 19.3599C4.98915 19.8756 5.68862 20.1654 6.41797 20.1654H17.418C17.6611 20.1654 17.8942 20.0688 18.0662 19.8969C18.2381 19.725 18.3346 19.4918 18.3346 19.2487C18.3346 19.0056 18.2381 18.7724 18.0662 18.6005C17.8942 18.4286 17.6611 18.332 17.418 18.332H6.41797C6.17485 18.332 5.9417 18.2355 5.76979 18.0635C5.59788 17.8916 5.5013 17.6585 5.5013 17.4154C5.5013 17.1723 5.59788 16.9391 5.76979 16.7672C5.9417 16.5953 6.17485 16.4987 6.41797 16.4987ZM5.5013 4.58203C5.5013 4.33892 5.59788 4.10576 5.76979 3.93385C5.9417 3.76194 6.17485 3.66536 6.41797 3.66536H15.5846C15.8278 3.66536 16.0609 3.76194 16.2328 3.93385C16.4047 4.10576 16.5013 4.33892 16.5013 4.58203V13.7487C16.5013 13.9918 16.4047 14.225 16.2328 14.3969C16.0609 14.5688 15.8278 14.6654 15.5846 14.6654H6.41797C6.10573 14.6652 5.79574 14.7182 5.5013 14.8221V4.58203Z" fill="#DA5D28"/>
@@ -166,7 +166,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         }
             .section-config a[id$="_general-head"] {display: none;}
             
-            .section-info {display: flex;flex-wrap: wrap;justify-content: space-between;gap: 36px;border: 1px solid rgba(0,0,0,0.1);background: #F8F8F8; padding: 24px 24px;font-size: 18px;font-weight: 500;font-family: "Plus Jakarta Sans", sans-serif;}
+            .section-info {display: flex;flex-wrap: wrap;justify-content: space-between;gap: 36px;border: 1px solid rgba(0,0,0,0.1);background: #F8F8F8;padding: 24px 24px;font-size: 18px;font-weight: 500;font-family: "Plus Jakarta Sans", sans-serif;margin-bottom: 30px;}
             .section-info .col-info {display: flex;align-items: flex-start;}
             .section-info .col-info .product-icon {width: 64px;height: 64px;margin-right: 24px;}
             .section-info .col-info .product-icon img {border-radius: 6px;}
@@ -175,14 +175,14 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .row-2 {display: flex;align-items: center;}
             .section-info .row-2 .block-dev {color: #98A2B3;}
             .section-info .row-2 .block-dev a {color: #DA5D28;}
-            .section-info .row-2 .block-dot {margin: 0 12px;color: #98A2B3;}
+            .section-info .row-2 .block-dot {margin: 0 12px;color: #98A2B3;background-color: #98A2B3;width: 3px;height: 3px;border-radius: 50%;}
             .section-info .row-2 .block-guide {display: flex;align-items: center;gap: 5px;}
             .section-info .row-2 .block-guide a {font-size: 18px;font-weight: 500;color: #DA5D28;}
             .section-info .col-actions {display: flex;flex-direction: column;align-items: flex-end;}
             .section-info .col-actions .actions {display: flex;align-items: center;gap: 18px;}
             .section-info .col-actions button {padding: 9px 16px 9px;text-align: center;position: relative;box-sizing: border-box;}
             .section-info .col-actions button span {font-family: "Plus Jakarta Sans", sans-serif;font-size: 18px;font-weight: 500;line-height: 24px;vertical-align: baseline;}
-            .section-info .col-actions button.action-upgrade {background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
+            .section-info .col-actions button.action-upgrade {color: #344054;background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
             .section-info .col-actions button.action-update {color: #ffffff;background: #494542;padding-right: 56px;border-color: #494542;}
             .section-info .col-actions button.action-update:after {display: inline-block;content: "\e626";margin: 0;padding: 12px;transform: rotateY(180deg);position: absolute;top: -1px;right: -1px;background: #363330;-webkit-font-smoothing: antialiased;font-family: "Admin Icons";font-style: normal;font-weight: normal;font-size: 2rem;line-height: 1;speak: none;}
             .section-info .col-actions button.action-update:hover {border-color: #494542;}
