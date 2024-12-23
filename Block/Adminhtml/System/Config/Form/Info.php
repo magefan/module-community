@@ -146,7 +146,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             }
 
             if ($newVersionAvailable) {
-                $html .= '<button id="update" title="Upgrade to new Version" class="action-default update _action-primary" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '\', \'_blank\'); return false;"><span>Upgrade to new Version</span></button>';
+                $html .= '<button id="update" title="Upgrade to new Version" class="action-update" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '\', \'_blank\'); return false;"><span>Upgrade to new Version</span></button>';
             }
             $html .= '</div>
            ';
@@ -174,10 +174,10 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .col-actions .actions {display: flex;align-items: center;gap: 28px;}
             .section-info .col-actions button {padding: 9px 16px 9px;text-align: center;position: relative;box-sizing: border-box;}
             .section-info .col-actions button span {font-size: 18px;font-weight: 500;line-height: 24px;vertical-align: baseline;}
-            .section-info .col-actions button.upgrade {background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
-            .section-info .col-actions button.update {color: #ffffff;background: #494542;padding-right: 56px;border-color: #494542;}
-            .section-info .col-actions button.update:after {display: inline-block;content: "\e626";margin: 0;padding: 12px;transform: rotateY(180deg);position: absolute;top: -1px;right: -1px;background: #363330;-webkit-font-smoothing: antialiased;font-family: "Admin Icons";font-style: normal;font-weight: normal;font-size: 2rem;line-height: 1;speak: none;}
-            .section-info .col-actions button.update:hover {border-color: #494542;}
+            .section-info .col-actions button.action-upgrade {background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
+            .section-info .col-actions button.action-update {color: #ffffff;background: #494542;padding-right: 56px;border-color: #494542;}
+            .section-info .col-actions button.action-update:after {display: inline-block;content: "\e626";margin: 0;padding: 12px;transform: rotateY(180deg);position: absolute;top: -1px;right: -1px;background: #363330;-webkit-font-smoothing: antialiased;font-family: "Admin Icons";font-style: normal;font-weight: normal;font-size: 2rem;line-height: 1;speak: none;}
+            .section-info .col-actions button.action-update:hover {border-color: #494542;}
             .section-info .col-actions .available-version {font-size: 16px;font-weight: 500;line-height: 24px;margin-top: 10px;margin-right: 36px;color: #8D8D8D;}
         </style>
         ';
