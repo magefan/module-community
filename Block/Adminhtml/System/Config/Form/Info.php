@@ -146,14 +146,39 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             }
 
             if ($newVersionAvailable) {
-                $html .= '<button id="update" title="Upgrade to new Version" class="action-default update _action-primary" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '\', \'_blank\'); return false;"><span>Upgrade to new Version</span></button>
-                <div class="available-version">Version v' . $this->escapeHtml($latestVersion) . ' is available</div>';
+                $html .= '<button id="update" title="Upgrade to new Version" class="action-default update _action-primary" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '\', \'_blank\'); return false;"><span>Upgrade to new Version</span></button>';
             }
             $html .= '</div>
-            </div>
-        </div>
+           ';
+           if ($newVersionAvailable) {
+               $html .= '<div class="available-version">Version v' . $this->escapeHtml($latestVersion) . ' is available</div>';
+           }
+         $html .= ' </div>
+</div>
         <style>
             .section-config a[id$="_general-head"] {display: none;}
+            
+            .section-info {display: flex;flex-wrap: wrap;justify-content: space-between;gap: 36px;border: 1px solid rgba(0,0,0,0.1);background: #F8F8F8; padding: 24px 24px;font-size: 18px;font-weight: 500;}
+            .section-info .col-info {display: flex;align-items: flex-start;}
+            .section-info .col-info .product-icon {width: 64px;height: 64px;margin-right: 24px;}
+            .section-info .col-info .product-icon img {border-radius: 6px;}
+            .section-info .row-1 {margin-bottom: 14px;}
+            .section-info .row-1 .block-title {color: #000000;font-size: 24px;line-height: 32px;font-weight: 600;}
+            .section-info .row-2 {display: flex;align-items: center;}
+            .section-info .row-2 .block-dev {color: #98A2B3;}
+            .section-info .row-2 .block-dev a {color: #DA5D28;}
+            .section-info .row-2 .block-dot {margin: 0 12px;color: #98A2B3;}
+            .section-info .row-2 .block-guide {display: flex;align-items: center;gap: 5px;}
+            .section-info .row-2 .block-guide a {font-size: 18px;font-weight: 500;color: #DA5D28;}
+            .section-info .col-actions {display: flex;flex-direction: column;align-items: flex-end;}
+            .section-info .col-actions .actions {display: flex;align-items: center;gap: 28px;}
+            .section-info .col-actions button {padding: 1rem 1.8rem 1rem;text-align: center;position: relative;}
+            .section-info .col-actions button span {font-size: 1.8rem;font-weight: 500;line-height: 26px;vertical-align: baseline;}
+            .section-info .col-actions button.upgrade {background: #ffffff;border: 1px solid #D0D5DD;box-shadow: 0px 1px 2px 0px rgba(16,24,40,0.05);}
+            .section-info .col-actions button.update {color: #ffffff;background: #494542;padding-right: 56px;border-color: #494542;}
+            .section-info .col-actions button.update:after {display: inline-block;content: "\e626";margin: 0;padding: 14px;transform: rotateY(180deg);position: absolute;top: -1px;right: -1px;background: #363330;-webkit-font-smoothing: antialiased;font-family: "Admin Icons";font-style: normal;font-weight: normal;font-size: 2rem;line-height: 1;speak: none;}
+            .section-info .col-actions button.update:hover {border-color: #494542;}
+            .section-info .col-actions .available-version {font-size: 16px;font-weight: 500;line-height: 24px;margin-top: 10px;margin-right: 36px;color: #8D8D8D;}
         </style>
         ';
 
