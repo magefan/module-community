@@ -83,9 +83,9 @@ abstract class AbstractThemeDetection
             return $this->result[$key];
         }
 
-        $breezeThemeEnabled = $this->moduleManager->isEnabled($this->getThemeModuleName());
+        $themeEnabled = $this->moduleManager->isEnabled($this->getThemeModuleName());
 
-        if ($breezeThemeEnabled) {
+        if ($themeEnabled) {
 
             if (null === $storeId) {
                 $storeId = $this->storeManager->getStore()->getId();
@@ -94,13 +94,13 @@ abstract class AbstractThemeDetection
             if (!$storeId){
                 $stores = $this->storeManager->getStores();
                 foreach ($stores as $store) {
-                    if ($this->isBreezeThemeInUse($store->getId())) {
+                    if ($this->isThemeInUse($store->getId())) {
                         $this->result[$key] = true;
                         return $this->result[$key];
                     }
                 }
             } else {
-                $this->result[$key] = $this->isBreezeThemeInUse($storeId);
+                $this->result[$key] = $this->isThemeInUse($storeId);
                 return $this->result[$key];
             }
         }
@@ -112,7 +112,7 @@ abstract class AbstractThemeDetection
      * @param $storeId
      * @return bool
      */
-    private function isBreezeThemeInUse($storeId)
+    private function isThemeInUse($storeId)
     {
         $themeId = $this->scopeConfig->getValue(
             \Magento\Framework\View\DesignInterface::XML_PATH_THEME_ID,
