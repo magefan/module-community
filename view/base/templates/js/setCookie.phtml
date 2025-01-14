@@ -21,7 +21,6 @@
         
         var expires = params.expires;
         var path = params.path || '/';
-        var domain = params.domain || window.location.hostname;
 
         var cookieString = encodeURIComponent(name) + '=' + encodeURIComponent(value);
 
@@ -29,7 +28,9 @@
             cookieString += '; expires=' + expires.toUTCString();
         }
         cookieString += '; path=' + path;
-        cookieString += '; domain=' + domain;
+        if (params.domain) {
+            cookieString += '; domain=' + params.domain;
+        }
         document.cookie = cookieString;
     };
 "; ?>
