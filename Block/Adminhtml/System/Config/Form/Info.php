@@ -85,17 +85,17 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
 
         if ($latestVersion = $moduleInfo->getVersion()) {
 
-            $fullModuleName = $moduleInfo->getProductName();
+            $fullModuleTitle = $moduleInfo->getProductName();
             $moduleUrl = $moduleInfo->getProductUrl();
             $moduleImage = $moduleInfo->getProductImage();
 
             $newVersionAvailable = version_compare($latestVersion, $currentVersion) > 0;
-            $moduleName = str_replace(['Magento 2', 'Magento'], ['', ''], (string)$fullModuleName);
-            $moduleName = trim($moduleName);
+            $moduleTitle = str_replace(['Magento 2', 'Magento'], ['', ''], (string)$fullModuleTitle);
+            $moduleTitle = trim($moduleTitle);
 
         } else {
 
-            $fullModuleName = $moduleName = $this->getModuleTitle();
+            $fullModuleTitle = $moduleTitle = $this->getModuleTitle();
             $newVersionAvailable = false;
             $moduleUrl = $this->getModuleUrl();
             $moduleImage = '';
@@ -112,14 +112,14 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         $html = '<div class="section-info">
         <div class="col-info">
             <div class="product-icon">
-                <a title="' .$this->escapeHtml($fullModuleName) . '" href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=extension-logo" target="_blank">
+                <a title="' .$this->escapeHtml($fullModuleTitle) . '" href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=extension-logo" target="_blank">
                     <img src="' .  $this->escapeHtml($moduleImage) . '" alt=""/>
                 </a>
             </div>
             <div class="product-info-wrapper">
                 <div class="row-1">
                     <div class="block-title">
-                        ' .$this->escapeHtml($moduleName) . ($plan ? ' (' . $plan . ')' : '') . ' v' . $this->escapeHtml($currentVersion) . '
+                        ' . $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') . ' v' . $this->escapeHtml($currentVersion) . '
                     </div>
                 </div>
                 <div class="row-2">
