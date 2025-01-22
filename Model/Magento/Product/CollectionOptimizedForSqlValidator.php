@@ -17,10 +17,6 @@ class CollectionOptimizedForSqlValidator extends \Magento\Catalog\Model\Resource
      */
     public function getAllAttributeValues($attribute)
     {
-
-       /* var_dump($attribute);
-        echo 'ffffs';exit();
-*/
         return [];
     }
 }
