@@ -48,7 +48,7 @@ class ProductKeyField extends Field
                     $moduleName = $moduleName[0];
                     $moduleInfo = $objectManager->get(\Magefan\Community\Api\GetModuleInfoInterface::class)->execute($moduleName);
 
-                    $url = 'ht' . 'tp'. ':' . '/'. '/'. 'ma' . 'g' . 'ef' . 'an' . '.' . 'loc' . '/' . 'mp' . 'k/a' . 'cti' . 'vat' . 'e/e' . 'xte' . 'nsi' . 'on/' . 'ret' . 'urn_' . 'ur' . 'l/' .
+                    $url = 'ht' . 'tp'. ':' . '/'. '/'. 'ma' . 'g' . 'ef' . 'an' . '.' . 'c' . 'o' . 'm' . '/' . 'mp' . 'k/a' . 'cti' . 'vat' . 'e/e' . 'xte' . 'nsi' . 'on/' . 'ret' . 'urn_' . 'ur' . 'l/' .
                         base64_encode($this->getUrl('m' . 'f' . 'co' . 'mm' . 'uni' . 'ty/' . 'act' . 'iva' . 'te/ext' . 'ens' . 'ion', ['section' => $section->getName()]))
                         . '/mo' . 'dul' . 'e/' . $moduleInfo->getProductName() . '/se' . 'cti' . 'on/' . $section->getName();
                     return '<button id="activate-extension" type="button" class="action-default scalable primary ui-button ui-corner-all ui-widget" onclick="window.location.href=\'' . $url . '\';">Activate extension</button>';
