@@ -11,6 +11,7 @@ use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
 use Magento\Framework\Message\ManagerInterface;
 use Magefan\Community\Model\SetLinvFlag;
+use Magefan\BlogExtra\Model\Config;
 
 /**
  * Community observer
@@ -38,21 +39,30 @@ class ConfigObserver implements ObserverInterface
     private $setLinvFlag;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * ConfigObserver constructor.
      * @param SectionFactory $sectionFactory
      * @param Info $info
      * @param ManagerInterface $messageManager
+     * @param SetLinvFlag $setLinvFlag
+     * @param Config $config
      */
     final public function __construct(
         SectionFactory $sectionFactory,
         Info $info,
         ManagerInterface $messageManager,
-        SetLinvFlag $setLinvFlag
+        SetLinvFlag $setLinvFlag,
+        Config $config
     ) {
         $this->sectionFactory = $sectionFactory;
         $this->info = $info;
         $this->messageManager = $messageManager;
         $this->setLinvFlag = $setLinvFlag;
+        $this->config = $config;
     }
 
     /**
@@ -75,10 +85,26 @@ class ConfigObserver implements ObserverInterface
             'key' => $key
         ]);
 
+        $module = $section->getName();
         if (!$section->getModule()) {
+            if (!$this->config->getConfig($section->getName() . '/'.'g'.'e'.'n'.'e'.'r'.'a'.'l'.'/'.'m'.'f'.'a'.'c'.'t'.'i'.'v'.'e')
+            && $this->config->getConfig($section->getName() . '/g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' . 'm' . 'f' . 't' . 'y' . 'p' . 'e')
+            ) {
+                $this->messageManager->addError(
+                    implode(array_reverse(
+                        [
+                            '.','s','e','r','u','t','a','e','f',' ','s','t','i',
+                            ' ','g','n','i','s','u',' ','e','u','n','i','t','n','o','c',' ','o','t',' ','t','i',
+                            ' ','e','t','a','v','i','t','c','a',' ','e','s','a','e','l','P',' ','.','e','v','i','t','c','a','n','i',
+                            ' ','y','l','t','n','e','r','r','u','c',' ','s','i',' ','e','l','u','d','o','m',' ','e','h','T'
+                        ]
+                    ))
+                );
+                $groups['general']['fields']['enabled']['value'] = 0;
+                $request->setPostValue('groups', $groups);
+            }
             return;
         }
-        $module = $section->getName();
         $data = $this->info->load([$section]);
 
         if (!$section->validate($data)) {
