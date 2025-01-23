@@ -2,6 +2,29 @@
     
     // Magefan Community Menu Lvl-0
     #menu-magefan-community-elements {
+        &._show {
+            > .submenu {
+                width: calc(100vw - 8.800000000000001rem);
+                > ul[role=menu] {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    > .column {
+                        display: contents;
+                        > ul[role=menu] {
+                            display: contents;
+                            > li {
+                                display: flex;
+                                flex-direction: column;
+                                min-width: 24.8rem;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         > a {
             &:before {
                 content: '';
