@@ -53,7 +53,6 @@ class Extension extends \Magento\Backend\App\Action
         $this->configWriter->save($section . '/g'.'e'.'n'.'e'.'r'.'a'.'l'.'/'.'m'.'f'.'a'.'c'.'t'.'i'.'v'.'e', 1, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
         $this->cacheTypeList->cleanType(Config::TYPE_IDENTIFIER);
 
-//        var_dump($this->getRequest()->getParams(), $this->_url->getUrl('adminhtml/system_config/edit', ['section' => $section]));exit;
         return $this->resultRedirectFactory->create()->setUrl($this->_url->getUrl('adminhtml/system_config/edit', ['section' => $section]));
 
     }
