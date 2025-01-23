@@ -17,10 +17,21 @@ use Magento\Framework\App\Cache\Type\Config;
 
 class Extension extends \Magento\Backend\App\Action
 {
-
+    /**
+     * @var WriterInterface
+     */
     private $configWriter;
+
+    /**
+     * @var TypeListInterface
+     */
     private $cacheTypeList;
 
+    /**
+     * @param Context $context
+     * @param WriterInterface $configWriter
+     * @param TypeListInterface $cacheTypeList
+     */
     public function __construct(
         Context $context,
         WriterInterface $configWriter,
@@ -32,6 +43,10 @@ class Extension extends \Magento\Backend\App\Action
         parent::__construct($context);
     }
 
+    /**
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
+     * @throws NoSuchEntityException
+     */
     public function execute()
     {
         if (!$this->getRequest()->getParam('activation_key')) {
