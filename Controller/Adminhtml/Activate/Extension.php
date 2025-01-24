@@ -52,18 +52,19 @@ class Extension extends \Magento\Backend\App\Action
         if (!$this->getRequest()->getParam('activation_key')) {
             throw new NoSuchEntityException(__('Activation key not found.'));
         }
-        $urlInfo = parse_url($this->_url->getCurrentUrl());
-        $domain = isset($urlInfo['host']) ? $urlInfo['host'] : null;
-
-        $key = sha1(date('y-m-d'). '_' . $this->getRequest()->getParam('section') . '_' . $domain);
-        if ($this->getRequest()->getParam('activation_key') !== $key) {
-            throw new NoSuchEntityException(__('Invalid activation key provided. Please try again.'));
-        }
 
         if (!$this->getRequest()->getParam('section')) {
             throw new NoSuchEntityException(__('Section not specified.'));
         }
-        $section = $this->getRequest()->getParam('section');
+
+        $section = (string)$this->getRequest()->getParam('section');
+        $urlInfo = parse_url($this->_url->getCurrentUrl());
+        $domain = isset($urlInfo['host']) ? $urlInfo['host'] : null;
+
+        $key = sha1(date('y-m-d'). '_' . $section . '_' . $domain);
+        if ($this->getRequest()->getParam('activation_key') !== $key) {
+            throw new NoSuchEntityException(__('Invalid activation key provided. Please try again.'));
+        }
 
         $this->configWriter->save($section . '/g'.'e'.'n'.'e'.'r'.'a'.'l'.'/'.'m'.'f'.'a'.'c'.'t'.'i'.'v'.'e', 1, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
         $this->cacheTypeList->cleanType(Config::TYPE_IDENTIFIER);
