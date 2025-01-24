@@ -11,7 +11,8 @@ use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
 use Magento\Framework\Message\ManagerInterface;
 use Magefan\Community\Model\SetLinvFlag;
-use Magefan\BlogExtra\Model\Config;
+use Magefan\Community\Model\Config;
+use Magefan\Community\Model\Section;
 
 /**
  * Community observer
@@ -85,18 +86,16 @@ class ConfigObserver implements ObserverInterface
             'key' => $key
         ]);
 
-        $module = $section->getName();
         if (!$section->getModule()) {
-            if (!$this->config->getConfig($section->getName() . '/'.'g'.'e'.'n'.'e'.'r'.'a'.'l'.'/'.'m'.'f'.'a'.'c'.'t'.'i'.'v'.'e')
-            && $this->config->getConfig($section->getName() . '/g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' . 'm' . 'f' . 't' . 'y' . 'p' . 'e')
-            ) {
+            $bp = $section->getName() . '/' . 'g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' ;
+            if (!$this->config->getConfig( $bp . Section::ACTIVE) && !$section->getType()) {
                 $this->messageManager->addError(
                     implode(array_reverse(
                         [
-                            '.','s','e','r','u','t','a','e','f',' ','s','t','i',
-                            ' ','g','n','i','s','u',' ','e','u','n','i','t','n','o','c',' ','o','t',' ','t','i',
-                            ' ','e','t','a','v','i','t','c','a',' ','e','s','a','e','l','P',' ','.','e','v','i','t','c','a','n','i',
-                            ' ','y','l','t','n','e','r','r','u','c',' ','s','i',' ','e','l','u','d','o','m',' ','e','h','T'
+                            '.','e','g','a','s','u',' ','e','e','r','f',' ','y','o','j','n','e',' ',
+                            'o','t',' ','t','i',' ','e','t','a','v','i','t','c','a',' ','e','s','a',
+                            'e','l','P',' ','.','d','e','t','a','v','i','t','c','a',' ','t','o','n',
+                            ' ','s','i',' ','n','o','i','s','n','e','t','x','e',' ','e','h','T'
                         ]
                     ))
                 );
@@ -105,6 +104,7 @@ class ConfigObserver implements ObserverInterface
             }
             return;
         }
+        $module = $section->getName();
         $data = $this->info->load([$section]);
 
         if (!$section->validate($data)) {

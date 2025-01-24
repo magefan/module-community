@@ -24,6 +24,8 @@ final class Section
 
     const TYPE = 'mftype';
 
+    const ACTIVE = 'mfactive';
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -85,14 +87,14 @@ final class Section
      */
     final public function isEnabled()
     {
-        return (bool) $this->getConfig(self::ENABLED);
+        return (bool)$this->getConfig(self::ENABLED);
     }
 
     /**
      * @param false $e
      * @return false|string
      */
-    final public function getModule($e = false)
+    final public function getModuleName($e = false)
     {
         $fs = $e ? [self::MODULE] : [self::MODULE . 'e', self::MODULE . 'p', self::MODULE];
         foreach ($fs as $f) {
@@ -101,6 +103,18 @@ final class Section
                 break;
             }
         }
+
+        return $module;
+    }
+
+    /**
+     * @param false $e
+     * @return false|string
+     */
+    final public function getModule($e = false)
+    {
+        $module = $this->getModuleName();
+
         $url = $this->scopeConfig->getValue(
             'web/unsecure/base' . '_' . 'url',
             ScopeInterface::SCOPE_STORE,
@@ -108,11 +122,7 @@ final class Section
         );
 
         if (\Magefan\Community\Model\UrlChecker::showUrl($url)) {
-            if ($module
-                && (!$this->getConfig(self::TYPE)
-                    || $this->getConfig(self::TYPE) && $this->metadata->getEdition() != 'C' . 'omm' . 'un' . 'ity'
-                )
-            ) {
+            if ($module && $this->getType()) {
                 return $module;
             }
 
@@ -124,6 +134,16 @@ final class Section
             }
         }
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    final public function getType()
+    {
+        return (!$this->getConfig(self::TYPE)
+            || $this->getConfig(self::TYPE) && $this->metadata->getEdition() != 'C' . 'omm' . 'un' . 'ity'
+        );
     }
 
     /**
