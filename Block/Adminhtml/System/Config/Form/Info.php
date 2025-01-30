@@ -173,9 +173,9 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .col-info {display: flex;align-items: flex-start;}
             .section-info .col-info .product-icon {width: 64px;height: 64px;margin-right: 24px;}
             .section-info .col-info .product-icon img {border-radius: 6px;}
-            .section-info .col-info .product-info-wrapper .block-title a {color: #000000;text-decoration: none;}
             .section-info .row-1 {margin-bottom: 14px;}
             .section-info .row-1 .block-title {color: #000000;font-size: 24px;line-height: 32px;font-weight: 600;}
+            .section-info .row-1 .block-title a {color: #000000;text-decoration: none;}
             .section-info .row-2 {display: flex;align-items: center;}
             .section-info .row-2 .block-dev {color: #98A2B3;}
             .section-info .row-2 .block-dev a {color: #DA5D28;}
