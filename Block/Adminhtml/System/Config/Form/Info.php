@@ -119,7 +119,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             <div class="product-info-wrapper">
                 <div class="row-1">
                     <div class="block-title">
-                        <a href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=extension-name" target="_blank">' . $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') . ' v' . $this->escapeHtml($currentVersion) . '</a>
+                        <a href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=extension-name" target="_blank">' . $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') . '</a> v' . $this->escapeHtml($currentVersion) . '
                     </div>
                 </div>
                 <div class="row-2">
@@ -173,6 +173,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .col-info {display: flex;align-items: flex-start;}
             .section-info .col-info .product-icon {width: 64px;height: 64px;margin-right: 24px;}
             .section-info .col-info .product-icon img {border-radius: 6px;}
+            .section-info .col-info .product-info-wrapper .block-title a {color: #000000;text-decoration: none;}
             .section-info .row-1 {margin-bottom: 14px;}
             .section-info .row-1 .block-title {color: #000000;font-size: 24px;line-height: 32px;font-weight: 600;}
             .section-info .row-2 {display: flex;align-items: center;}
