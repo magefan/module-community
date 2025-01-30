@@ -119,12 +119,12 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             <div class="product-info-wrapper">
                 <div class="row-1">
                     <div class="block-title">
-                        ' . $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') . ' v' . $this->escapeHtml($currentVersion) . '
+                        <a href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=extension-name" target="_blank">' . $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') . ' v' . $this->escapeHtml($currentVersion) . '</a>
                     </div>
                 </div>
                 <div class="row-2">
                     <span class="block-dev">developed by 
-                        <a href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=developed-by-magefan" target="_blank">Mage' . 'fan</a>
+                        <a href="' . 'https://mage' . 'fan.com' . '&utm_campaign=developed-by-magefan" target="_blank">Mage' . 'fan</a>
                     </span>
                     <span class="block-dot"></span>
                     <span class="block-guide">
