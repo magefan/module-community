@@ -1,5 +1,5 @@
 .admin__menu {
-    
+
     // Magefan Community Menu Lvl-0
     #menu-magefan-community-elements {
         &._show {
@@ -11,6 +11,20 @@
                     overflow-x: hidden;
                     overflow-y: auto;
                     max-height: 90vh;
+                    @media (max-width: 1023px) {
+                        max-height: 100vh;
+                    }
+                    &::-webkit-scrollbar {
+                        width: 4px;
+                        background-color: #f5f5f5;
+                    }
+                    &::-webkit-scrollbar-track {
+                        background-color: #fff;
+                    }
+                    &::-webkit-scrollbar-thumb {
+                        background-color: #c2c2c2;
+                        border-radius: 4px;
+                    }
                     > .column {
                         display: contents;
                         > ul[role=menu] {
@@ -103,7 +117,6 @@
     }
 
 }
-
 
 
 // Store Configuration Magefan Extension
