@@ -56,5 +56,6 @@ class ProductKeyField extends Field
                         </tr>' ;
             }
         }
+        return '';
     }
 }
