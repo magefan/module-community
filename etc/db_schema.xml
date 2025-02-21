@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+-->
+
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="mf_message_remind_later" comment="Remind Later Messages">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="int" name="user_id" unsigned="true" nullable="false" comment="Admin User ID"/>
+        <column xsi:type="varchar" name="module_name" nullable="false" length="255" comment="Module Name"/>
+        <column xsi:type="varchar" name="event" nullable="false" length="255" comment="Event"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Created At"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+
+        <index referenceId="MF_MESSAGE_REMIND_LATER_USER_ID">
+            <column name="user_id"/>
+        </index>
+    </table>
+</schema>
