@@ -22,9 +22,11 @@ if (!empty($data)) {
         if(!$block->getModuleInfo()){
             continue;
         }
-        if(!$block->getModuleInfo()->getProductName()){
+
+        if(!$block->getCurrentVersion()) {
             continue;
         }
+
         $moduleName = str_replace(['Magento 2 ', ' Extension'],'', $block->getModuleInfo()->getProductName());
 ?>
 

@@ -150,7 +150,7 @@ class Messages extends \Magento\Backend\Block\Template
     /**
      * @return string
      */
-    private function getCurrentVersion() {
+    public function getCurrentVersion() {
         if ($this->currentVersion === null) {
             $moduleName = $this->getFormattedModuleName();
             $this->currentVersion = $this->getModuleVersion->execute($moduleName);
