@@ -66,7 +66,27 @@ class Index extends \Magento\Backend\App\Action
                 'event' => $event
             ];
 
-            $connection->insert($tableName, $data);
+            $select = $connection->select()
+                ->from($tableName, ['id'])
+                ->where('user_id = ?', $adminUser->getId())
+                ->where('module_name = ?', $moduleName)
+                ->where('event = ?', $event);
+            $exists = $connection->fetchOne($select);
+
+            if ($exists) {
+                $connection->update(
+                    $tableName,
+                    ['created_at' => (new \DateTime())->format('Y-m-d H:i:s')],
+                    [
+                        'user_id = ?' => $adminUser->getId(),
+                        'module_name = ?' => $moduleName,
+                        'event = ?' => $event
+                    ]
+                );
+            } else {
+                $connection->insert($tableName, $data);
+            }
+
             $result = ['success' => true];
         } catch (\Exception $e) {
             $result = ['error' => $e->getMessage(), 'errorcode' => $e->getCode()];

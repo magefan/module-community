@@ -81,35 +81,37 @@ if (!empty($data)) {
                 </div>
             </div>
         <?php } ?>
-<?php
-    }
-} ?>
-<?php
-$script = "
-    function remindLater(el, event) {
-        let messageBlock = el.closest('.messages');
-        if (messageBlock) {
-            messageBlock.style.transition = 'opacity 0.5s';
-            messageBlock.style.opacity = '0';
-            setTimeout(() => messageBlock.style.display = 'none', 500);
-            require(['jquery', 'domReady!'], function($){
-                $.ajax({
-                    url:'" . $block->escapeHtml($block->getUrl('mfcommunity/remindlater/index')) ."',
-                    type: 'post',
-                    dataType: 'json',
-                    data: {
-                        event: event,
-                        module: '" . $moduleName . "'
-                    },
-                    success: function (data) {
-                        console.log(data);
-                    }
-                });
-            });
-        }
-    }
-";
 
-?>
+        <?php
+        $script = "
+            function remindLater(el, event) {
+                let messageBlock = el.closest('.messages');
+                if (messageBlock) {
+                    messageBlock.style.transition = 'opacity 0.5s';
+                    messageBlock.style.opacity = '0';
+                    setTimeout(() => messageBlock.style.display = 'none', 500);
+               
+                    require(['jquery', 'domReady!'], function($){
+                        $.ajax({
+                            url:'" . $block->escapeHtml($block->getUrl('mfcommunity/remindlater/index')) ."',
+                            type: 'post',
+                            dataType: 'json',
+                            data: {
+                                event: event,
+                                module: '" . $moduleName . "'
+                            },
+                            success: function (data) {
+                                console.log(data);
+                            }
+                        });
+                    });
+                }
+            }
+        ";
+        ?>
 
 <?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
+<?php
+    }
+}
+?>
