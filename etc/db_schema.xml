@@ -22,4 +22,15 @@
             <column name="user_id"/>
         </index>
     </table>
+
+    <table name="mfs_cache" comment="Mf Cache">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="varchar" name="module_name" nullable="false" length="255" comment="Module Name"/>
+        <column xsi:type="varchar" name="data" nullable="false" length="255" comment="Data"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+    </table>
 </schema>

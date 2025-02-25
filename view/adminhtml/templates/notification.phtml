@@ -19,11 +19,7 @@ $data = $block->getNotificationData();
 if (!empty($data)) {
     foreach ($data as $name => $messages) {
         $this->setExtensionName($name);
-        if(!$block->getModuleInfo()){
-            continue;
-        }
-
-        if(!$block->getCurrentVersion()) {
+        if (!$block->getModuleInfo() || !$block->getCurrentVersion()){
             continue;
         }
 
@@ -31,7 +27,7 @@ if (!empty($data)) {
 ?>
 
         <?php /*disabled*/ ?>
-        <?php if (!$block->isEnabled()) { ?>
+        <?php if (!$block->isEnabled() && $block->allowShowMessage('enabled', $messages)) { ?>
             <div class="messages">
                 <div class="message message-error">
                     <div data-ui-id="messages-message-error">
@@ -49,7 +45,7 @@ if (!empty($data)) {
             </div>
         <?php }?>
 
-        <?php if ($block->needToUpdate() && $block->allowShowMessage('update') /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+        <?php if ($block->needToUpdate() && $block->allowShowMessage('update', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
             <div class="messages">
                 <div class="message message-notice notice">
                     <div data-ui-id="messages-message-error">
@@ -66,7 +62,7 @@ if (!empty($data)) {
         <?php } ?>
 
 
-        <?php if ($block->canUpgradePlan() && $block->allowShowMessage('upgrade') /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+        <?php if ($block->canUpgradePlan() && $block->allowShowMessage('upgrade', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
             <div class="messages">
                 <div class="message message-notice notice">
                     <div data-ui-id="messages-message-error">
@@ -77,6 +73,22 @@ if (!empty($data)) {
                         ?>
                         <button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open('<?= $block->getModuleInfo()->getProductUrl()?>/pricing?utm_source=admin&amp;utm_medium=config&amp;utm_campaign=upgrade-plan', '_blank'); return false;"><span>Upgrade Plan</span></button>
                         <button id="remind-later" title="Remind Later" class="action-remind-later" onclick="remindLater(this,'upgrade')"><span>Remind Later</span></button>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($block->getSupportExpired() && $block->allowShowMessage('support', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+            <div class="messages">
+                <div class="message message-notice notice">
+                    <div data-ui-id="messages-message-error">
+
+                        <?= /*@noEscape*/ __(
+                            'Your support for ' . $moduleName . ' Extension expired ',
+                        );
+                        ?>
+                        <button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open('https://magefan.com/downloadable/customer/products?utm_source=admin&utm_medium=config&utm_campaign=order_support', '_blank'); return false;"><span>Order Support</span></button>
+                        <button id="remind-later" title="Remind Later" class="action-remind-later" onclick="remindLater(this,'support')"><span>Remind Later</span></button>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Block\Adminhtml\System;
 
 use Magefan\Community\Api\GetModuleInfoInterface;
+use Magefan\Community\Api\GetModuleSupportInfoInterface;
 use Magefan\Community\Api\GetModuleVersionInterface;
 use Magefan\Community\Model\Config;
 use Magefan\Community\Model\SectionFactory;
@@ -72,6 +73,11 @@ class Messages extends \Magento\Backend\Block\Template
     private $messagePool;
 
     /**
+     * @var GetModuleSupportInfoInterface|mixed
+     */
+    private $getModuleSupportInfo;
+
+    /**
      * @param Context $context
      * @param Config $config
      * @param RouteConfig $routeConfig
@@ -84,6 +90,7 @@ class Messages extends \Magento\Backend\Block\Template
      * @param array $data
      * @param GetModuleInfoInterface|null $getModuleInfo
      * @param GetModuleVersionInterface|null $getModuleVersion
+     * @param GetModuleSupportInfoInterface|null $getModuleSupportInfo
      */
     public function __construct(
         Context $context,
@@ -97,10 +104,10 @@ class Messages extends \Magento\Backend\Block\Template
         \Magefan\Community\Model\MessagePool $messagePool,
         array $data = [],
         GetModuleInfoInterface $getModuleInfo = null,
-        GetModuleVersionInterface $getModuleVersion = null
+        GetModuleVersionInterface $getModuleVersion = null,
+        GetModuleSupportInfoInterface $getModuleSupportInfo = null
     ) {
         parent::__construct($context, $data);
-        $this->cacheManager = $context->getCache();
         $this->config = $config;
         $this->routeConfig = $routeConfig;
         $this->moduleDirReader = $moduleDirReader;
@@ -114,6 +121,9 @@ class Messages extends \Magento\Backend\Block\Template
         $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
             \Magefan\Community\Api\GetModuleVersionInterface::class
         );
+        $this->getModuleSupportInfo = $getModuleSupportInfo ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
+            GetModuleSupportInfoInterface::class
+        );
     }
 
     /**
@@ -125,14 +135,15 @@ class Messages extends \Magento\Backend\Block\Template
         if ($data) {
             return $data;
         }
-        return [str_replace(['Extra', 'Plus'], '', $this->getFormattedModuleName()) => 'all'];
+        return [$this->getFormattedModuleName() => 'all'];
     }
     /**
      * @return bool
      */
     public function isEnabled() {
         foreach ($this->_storeManager->getStores() as $store) {
-            if ($this->config->getConfig($this->getConfigSection() . '/general/enabled', $store->getId())) {
+            $configPath = $this->getConfigSection() . '/general/enabled';
+            if ($this->config->getConfig($configPath, (int)$store->getId())) {
                 return true;
             }
         }
@@ -143,15 +154,14 @@ class Messages extends \Magento\Backend\Block\Template
      * @return array|false|\Magento\Framework\DataObject|mixed
      */
     public function getModuleInfo() {
-        $extensionName = str_replace(['Extra', 'Plus'], '', $this->getFormattedModuleName());
-        return $extensionName ? $this->getModuleInfo->execute($extensionName) : false;
+        return $this->getFormattedModuleName() ? $this->getModuleInfo->execute($this->getFormattedModuleName()) : false;
     }
 
     /**
      * @return string
      */
     public function getCurrentVersion() {
-        if ($this->currentVersion === null) {
+        if (!$this->currentVersion) {
             $moduleName = $this->getFormattedModuleName();
             $this->currentVersion = $this->getModuleVersion->execute($moduleName);
         }
@@ -162,9 +172,10 @@ class Messages extends \Magento\Backend\Block\Template
      * @return string
      */
     private function getLatestVersion() {
-        if ($this->latestVersion === null) {
+        if (!$this->latestVersion) {
             try {
-                $this->latestVersion = $this->getModuleInfo()->getVersion();
+                $moduleInfo = $this->getModuleInfo();
+                $this->latestVersion = $moduleInfo ? $moduleInfo->getVersion() : '';
             } catch (\Exception $e) {
                 $this->latestVersion = '';
             }
@@ -193,7 +204,8 @@ class Messages extends \Magento\Backend\Block\Template
         if (!empty($frontModule[0]) && strpos($frontModule[0], 'Magefan_') !== false) {
             $this->extensionName = $frontModule[0];
         } else {
-            $section = $this->sectionFactory->create( ['name' => $this->getRequest()->getParam('section')]);
+            $sectionName = (string)$this->getRequest()->getParam('section');
+            $section = $this->sectionFactory->create(['name' => $sectionName]);
             $this->extensionName = $section->getModuleName();
         }
     }
@@ -202,7 +214,7 @@ class Messages extends \Magento\Backend\Block\Template
      * @return mixed|null
      */
     private function getExtensionName() {
-        if ($this->extensionName === null) {
+        if (!$this->extensionName) {
             $this->setExtensionName();
         }
         return $this->extensionName;
@@ -213,7 +225,8 @@ class Messages extends \Magento\Backend\Block\Template
      */
     private function getFormattedModuleName() {
         $moduleName = $this->getExtensionName();
-        return str_starts_with($moduleName, 'Magefan_') ? $moduleName : 'Magefan_' . $moduleName;
+        $moduleName = str_starts_with($moduleName, 'Magefan_') ? $moduleName : 'Magefan_' . $moduleName;
+        return str_replace(['Extra', 'Plus'], '', $moduleName);
     }
 
     /**
@@ -260,9 +273,18 @@ class Messages extends \Magento\Backend\Block\Template
 
     /**
      * @param string $event
+     * @param $allowedMessages
      * @return bool
      */
-    public function allowShowMessage(string $event) {
+    public function allowShowMessage(string $event, $allowedMessages) {
+
+        if ($allowedMessages !== 'all') {
+            $allowedEvents = array_map('trim', explode(',', $allowedMessages));
+            if (!in_array($event, $allowedEvents)) {
+                return false;
+            }
+        }
+
         $adminUser = $this->authSession->getUser();
         if (!$adminUser) {
             return false;
@@ -280,5 +302,20 @@ class Messages extends \Magento\Backend\Block\Template
             ->limit(1);
 
         return !$connection->fetchOne($select);
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function getSupportExpired()
+    {
+        if ($this->getFormattedModuleName() && $key = $this->config->getConfig($this->getConfigSection() . '/general/key')) {
+            return !$this->getModuleSupportInfo->validSupport([
+                'key' => $key,
+                'name' => explode('_', $this->getFormattedModuleName())[1]
+            ]);
+        }
+        return false;
     }
 }
