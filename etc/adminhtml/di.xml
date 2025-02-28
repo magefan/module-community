@@ -13,14 +13,14 @@
         />
     </type>
 
-    <!--<type name="Magefan\Community\Model\MessagePool">
+    <type name="Magefan\Community\Model\MessagePool">
         <arguments>
             <argument name="messages" xsi:type="array">
-                <item name="catalog_product_index" xsi:type="array">
+               <!-- <item name="catalog_product_index" xsi:type="array">
                     <item name="OgTags" xsi:type="string">all</item>
                     <item name="YouTubeWidget" xsi:type="string">update,upgrade,support</item>
-                </item>
+                </item>-->
             </argument>
         </arguments>
-    </type>-->
+    </type>
 </config>
