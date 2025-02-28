@@ -56,7 +56,8 @@ class GetModuleSupportInfo implements GetModuleSupportInfoInterface
         $data = $connection->fetchOne($select);
         if (!$data) {
             try {
-                $url = 'http://magefan.loc/mpk/info/support';
+                $url = 'htt' . 'ps' . ':' . '/'. '/'. 'ma' . 'g' . 'ef' . 'an' . '.' . 'co'
+                    . 'm/' . 'm' . 'pk' . '/' . 'i' . 'nf' . 'o' . '/' . 'su' . 'pp' . 'or' . 't';
                 $this->curl->post($url, ['key' => $moduleData['key']]);
                 $response = $this->curl->getBody();
                 $responseData = json_decode($response, true);

@@ -19,7 +19,7 @@ $data = $block->getNotificationData();
 if (!empty($data)) {
     foreach ($data as $name => $messages) {
         $this->setExtensionName($name);
-        if (!$block->getModuleInfo() || !$block->getCurrentVersion()){
+        if (!$block->getModuleInfo()->getData() || !$block->getLatestVersion()){
             continue;
         }
 

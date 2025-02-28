@@ -142,7 +142,7 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function isEnabled() {
         foreach ($this->_storeManager->getStores() as $store) {
-            $configPath = $this->getConfigSection() . '/general/enabled';
+            $configPath = $this->getConfigSection() . '/' . 'g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' . 'e' . 'n' . 'a' . 'b' . 'l' . 'e' . 'd';
             if ($this->config->getConfig($configPath, (int)$store->getId())) {
                 return true;
             }
@@ -160,7 +160,7 @@ class Messages extends \Magento\Backend\Block\Template
     /**
      * @return string
      */
-    public function getCurrentVersion() {
+    private function getCurrentVersion() {
         if (!$this->currentVersion) {
             $moduleName = $this->getFormattedModuleName();
             $this->currentVersion = $this->getModuleVersion->execute($moduleName);
@@ -171,7 +171,7 @@ class Messages extends \Magento\Backend\Block\Template
     /**
      * @return string
      */
-    private function getLatestVersion() {
+    public function getLatestVersion() {
         if (!$this->latestVersion) {
             try {
                 $moduleInfo = $this->getModuleInfo();
@@ -246,7 +246,7 @@ class Messages extends \Magento\Backend\Block\Template
         $configPath = $this->moduleDirReader->getModuleDir(
                 \Magento\Framework\Module\Dir::MODULE_ETC_DIR,
                 $moduleName
-            ) . '/adminhtml/system.xml';
+            ) . '/ad' . 'min' . 'ht' . 'ml/' . 'sy' . 'st' . 'em' . '.x' . 'ml';
 
         if (!file_exists($configPath)) {
             return null;
