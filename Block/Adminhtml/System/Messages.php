@@ -163,7 +163,16 @@ class Messages extends \Magento\Backend\Block\Template
     private function getCurrentVersion() {
         if (!$this->currentVersion) {
             $moduleName = $this->getFormattedModuleName();
-            $this->currentVersion = $this->getModuleVersion->execute($moduleName);
+            $currentVersion = $this->getModuleVersion->execute($moduleName);
+
+            foreach (['Extra', 'Plus'] as $_plan) {
+                if ($_currentVersion = $this->getModuleVersion->execute($moduleName . $_plan)) {
+                    $currentVersion = $_currentVersion;
+                    break;
+                }
+            }
+
+            $this->currentVersion = $currentVersion;
         }
         return $this->currentVersion;
     }
@@ -267,7 +276,7 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function canUpgradePlan() {
         $maxPlan = $this->getModuleInfo()->getMaxPlan();
-        $extensionName = str_replace(['Extra', 'Plus'],'' , $this->getFormattedModuleName());
+        $extensionName = $this->getFormattedModuleName();
         return $maxPlan && !$this->getModuleVersion->execute($extensionName. ucfirst($maxPlan));
     }
 
@@ -276,7 +285,7 @@ class Messages extends \Magento\Backend\Block\Template
      * @param $allowedMessages
      * @return bool
      */
-    public function allowShowMessage(string $event, $allowedMessages) {
+    public function allowShowMessage(string $event, string $allowedMessages) {
 
         if ($allowedMessages !== 'all') {
             $allowedEvents = array_map('trim', explode(',', $allowedMessages));
@@ -294,7 +303,7 @@ class Messages extends \Magento\Backend\Block\Template
         $tableName = $connection->getTableName('mf_message_remind_later');
 
         $select = $connection->select()
-            ->from($tableName, 'user_id')
+            ->from($tableName)
             ->where('user_id = ?', $adminUser->getId())
             ->where('event = ?', $event)
             ->where('module_name = ?', str_replace(['Magento 2 ', ' Extension'], '', $this->getModuleInfo()->getProductName()))
