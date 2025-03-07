@@ -1,0 +1,126 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getAll();
+?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var sections = <?= json_encode($sections) ?>;
+
+        Object.entries(sections).forEach(([parent, children]) => {
+            createMenu(parent, children);
+        });
+
+        function createMenu(parent, child) {
+            let parentElement = document.querySelector('.magefan-tab .' + parent);
+
+            if (parentElement) {
+                let submenu = parentElement.querySelector('.submenu');
+
+                if (!submenu) {
+                    submenu = document.createElement('ul');
+                    submenu.classList.add('childmodules');
+                    if (!parentElement.classList.contains('_active')) {
+                        submenu.classList.add('closed');
+                    }
+                    parentElement.after(submenu);
+                }
+
+                let toggleArrow = document.createElement('span');
+                toggleArrow.classList.add('submenu-toggle');
+
+                if (parentElement.classList.contains('_active')) {
+                    toggleArrow.innerHTML = '&#xe62b;';
+                } else {
+                    toggleArrow.innerHTML = '&#xe628;';
+                }
+
+                toggleArrow.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    submenu.classList.toggle('closed');
+                    toggleArrow.innerHTML = submenu.classList.contains('closed') ? toggleArrow.innerHTML = '&#xe628;' : toggleArrow.innerHTML = '&#xe62b;';
+                });
+
+                let link = parentElement.querySelector('.admin__page-nav-link span');
+                if (link) {
+                    link.insertAdjacentElement('afterend', toggleArrow);
+                }
+
+                child.forEach(item => {
+                    let childElement = document.querySelector('.magefan-tab .' + item);
+                    if (childElement) {
+                        submenu.appendChild(childElement);
+                    }
+
+                    let activeChildElement = document.querySelector('.magefan-tab .' + item + '._active');
+                    if (activeChildElement) {
+                        parentElement.classList.add('_active');
+                        toggleArrow.innerHTML = '&#xe62b;';
+                        submenu.classList.remove('closed');
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+<style>
+    .magefan-tab .admin__page-nav-item {
+        list-style: none;
+        padding: 10px;
+        position: relative;
+    }
+
+    .magefan-tab .admin__page-nav-link {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        border-radius: 5px;
+        padding: 12px 12px;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .magefan-tab .admin__page-nav-item._active > .admin__page-nav-link {
+        background-color: #344054;
+        color: white;
+    }
+
+    .magefan-tab .childmodules .admin__page-nav-item {
+        padding-left: 15px;
+    }
+
+    .magefan-tab .childmodules {
+        padding-left: 20px;
+        border-bottom: 3px solid #e3e3e3;
+    }
+
+    .magefan-tab .childmodules .admin__page-nav-link {
+        font-size: 14px;
+    }
+
+    .magefan-tab .admin__page-nav-item._active, .admin__page-nav-item.ui-state-active{
+        border-color: #344054 !important;
+    }
+
+    .magefan-tab .childmodules.closed {
+        display: none;
+        max-height: 0;
+        padding: 0;
+    }
+
+    .magefan-tab .submenu-toggle {
+        font-family: 'Admin Icons';
+        cursor: pointer;
+        font-size: 1.3rem;
+        font-weight: 700;
+        position: absolute;
+        right: 1.8rem;
+        top: 1rem;
+        margin: 13px;
+    }
+
+    .magefan-tab .submenu-toggle {
+        transition: transform 0.3s ease;
+    }
+
+</style>
