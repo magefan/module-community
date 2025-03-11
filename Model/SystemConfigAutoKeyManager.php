@@ -8,7 +8,9 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Model;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class SystemConfigAutoKeyManager
 {
@@ -19,9 +21,9 @@ class SystemConfigAutoKeyManager
     private $configWriter;
 
     /**
-     * @var ModulePool
+     * @var ModuleManager
      */
-    private $modulePool;
+    private $moduleManager;
 
     /**
      * @var GetModuleVersion
@@ -29,18 +31,34 @@ class SystemConfigAutoKeyManager
     private $getModuleVersion;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var SectionFactory
+     */
+    private $sectionFactory;
+
+    /**
      * @param WriterInterface $configWriter
      * @param GetModuleVersion $getModuleVersion
-     * @param ModulePool $modulePool
+     * @param ModuleManager $moduleManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param SectionFactory $sectionFactory
      */
     public function __construct(
         WriterInterface $configWriter,
         GetModuleVersion $getModuleVersion,
-        ModulePool $modulePool
+        ModuleManager $moduleManager,
+        ScopeConfigInterface  $scopeConfig,
+        SectionFactory $sectionFactory
     ) {
         $this->configWriter = $configWriter;
         $this->getModuleVersion = $getModuleVersion;
-        $this->modulePool = $modulePool;
+        $this->moduleManager = $moduleManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->sectionFactory = $sectionFactory;
     }
 
     /**
@@ -49,25 +67,17 @@ class SystemConfigAutoKeyManager
      * @return void
      */
     public function execute(string $section, string $key) {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $moduleData = $this->modulePool->getTemplate($section);
-        $moduleName = $objectManager->create(Section::class, ['name' => $section])->getModuleName(true);
+        $sections = $this->moduleManager->getSectionByName($section);
 
-        $sections = [];
-        if ($moduleData) {
-            foreach ($moduleData as $plan => $data) {
-                if ($plan == 'base' || $this->getModuleVersion->execute('Magefan_' . $moduleName . ucfirst($plan))) {
-                    $sections = array_merge(
-                        $sections,
-                        is_string($data) ? array_map('trim', explode(',', $data)) : (array) $data
-                    );
-                }
-            }
-        }
         if ($sections) {
             foreach ($sections as $section) {
-                $sectionData = $objectManager->create(Section::class, ['name' => $section]);
-                if ($sectionData->getModule()) {
+                $sectionData = $this->sectionFactory->create(['name' => $section]);
+                $alreadyExist = $this->scopeConfig->getValue(
+                    $sectionData->getName() . '/g'.'en'.'er'.'al'.'/k'.'e'.'y',
+                    ScopeInterface::SCOPE_STORE
+                );
+
+                if ($sectionData->getModule() && !$alreadyExist) {
                     $this->configWriter->save($section . '/g'.'en'.'er'.'al'.'/k'.'e'.'y', $key);
                 }
             }

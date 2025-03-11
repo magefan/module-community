@@ -2,7 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block name="mf.config.section" template="Magefan_Community::mfconfig-section.phtml"/>
+            <block class="Magefan\Community\Block\Adminhtml\System\Config\BundleProduct" name="mf.config.bundle.product.section" template="Magefan_Community::mfconfig-section.phtml"/>
         </referenceContainer>
     </body>
 </page>

@@ -6,6 +6,7 @@
 
 namespace Magefan\Community\Observer;
 
+use Magefan\Community\Model\SystemConfigAutoKeyManager;
 use Magento\Framework\Event\ObserverInterface;
 use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
@@ -45,25 +46,33 @@ class ConfigObserver implements ObserverInterface
     private $config;
 
     /**
+     * @var SystemConfigAutoKeyManager
+     */
+    private $autoKeyManager;
+
+    /**
      * ConfigObserver constructor.
      * @param SectionFactory $sectionFactory
      * @param Info $info
      * @param ManagerInterface $messageManager
      * @param SetLinvFlag $setLinvFlag
      * @param Config $config
+     * @param SystemConfigAutoKeyManager $autoKeyManager
      */
     final public function __construct(
         SectionFactory $sectionFactory,
         Info $info,
         ManagerInterface $messageManager,
         SetLinvFlag $setLinvFlag,
-        Config $config
+        Config $config,
+        SystemConfigAutoKeyManager  $autoKeyManager
     ) {
         $this->sectionFactory = $sectionFactory;
         $this->info = $info;
         $this->messageManager = $messageManager;
         $this->setLinvFlag = $setLinvFlag;
         $this->config = $config;
+        $this->autoKeyManager = $autoKeyManager;
     }
 
     /**
@@ -125,6 +134,9 @@ class ConfigObserver implements ObserverInterface
             );
         } else {
             $this->setLinvFlag->execute($module, 0);
+            if ($key) {
+                $this->autoKeyManager->execute($section->getName(),$key);
+            }
         }
     }
 }

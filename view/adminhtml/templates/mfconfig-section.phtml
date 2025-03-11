@@ -1,10 +1,17 @@
 <?php
-$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-$sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getAll();
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\Adminhtml\System\Config\BundleProduct
+ */
 ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var sections = <?= json_encode($sections) ?>;
+        var sections = <?= json_encode($block->getModules()) ?>;
 
         Object.entries(sections).forEach(([parent, children]) => {
             createMenu(parent, children);
@@ -18,20 +25,17 @@ $sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getA
 
                 if (!submenu) {
                     submenu = document.createElement('ul');
-                    submenu.classList.add('childmodules');
-                    if (!parentElement.classList.contains('_active')) {
-                        submenu.classList.add('closed');
-                    }
+                    submenu.classList.add('submenu-container');
                     parentElement.after(submenu);
                 }
 
                 let toggleArrow = document.createElement('span');
                 toggleArrow.classList.add('submenu-toggle');
 
-                if (parentElement.classList.contains('_active')) {
-                    toggleArrow.innerHTML = '&#xe62b;';
-                } else {
+                if (submenu.classList.contains('closed')) {
                     toggleArrow.innerHTML = '&#xe628;';
+                } else {
+                    toggleArrow.innerHTML = '&#xe62b;';
                 }
 
                 toggleArrow.addEventListener('click', (event) => {
@@ -54,7 +58,7 @@ $sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getA
 
                     let activeChildElement = document.querySelector('.magefan-tab .' + item + '._active');
                     if (activeChildElement) {
-                        parentElement.classList.add('_active');
+                        // parentElement.classList.add('_active');
                         toggleArrow.innerHTML = '&#xe62b;';
                         submenu.classList.remove('closed');
                     }
@@ -80,21 +84,16 @@ $sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getA
         transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .magefan-tab .admin__page-nav-item._active > .admin__page-nav-link {
-        background-color: #344054;
-        color: white;
-    }
-
-    .magefan-tab .childmodules .admin__page-nav-item {
+    .magefan-tab .submenu-container .admin__page-nav-item {
         padding-left: 15px;
     }
 
-    .magefan-tab .childmodules {
+    .magefan-tab .submenu-container {
         padding-left: 20px;
-        border-bottom: 3px solid #e3e3e3;
+        padding-bottom: 10px;
     }
 
-    .magefan-tab .childmodules .admin__page-nav-link {
+    .magefan-tab .submenu-container .admin__page-nav-link {
         font-size: 14px;
     }
 
@@ -102,7 +101,7 @@ $sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getA
         border-color: #344054 !important;
     }
 
-    .magefan-tab .childmodules.closed {
+    .magefan-tab .submenu-container.closed {
         display: none;
         max-height: 0;
         padding: 0;
@@ -116,7 +115,7 @@ $sections = $objectManager->get(Magefan\Community\Model\ModulePool::class)->getA
         position: absolute;
         right: 1.8rem;
         top: 1rem;
-        margin: 13px;
+        padding: 13px 20px;
     }
 
     .magefan-tab .submenu-toggle {
