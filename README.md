@@ -1,4 +1,4 @@
-# Magefan Community Extension by [Magefan](https://magefan.com/magento2-extensions)
+# Magefan Community Extension by [Magefan](https://magefan.com/)
 
 [![Total Downloads](https://poser.pugx.org/magefan/module-community/downloads)](https://packagist.org/packages/magefan/module-community)
 [![Latest Stable Version](https://poser.pugx.org/magefan/module-community/v/stable)](https://packagist.org/packages/magefan/module-community)
