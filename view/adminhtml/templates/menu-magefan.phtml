@@ -1,0 +1,41 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ *
+ * Glory to Ukraine! Glory to the heroes!
+ */
+?>
+
+<?php
+/**
+ * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
+ */
+?>
+<?php
+$script ="
+    window.addEventListener('DOMContentLoaded', function () {
+        function updateMenuHeight() {
+            const submenu = document.querySelector('#menu-magefan-community-elements');
+
+            if (submenu && submenu.classList.contains('_show')) {
+                const submenuList = submenu.querySelector('.submenu > ul[role=menu]');
+
+                if (submenuList) {
+                    submenuList.style.maxHeight = document.documentElement.clientHeight- 120  + 'px';
+                    document.body.style.overflowY = 'hidden';
+                }
+            } else {
+                document.body.style.overflowY = 'auto';
+            }
+        }
+
+        let menuElement = document.querySelector('#menu-magefan-community-elements');
+        if (menuElement) {
+            menuElement.addEventListener('click', updateMenuHeight);
+        }
+    });
+"
+?>
+
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
