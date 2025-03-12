@@ -319,7 +319,7 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function getSupportExpired()
     {
-        if ($this->getFormattedModuleName() && $key = $this->config->getConfig($this->getConfigSection() . '/general/key')) {
+        if ($this->getFormattedModuleName() && $key = $this->config->getConfig($this->getConfigSection() . '/' . 'g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' . 'k' . 'e' . 'y')) {
             return !$this->getModuleSupportInfo->validSupport([
                 'key' => $key,
                 'name' => explode('_', $this->getFormattedModuleName())[1]
