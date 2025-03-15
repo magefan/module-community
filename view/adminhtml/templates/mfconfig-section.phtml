@@ -1,0 +1,125 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\Adminhtml\System\Config\BundleProduct
+ */
+?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var sections = <?= json_encode($block->getModules()) ?>;
+
+        Object.entries(sections).forEach(([parent, children]) => {
+            createMenu(parent, children);
+        });
+
+        function createMenu(parent, child) {
+            let parentElement = document.querySelector('.magefan-tab .' + parent);
+
+            if (parentElement) {
+                let submenu = parentElement.querySelector('.submenu');
+
+                if (!submenu) {
+                    submenu = document.createElement('ul');
+                    submenu.classList.add('submenu-container');
+                    parentElement.after(submenu);
+                }
+
+                let toggleArrow = document.createElement('span');
+                toggleArrow.classList.add('submenu-toggle');
+
+                if (submenu.classList.contains('closed')) {
+                    toggleArrow.innerHTML = '&#xe628;';
+                } else {
+                    toggleArrow.innerHTML = '&#xe62b;';
+                }
+
+                toggleArrow.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    submenu.classList.toggle('closed');
+                    toggleArrow.innerHTML = submenu.classList.contains('closed') ? toggleArrow.innerHTML = '&#xe628;' : toggleArrow.innerHTML = '&#xe62b;';
+                });
+
+                let link = parentElement.querySelector('.admin__page-nav-link span');
+                if (link) {
+                    link.insertAdjacentElement('afterend', toggleArrow);
+                }
+
+                child.forEach(item => {
+                    let childElement = document.querySelector('.magefan-tab .' + item);
+                    if (childElement) {
+                        submenu.appendChild(childElement);
+                    }
+
+                    let activeChildElement = document.querySelector('.magefan-tab .' + item + '._active');
+                    if (activeChildElement) {
+                        // parentElement.classList.add('_active');
+                        toggleArrow.innerHTML = '&#xe62b;';
+                        submenu.classList.remove('closed');
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+<style>
+    .magefan-tab .admin__page-nav-item {
+        list-style: none;
+        padding: 10px;
+        position: relative;
+    }
+
+    .magefan-tab .admin__page-nav-link {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        border-radius: 5px;
+        padding: 12px 12px;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .magefan-tab .submenu-container .admin__page-nav-item {
+        padding-left: 15px;
+    }
+
+    .magefan-tab .submenu-container {
+        padding-left: 20px;
+        padding-bottom: 10px;
+    }
+
+    .magefan-tab .submenu-container .admin__page-nav-link {
+        font-size: 14px;
+    }
+
+    .magefan-tab .admin__page-nav-item._active, .admin__page-nav-item.ui-state-active{
+        border-color: #344054 !important;
+    }
+
+    .magefan-tab .submenu-container.closed {
+        display: none;
+        max-height: 0;
+        padding: 0;
+    }
+
+    .magefan-tab .submenu-toggle {
+        font-family: 'Admin Icons';
+        cursor: pointer;
+        font-size: 1.3rem;
+        font-weight: 700;
+        position: absolute;
+        right: 1.8rem;
+        top: 1rem;
+        padding: 13px 20px;
+    }
+
+    .magefan-tab .submenu-toggle {
+        transition: transform 0.3s ease;
+    }
+
+</style>
