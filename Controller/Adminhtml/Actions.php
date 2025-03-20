@@ -279,9 +279,17 @@ abstract class Actions extends \Magento\Backend\App\Action
             ));
         } else {
             if ($hasError || $request->getParam('back')) {
-                $this->_redirect('*/*/edit', [$this->_idKey => $model->getId()]);
+                if ($store = $request->getParam('localization_store')) {
+                    $this->_redirect('*/*/edit', [$this->_idKey => $model->getId(),'store' => $store]);
+                } else {
+                    $this->_redirect('*/*/edit', [$this->_idKey => $model->getId()]);
+                }
             } else {
-                $this->_redirect('*/*');
+                if ($store = $request->getParam('localization_store')) {
+                    $this->_redirect('*/*', ['store' => $store]);
+                } else {
+                    $this->_redirect('*/*');
+                }
             }
         }
     }
