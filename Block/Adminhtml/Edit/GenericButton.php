@@ -60,6 +60,7 @@ class GenericButton
      */
     public function getUrl($route = '', $params = [])
     {
+        $params['store'] = $this->context->getRequest()->getParam('store');
         return $this->context->getUrlBuilder()->getUrl($route, $params);
     }
 }
