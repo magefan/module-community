@@ -25,103 +25,110 @@ if (!empty($data)) {
 
         $moduleName = str_replace(['Magento 2 ', ' Extension'],'', $block->getModuleInfo()->getProductName());
 ?>
-
-        <?php /*disabled*/ ?>
-        <?php if (!$block->isEnabled() && $block->allowShowMessage('enabled', $messages)) { ?>
-            <div class="messages">
-                <div class="message message-error">
-                    <div data-ui-id="messages-message-error">
+<div class="messages mf-massages">
+    <?php /*disabled*/ ?>
+    <?php if (/*remove*/true || !$block->isEnabled() && $block->allowShowMessage('enabled', $messages)) { ?>
+        <div class="message message-error">
+                <div class="wrapper" data-ui-id="messages-message-error">
+                    <div class="description">
                         <?= /*@noEscape*/  __(
                             'Magefan ' . $moduleName  . ' is disabled, to enable the extension please navigate to
-                                <a href="%1" target="_blank">Stores > Configuration > Magefan Extensions > ' . $moduleName  . '</a>.',
+                            <a href="%1" target="_blank">Stores > Configuration > Magefan Extensions > ' . $moduleName  . '</a>.',
                             $block->getUrl(
                                 'adminhtml/system_config/edit',
                                 ['section' => $block->getConfigSection()]
                             )
                         );
                         ?>
+                    </div>
+                    <div class="actions">
                         <button id="remind-later" title="Remind Later" class="action-remind-later" onclick="remindLater(this,'enabled')"><span>Remind Later</span></button>
                     </div>
                 </div>
             </div>
-        <?php }?>
+    <?php }?>
 
-        <?php if ($block->needToUpdate() && $block->allowShowMessage('update', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
-            <div class="messages">
-                <div class="message message-notice notice">
-                    <div data-ui-id="messages-message-error">
+    <?php if ($block->needToUpdate() && $block->allowShowMessage('update', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+        <div class="message message-notice notice">
+                <div class="wrapper" data-ui-id="messages-message-error">
+                    <div class="description">
                         <?= /*@noEscape*/ __(
                             'Your ' . $moduleName . ' Extension is outdated.
-                            The lates vession. ' . $block->escapeHtml($block->getLatestVersion()) .', is now available, offering improved features and performance'
+                        The lates vession. ' . $block->escapeHtml($block->getLatestVersion()) .', is now available, offering improved features and performance'
                         );
                         ?>
+                    </div>
+                    <div class="actions">
                         <button id="update" title="Update Extension" class="action-update" onclick="window.open('https://magefan.com/downloadable/customer/products?utm_source=admin&utm_medium=config&utm_campaign=update-to-new-version', '_blank'); return false;"><span>Update Extension</span></button>
                         <button id="remind-later" title="Remind Later" class="action-remind-later" onclick="remindLater(this,'update')"><span>Remind Later</span></button>
                     </div>
                 </div>
             </div>
-        <?php } ?>
+    <?php } ?>
 
 
-        <?php if ($block->canUpgradePlan() && $block->allowShowMessage('upgrade', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
-            <div class="messages">
-                <div class="message message-notice notice">
-                    <div data-ui-id="messages-message-error">
-
+    <?php if (/*remove*/true || $block->canUpgradePlan() && $block->allowShowMessage('upgrade', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+        <div class="message message-notice notice">
+                <div class="wrapper" data-ui-id="messages-message-error">
+                    <div class="description">
                         <?= /*@noEscape*/ __(
                             'Your ' . $moduleName . ' Extension you can upgrade it',
-                        );
+                    );
                         ?>
+                    </div>
+                    <div class="actions">
                         <button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open('<?= $block->getModuleInfo()->getProductUrl()?>/pricing?utm_source=admin&amp;utm_medium=config&amp;utm_campaign=upgrade-plan', '_blank'); return false;"><span>Upgrade Plan</span></button>
                         <button id="remind-later" title="Remind Later" class="action-remind-later" onclick="remindLater(this,'upgrade')"><span>Remind Later</span></button>
                     </div>
                 </div>
             </div>
-        <?php } ?>
+    <?php } ?>
 
-        <?php if ($block->getSupportExpired() && $block->allowShowMessage('support', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
-            <div class="messages">
-                <div class="message message-notice notice">
-                    <div data-ui-id="messages-message-error">
-
+    <?php if ($block->getSupportExpired() && $block->allowShowMessage('support', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+        <div class="message message-notice notice">
+                <div class="wrapper" data-ui-id="messages-message-error">
+                    <div class="description">
                         <?= /*@noEscape*/ __(
                             'Your support for ' . $moduleName . ' Extension expired ',
-                        );
+                    );
                         ?>
+                    </div>
+                    <div class="actions">
                         <button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open('https://magefan.com/downloadable/customer/products?utm_source=admin&utm_medium=config&utm_campaign=order_support', '_blank'); return false;"><span>Order Support</span></button>
                         <button id="remind-later" title="Remind Later" class="action-remind-later" onclick="remindLater(this,'support')"><span>Remind Later</span></button>
                     </div>
                 </div>
             </div>
-        <?php } ?>
+    <?php } ?>
+</div>
 
-        <?php
-        $script = "
-            function remindLater(el, event) {
-                let messageBlock = el.closest('.messages');
-                if (messageBlock) {
-                    messageBlock.style.transition = 'opacity 0.5s';
-                    messageBlock.style.opacity = '0';
-                    setTimeout(() => messageBlock.style.display = 'none', 500);
-               
-                    require(['jquery', 'domReady!'], function($){
-                        $.ajax({
-                            url:'" . $block->escapeHtml($block->getUrl('mfcommunity/remindlater/index')) ."',
-                            type: 'post',
-                            dataType: 'json',
-                            data: {
-                                event: event,
-                                module: '" . $moduleName . "'
-                            },
-                            success: function (data) {
-                                console.log(data);
-                            }
-                        });
-                    });
-                }
-            }
-        ";
-        ?>
+<?php
+$script = "
+    function remindLater(el, event) {
+        let messageBlock = el.closest('.messages');
+        if (messageBlock) {
+            messageBlock.style.transition = 'opacity 0.5s';
+            messageBlock.style.opacity = '0';
+            setTimeout(() => messageBlock.style.display = 'none', 500);
+       
+            require(['jquery', 'domReady!'], function($){
+                $.ajax({
+                    url:'" . $block->escapeHtml($block->getUrl('mfcommunity/remindlater/index')) ."',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        event: event,
+                        module: '" . $moduleName . "'
+                    },
+                    success: function (data) {
+                        console.log(data);
+                    }
+                });
+            });
+        }
+    }
+";
+?>
 
 <?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
 <?php
