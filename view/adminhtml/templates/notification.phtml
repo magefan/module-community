@@ -27,13 +27,13 @@ if (!empty($data)) {
 ?>
 <div class="messages mf-massages">
     <?php /*disabled*/ ?>
-    <?php if (/*remove*/true || !$block->isEnabled() && $block->allowShowMessage('enabled', $messages)) { ?>
+    <?php if (!$block->isEnabled() && $block->allowShowMessage('enabled', $messages)) { ?>
         <div class="message message-error">
                 <div class="wrapper" data-ui-id="messages-message-error">
                     <div class="description">
                         <?= /*@noEscape*/  __(
                             'Magefan ' . $moduleName  . ' is disabled, to enable the extension please navigate to
-                            <a href="%1" target="_blank">Stores > Configuration > Magefan Extensions > ' . $moduleName  . '</a>.',
+                            <a href="%1" target="_blank">Stores > Configuration > Magefan Extensions > ' . $moduleName  . '</a>',
                             $block->getUrl(
                                 'adminhtml/system_config/edit',
                                 ['section' => $block->getConfigSection()]
@@ -67,7 +67,7 @@ if (!empty($data)) {
     <?php } ?>
 
 
-    <?php if (/*remove*/true || $block->canUpgradePlan() && $block->allowShowMessage('upgrade', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
+    <?php if ($block->canUpgradePlan() && $block->allowShowMessage('upgrade', $messages) /*&& \Magefan\Community\Model\UrlChecker::showUrl($block->getUrl())*/) { ?>
         <div class="message message-notice notice">
                 <div class="wrapper" data-ui-id="messages-message-error">
                     <div class="description">
@@ -105,7 +105,7 @@ if (!empty($data)) {
 <?php
 $script = "
     function remindLater(el, event) {
-        let messageBlock = el.closest('.messages');
+        let messageBlock = el.closest('.message');
         if (messageBlock) {
             messageBlock.style.transition = 'opacity 0.5s';
             messageBlock.style.opacity = '0';
