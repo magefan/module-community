@@ -29,4 +29,13 @@
             </argument>
         </arguments>
     </type>
+
+
+    <!-- Email Attachment -->
+    <type name="Magento\Framework\Mail\TransportInterfaceFactory">
+        <plugin name="add_email_attachments" type="Magefan\Community\Plugin\Magento\Framework\Mail\TransportInterfaceFactory" sortOrder="10" disabled="false"/>
+    </type>
+
+    <preference for="Magefan\Community\Api\Data\Attachments\ItemInterface" type="Magefan\Community\Model\Attachments\Item"/>
+    <preference for="Magefan\Community\Api\Data\AttachmentsInterface" type="Magefan\Community\Model\Attachments"/>
 </config>
