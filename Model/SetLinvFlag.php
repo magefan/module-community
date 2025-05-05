@@ -47,4 +47,15 @@ class SetLinvFlag
         $this->configWriter->save($module . '/g'.'en'.'er'.'al'.'/l'.'in'.'v', $value, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
         $this->cacheTypeList->cleanType(Config::TYPE_IDENTIFIER);
     }
+
+    /**
+     * @param $module
+     * @param $message
+     * @return void
+     */
+    public function addMessage($module, $message)
+    {
+        $this->configWriter->save($module . '/g'.'en'.'er'.'al'.'/l'.'in'.'v'.'me'.'ss'.'ag'.'e', $message, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
+        $this->cacheTypeList->cleanType(Config::TYPE_IDENTIFIER);
+    }
 }
