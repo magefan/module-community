@@ -9,24 +9,24 @@ declare(strict_types=1);
 namespace Magefan\Community\Plugin\Magento\Framework\Mail;
 
 use Magento\Framework\Mail\TransportInterfaceFactory as MailTransportInterfaceFactory;
-use Magefan\Community\Model\Attachments;
 use Magento\Framework\Mail\EmailMessage;
-use Magefan\Community\Api\Data\Attachments\ItemInterface;
+use Magefan\Community\Api\Data\EmailAttachmentsInterface;
+use Magefan\Community\Api\Data\EmailAttachments\ItemInterface;
 
 class TransportInterfaceFactory
 {
     /**
-     * @var Attachments
+     * @var EmailAttachmentsInterface 
      */
-    private $attachments;
+    private $emailAttachments;
 
     /**
-     * @param Attachments $attachments
+     * @param EmailAttachmentsInterface $emailAttachments
      */
     public function __construct(
-        Attachments $attachments
+        EmailAttachmentsInterface $emailAttachments
     ) {
-        $this->attachments = $attachments;
+        $this->emailAttachments = $emailAttachments;
     }
 
     /**
@@ -37,7 +37,7 @@ class TransportInterfaceFactory
     public function beforeCreate(MailTransportInterfaceFactory $subject, array $data = []): array
     {
         /** @var ItemInterface $item */
-        $items = $this->attachments->getItems();
+        $items = $this->emailAttachments->getItems();
 
         if (!empty($items)) {
             /** @var EmailMessage $message */
@@ -72,7 +72,7 @@ class TransportInterfaceFactory
 
             $parts[] = $attachment;
         }
-        $this->attachments->unsetItems();
+        $this->emailAttachments->unsetItems();
 
         $body = \Laminas\Mail\Message::fromString($message->getRawMessage())->getBody();
         $body = quoted_printable_decode($body);
@@ -114,7 +114,7 @@ class TransportInterfaceFactory
             );
         }
 
-        $this->attachments->unsetItems();
+        $this->emailAttachments->unsetItems();
 
         // Set new multipart body
         $symfonyEmail->setBody(new \Symfony\Component\Mime\Part\Multipart\MixedPart(...$parts));

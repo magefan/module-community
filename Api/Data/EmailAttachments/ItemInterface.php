@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\Api\Data\Attachments;
+namespace Magefan\Community\Api\Data\EmailAttachments;
 
 interface ItemInterface
 {
@@ -20,7 +20,7 @@ interface ItemInterface
     /**
      * Set content
      * @param string $content
-     * @return \Magefan\Community\Api\Data\Attachments\ItemInterface
+     * @return \Magefan\Community\Api\Data\EmailAttachments\ItemInterface
      */
     public function setContent(string $content);
 
@@ -33,7 +33,7 @@ interface ItemInterface
     /**
      * Set name
      * @param string $name
-     * @return \Magefan\Community\Api\Data\Attachments\ItemInterface
+     * @return \Magefan\Community\Api\Data\EmailAttachments\ItemInterface
      */
     public function setName(string $name);
 
@@ -46,7 +46,7 @@ interface ItemInterface
     /**
      * Set type
      * @param string $type
-     * @return \Magefan\Community\Api\Data\Attachments\ItemInterface
+     * @return \Magefan\Community\Api\Data\EmailAttachments\ItemInterface
      */
     public function setType(string $type);
 }

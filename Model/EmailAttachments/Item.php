@@ -6,9 +6,9 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\Model\Attachments;
+namespace Magefan\Community\Model\EmailAttachments;
 
-use Magefan\Community\Api\Data\Attachments\ItemInterface;
+use Magefan\Community\Api\Data\EmailAttachments\ItemInterface;
 
 class Item implements ItemInterface
 {

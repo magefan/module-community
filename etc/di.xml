@@ -36,6 +36,7 @@
         <plugin name="add_email_attachments" type="Magefan\Community\Plugin\Magento\Framework\Mail\TransportInterfaceFactory" sortOrder="10" disabled="false"/>
     </type>
 
-    <preference for="Magefan\Community\Api\Data\Attachments\ItemInterface" type="Magefan\Community\Model\Attachments\Item"/>
-    <preference for="Magefan\Community\Api\Data\AttachmentsInterface" type="Magefan\Community\Model\Attachments"/>
+    <preference for="Magefan\Community\Api\AddEmailAttachmentInterface" type="Magefan\Community\Model\AddEmailAttachment"/>
+    <preference for="Magefan\Community\Api\Data\EmailAttachments\ItemInterface" type="Magefan\Community\Model\EmailAttachments\Item"/>
+    <preference for="Magefan\Community\Api\Data\EmailAttachmentsInterface" type="Magefan\Community\Model\EmailAttachments\Attachments"/>
 </config>

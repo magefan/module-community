@@ -8,15 +8,15 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Api\Data;
 
-interface AttachmentsInterface
+interface EmailAttachmentsInterface
 {
 
     /**
      * Add item
-     * @param Attachments\ItemInterface $item
-     * @return \Magefan\Community\Api\Data\AttachmentsInterface
+     * @param EmailAttachments\ItemInterface $item
+     * @return \Magefan\Community\Api\Data\EmailAttachmentsInterface
      */
-    public function addItem(Attachments\ItemInterface $item);
+    public function addItem(EmailAttachments\ItemInterface $item);
 
     /**
      * Get items
@@ -26,7 +26,7 @@ interface AttachmentsInterface
 
     /**
      * Unset items
-     * @return \Magefan\Community\Api\Data\AttachmentsInterface
+     * @return \Magefan\Community\Api\Data\EmailAttachmentsInterface
      */
     public function unsetItems();
 }

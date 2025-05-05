@@ -6,12 +6,12 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\Model;
+namespace Magefan\Community\Model\EmailAttachments;
 
-use Magefan\Community\Api\Data\Attachments\ItemInterface;
-use Magefan\Community\Api\Data\AttachmentsInterface;
+use Magefan\Community\Api\Data\EmailAttachments\ItemInterface;
+use Magefan\Community\Api\Data\EmailAttachmentsInterface;
 
-class Attachments implements AttachmentsInterface
+class Attachments implements EmailAttachmentsInterface
 {
     /**
      * @var array
