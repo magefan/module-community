@@ -47,9 +47,9 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         \Magento\Framework\Module\ModuleListInterface $moduleList,
         \Magento\Backend\Block\Template\Context $context,
         array $data = [],
-        GetModuleVersionInterface $getModuleVersion = null,
-        SecureHtmlRendererInterface $mfSecureRenderer = null,
-        GetModuleInfoInterface $getModuleInfo = null
+        ?GetModuleVersionInterface $getModuleVersion = null,
+        ?SecureHtmlRendererInterface $mfSecureRenderer = null,
+        ?GetModuleInfoInterface $getModuleInfo = null
     ) {
         parent::__construct($context, $data);
         $this->moduleList = $moduleList;
