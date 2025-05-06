@@ -480,7 +480,17 @@ class TransportBuilder
 
         $this->message = $this->emailMessageInterfaceFactory->create($this->messageData);
 
-        // Add Symfony Attachmets
+        $this->addSymfonyAttachment($attachmentParts);
+
+        return $this;
+    }
+
+    /**
+     * @param array $attachmentParts
+     * @return void
+     */
+    private function addSymfonyAttachment(array $attachmentParts): void
+    {
         if ($this->message instanceof \Magento\Framework\Mail\EmailMessage && method_exists($this->message, 'getSymfonyMessage')) {
             $symfonyEmail = $this->message->getSymfonyMessage();
 
@@ -495,8 +505,6 @@ class TransportBuilder
                 new \Symfony\Component\Mime\Part\Multipart\MixedPart($htmlPart, ...$attachmentParts)
             );
         }
-
-        return $this;
     }
 
     /**
@@ -527,7 +535,7 @@ class TransportBuilder
     }
 
     /**
-     * @return bool-
+     * @return bool
      */
     private function isMagentoVersionLte248(): bool
     {
