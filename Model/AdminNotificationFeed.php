@@ -7,17 +7,59 @@
 namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\GetModuleVersionInterface;
+use Magento\Framework\App\DeploymentConfig;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\Config\ConfigOptionsListConstants;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\HTTP\Adapter\Curl;
+use Magento\Framework\HTTP\Adapter\CurlFactory;
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Framework\UrlInterface;
+use SimpleXMLElement;
 
-/**
- * Class AdminNotificationFeed
- * @package Magefan\Community\Model
- */
-class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
+class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
 {
     /**
      * @var string
      */
     const MAGEFAN_CACHE_KEY = 'magefan_admin_notifications_lastcheck' ;
+
+    /**
+     * @var string
+     */
+    protected $_feedUrl;
+
+    /**
+     * @var mixed
+     */
+    protected $_inboxFactory;
+
+    /**
+     * @var CurlFactory
+     *
+     */
+    protected $curlFactory;
+
+    /**
+     * Deployment configuration
+     *
+     * @var DeploymentConfig
+     */
+    protected $_deploymentConfig;
+
+    /**
+     * @var ProductMetadataInterface
+     */
+    protected $productMetadata;
+
+    /**
+     * @var UrlInterface
+     */
+    protected $urlBuilder;
 
     /**
      * @var \Magento\Backend\Model\Auth\Session
@@ -45,29 +87,24 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
     private $getModuleVersion;
 
     /**
-     * AdminNotificationFeed constructor.
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Backend\App\ConfigInterface $backendConfig
-     * @param \Magento\AdminNotification\Model\InboxFactory $inboxFactory
+     * @param Context $context
+     * @param Registry $registry
      * @param \Magento\Backend\Model\Auth\Session $backendAuthSession
      * @param \Magento\Framework\Module\ModuleListInterface $moduleList
      * @param \Magento\Framework\Module\Manager $moduleManager
-     * @param \Magento\Framework\HTTP\Adapter\CurlFactory $curlFactory
-     * @param \Magento\Framework\App\DeploymentConfig $deploymentConfig
-     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
-     * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
+     * @param CurlFactory $curlFactory
+     * @param DeploymentConfig $deploymentConfig
+     * @param ProductMetadataInterface $productMetadata
+     * @param UrlInterface $urlBuilder
      * @param Config $config
      * @param GetModuleVersionInterface $getModuleVersion
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        \Magento\Backend\App\ConfigInterface $backendConfig,
-        \Magento\AdminNotification\Model\InboxFactory $inboxFactory,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
         \Magento\Framework\Module\ModuleListInterface $moduleList,
         \Magento\Framework\Module\Manager $moduleManager,
@@ -81,12 +118,27 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        parent::__construct($context, $registry, $backendConfig, $inboxFactory, $curlFactory, $deploymentConfig, $productMetadata, $urlBuilder, $resource, $resourceCollection, $data);
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
+        $this->curlFactory = $curlFactory;
+        $this->_deploymentConfig = $deploymentConfig;
+        $this->productMetadata = $productMetadata;
+        $this->urlBuilder = $urlBuilder;
+
         $this->_backendAuthSession  = $backendAuthSession;
         $this->_moduleList = $moduleList;
         $this->_moduleManager = $moduleManager;
         $this->config = $config;
         $this->getModuleVersion = $getModuleVersion;
+    }
+
+    /**
+     * Init model
+     *
+     * @return void
+     * phpcs:disable Magento2.CodeAnalysis.EmptyBlock
+     */
+    protected function _construct()
+    {
     }
 
     /**
@@ -158,10 +210,50 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         $session->setMfNoticeLastUpdate($time);
 
         if ($this->_moduleManager->isEnabled('Magento_AdminNotification')) {
-            return parent::checkUpdate();
+            return $this->parentCheckUpdate();
         } else {
             return $this;
         }
+    }
+
+    /**
+     * Check feed for modification
+     *
+     * @return $this
+     */
+    protected function parentCheckUpdate()
+    {
+        if ($this->getFrequency() + $this->getLastUpdate() > time()) {
+            return $this;
+        }
+
+        $feedData = [];
+
+        $feedXml = $this->getFeedData();
+
+        $installDate = strtotime($this->_deploymentConfig->get(ConfigOptionsListConstants::CONFIG_PATH_INSTALL_DATE));
+
+        if ($feedXml && $feedXml->channel && $feedXml->channel->item) {
+            foreach ($feedXml->channel->item as $item) {
+                $itemPublicationDate = strtotime((string)$item->pubDate);
+                if ($installDate <= $itemPublicationDate) {
+                    $feedData[] = [
+                        'severity' => (int)$item->severity,
+                        'date_added' => date('Y-m-d H:i:s', $itemPublicationDate),
+                        'title' => $this->escapeString($item->title),
+                        'description' => $this->escapeString($item->description),
+                        'url' => $this->escapeString($item->link),
+                    ];
+                }
+            }
+
+            if ($feedData) {
+                $this->getInboxFactory()->create()->parse(array_reverse($feedData));
+            }
+        }
+        $this->setLastUpdate();
+
+        return $this;
     }
 
     /**
@@ -198,7 +290,7 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
     /**
      * Retrieve feed data as XML element
      *
-     * @return \SimpleXMLElement
+     * @return SimpleXMLElement
      */
     public function getFeedData()
     {
@@ -211,12 +303,85 @@ class AdminNotificationFeed extends \Magento\AdminNotification\Model\Feed
         }
 
         if (!$getNotification) {
-            return new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>
+            return new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel></channel>
 </rss>');
         }
 
-        return parent::getFeedData();
+        return $this->parentGetFeedData();
+    }
+
+    /**
+     * Retrieve feed data as XML element
+     *
+     * @return SimpleXMLElement
+     */
+    protected function parentGetFeedData()
+    {
+        /** @var Curl $curl */
+        $curl = $this->curlFactory->create();
+        $curl->setOptions(
+            [
+                'timeout'   => 2,
+                'useragent' => $this->productMetadata->getName()
+                    . '/' . $this->productMetadata->getVersion()
+                    . ' (' . $this->productMetadata->getEdition() . ')',
+                'referer'   => $this->urlBuilder->getUrl('*/*/*')
+            ]
+        );
+        $curl->write('GET', $this->getFeedUrl(), '1.0');
+        $data = $curl->read();
+        $data = preg_split('/^\r?$/m', $data, 2);
+        $data = trim($data[1] ?? '');
+        $curl->close();
+
+        try {
+            $xml = new SimpleXMLElement($data);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return $xml;
+    }
+    /**
+     * Retrieve feed as XML element
+     *
+     * @return SimpleXMLElement
+     */
+    public function getFeedXml()
+    {
+        try {
+            $data = $this->getFeedData();
+            $xml = new SimpleXMLElement($data);
+        } catch (\Exception $e) {
+            $xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>');
+        }
+
+        return $xml;
+    }
+
+    /**
+     * Converts incoming data to string format and escapes special characters.
+     *
+     * @param SimpleXMLElement $data
+     * @return string
+     */
+    private function escapeString(SimpleXMLElement $data)
+    {
+        return htmlspecialchars((string)$data);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getInboxFactory()
+    {
+        if (null === $this->_inboxFactory) {
+            $this->_inboxFactory = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(\Magento\AdminNotification\Model\InboxFactory::class);
+        }
+
+        return $this->_inboxFactory;
     }
 }
