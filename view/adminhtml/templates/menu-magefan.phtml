@@ -33,8 +33,6 @@ $script ="
 
         let menuElement = document.querySelector('#menu-magefan-community-elements');
         if (menuElement) {
-            menuElement.addEventListener('click', updateMenuHeight);
-    
             const observer = new MutationObserver(() => {
                 updateMenuHeight();
             });
