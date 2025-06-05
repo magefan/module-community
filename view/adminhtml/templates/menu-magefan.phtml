@@ -33,7 +33,7 @@ $script ="
 
         let menuElement = document.querySelector('#menu-magefan-community-elements');
         if (menuElement) {
-            const observer = new MutationObserver(updateMenuHeight);
+            var observer = new MutationObserver(updateMenuHeight);
             observer.observe(menuElement, { attributes: true });
         }
     });
