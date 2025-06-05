@@ -17,14 +17,15 @@ $script ="
     window.addEventListener('DOMContentLoaded', function () {
         function updateMenuHeight() {
             const submenu = document.querySelector('#menu-magefan-community-elements');
-
-            if (submenu && submenu.classList.contains('_show')) {
-                const submenuList = submenu.querySelector('.submenu > ul[role=menu]');
-
-                if (submenuList) {
-                    submenuList.style.maxHeight = document.documentElement.clientHeight- 120  + 'px';
-                    document.body.style.overflowY = 'hidden';
-                }
+            if (!submenu) return;
+    
+            const submenuDiv = submenu.querySelector('.submenu');
+            const submenuList = submenu.querySelector('.submenu > ul[role=menu]');
+            if (submenu.classList.contains('_show') && submenuDiv && submenuList) {
+                submenuList.style.maxHeight = (document.documentElement.clientHeight - 120) + 'px';
+                submenuDiv.style.position = 'fixed';
+                submenuDiv.style.left = '88px';
+                document.body.style.overflowY = 'hidden';
             } else {
                 document.body.style.overflowY = 'auto';
             }
@@ -32,7 +33,8 @@ $script ="
 
         let menuElement = document.querySelector('#menu-magefan-community-elements');
         if (menuElement) {
-            menuElement.addEventListener('click', updateMenuHeight);
+            var observer = new MutationObserver(updateMenuHeight);
+            observer.observe(menuElement, { attributes: true });
         }
     });
 "
