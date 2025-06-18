@@ -28,4 +28,5 @@
         return '';
     };
 "; ?>
-<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', $block->getScriptAttributes() ?: [], $script, false) ?>
+

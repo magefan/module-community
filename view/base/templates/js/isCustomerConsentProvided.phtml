@@ -1,0 +1,60 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\JsScript
+ * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
+ */
+?>
+<?php
+    if (!isset($escaper)) {
+        /* Compatability fix for old Magento versions */
+        $escaper = $block;
+    }
+?>
+<?= $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)
+    ->setMethod('getCookie')
+    ->setScriptAttributes($block->getScriptAttributes())
+    ->toHtml()
+?>
+<?php $script = "
+    window.MagefanJs = window.MagefanJs || {};
+    window.MagefanJs.isCustomerConsentProvided = function() {
+        if (MagefanJs.getCookie('mf_cookie_consent')) {
+            return true;
+        };
+        let cookie = MagefanJs.getCookie(
+            '{$escaper->escapeHtml(\Magento\Cookie\Helper\Cookie::IS_USER_ALLOWED_SAVE_COOKIE)}'
+        );
+        if (cookie) {
+            cookie = JSON.parse(decodeURIComponent(cookie));
+            if (cookie[{$escaper->escapeHtml($block->getWebsiteId())}]) {
+                return true;
+            }
+        };
+
+        if (window.dataLayer) {
+            var consentData;
+            for (var i = 0; i < window.dataLayer.length; i++) {
+                if (dataLayer[i][0] === 'consent') {
+                    consentData = dataLayer[i];
+                }
+            };
+            if (consentData && consentData[2]) {
+                var ads = consentData[2];
+                if (ads.ad_user_data === 'granted' &&
+                    ads.ad_personalization === 'granted' &&
+                    ads.ad_storage === 'granted') {
+                        return true;
+                }
+            };
+        };
+
+        return false;
+    };
+"; ?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', $block->getScriptAttributes() ?: [], $script, false) ?>

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Block;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 
 class JsScript extends Template
@@ -32,6 +33,9 @@ class JsScript extends Template
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getTemplate()
     {
         if (!$this->_template) {
@@ -41,14 +45,32 @@ class JsScript extends Template
     }
 
     /**
+     * Get current website ID
+     *
+     * @return int
+     * @throws NoSuchEntityException
+     */
+    public function getWebsiteId(): int
+    {
+        return (int)$this->_storeManager->getStore()->getWebsiteId();
+    }
+
+    /**
      * @return string
      */
     public function toHtml()
     {
-        if (isset(self::$rendered[$this->jsMethod])) {
+        if ($this->getScriptAttributes()) {
+            $hash = '_' . sha1(json_encode($this->getScriptAttributes()));
+        } else {
+            $hash = '';
+        }
+
+        if (isset(self::$rendered[$this->jsMethod . $hash])) {
             return '';
         }
         self::$rendered[$this->jsMethod] = 1;
+        self::$rendered[$this->jsMethod . $hash] = 1;
         return parent::toHtml();
     }
 }
