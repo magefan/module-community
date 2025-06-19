@@ -7,9 +7,9 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceContainer name="header">
+        <referenceBlock name="content">
             <block name="magefan.menu" template="Magefan_Community::menu-magefan.phtml"/>
-        </referenceContainer>
+        </referenceBlock>
 
         <referenceContainer name="page.wrapper">
             <block class="Magefan\Community\Block\Adminhtml\Linv" name="magefan_community_linv" template="Magefan_Community::linv.phtml" after="header" />
