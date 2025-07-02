@@ -105,13 +105,13 @@ class ConfigObserver implements ObserverInterface
             return;
         }
         $data = $this->info->load([$section]);
+        $errorMessage = $data[$section->getModule() . '_errorMsg'] ?? '';
 
         if (!$section->validate($data)) {
             $groups['general']['fields']['enabled']['value'] = 0;
-            $errorMessage = $data[$section->getModule() . '_errorMsg'] ?? '';
+
             $this->setLinvFlag->execute($section->getName(), 1, $errorMessage);
             $request->setPostValue('groups', $groups);
-
 
             if (!$errorMessage) {
                 $errorMessage = implode(array_reverse(
@@ -126,7 +126,11 @@ class ConfigObserver implements ObserverInterface
             }
             $this->messageManager->addError($errorMessage);
         } else {
-            $this->setLinvFlag->execute($section->getName(), 0);
+            $errorMessage = $data[$section->getModule() . '_errorMsg'] ?? '';
+            if ($errorMessage) {
+                $this->messageManager->addError($errorMessage);
+            }
+            $this->setLinvFlag->execute($section->getName(), 0, $errorMessage);
         }
     }
 }
