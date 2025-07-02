@@ -143,21 +143,21 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     
         <div class="col-actions">
             <div class="actions">';
-            if ($canUpgradeToMaxPlan) {
-                $html .= '<button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open(\'' . $this->escapeHtml($moduleUrl . '/pricing'  . $utmParam) . '&utm_campaign=upgrade-plan\', \'_blank\'); return false;"><span>Upgrade Plan</span></button>';
-            }
+        if ($canUpgradeToMaxPlan) {
+            $html .= '<button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open(\'' . $this->escapeHtml($moduleUrl . '/pricing'  . $utmParam) . '&utm_campaign=upgrade-plan\', \'_blank\'); return false;"><span>Upgrade Plan</span></button>';
+        }
 
-            if ($newVersionAvailable) {
-                $html .= '<button id="update" title="Upgrade to new Version" class="action-update" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '&utm_campaign=update-to-new-version\', \'_blank\'); return false;"><span>Upgrade to new Version</span><span class="mf-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        if ($newVersionAvailable) {
+            $html .= '<button id="update" title="Upgrade to new Version" class="action-update" onclick="window.open(\'https://mage' . 'fan.com/downloadable/customer/products' . $utmParam . '&utm_campaign=update-to-new-version\', \'_blank\'); return false;"><span>Upgrade to new Version</span><span class="mf-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
 <path d="M15.5664 10.9766H3.92578C3.38633 10.9766 2.94922 10.5395 2.94922 10C2.94922 9.46055 3.38633 9.02344 3.92578 9.02344H15.5664C16.1059 9.02344 16.543 9.46055 16.543 10C16.543 10.5395 16.1059 10.9766 15.5664 10.9766Z" fill="white"/>
 <path d="M11.0942 15.5938C10.8321 15.5938 10.5703 15.4887 10.3778 15.2813C10.011 14.886 10.0344 14.268 10.4297 13.9012L14.6278 10.0078L10.3028 6.10392C9.90236 5.7426 9.87072 5.12502 10.2321 4.72463C10.5934 4.32424 11.211 4.2926 11.6113 4.65393L16.7285 9.27307C16.9321 9.45666 17.0488 9.71721 17.0508 9.99142C17.0528 10.2656 16.9395 10.5278 16.7383 10.7141L11.7578 15.3332C11.5699 15.5074 11.3317 15.5938 11.0942 15.5938Z" fill="white"/>
 </svg></span></button>';
-            }
+        }
             $html .= '</div>
            ';
-           if ($newVersionAvailable) {
-               $html .= '<div class="available-version">Version v' . $this->escapeHtml($latestVersion) . ' is available</div>';
-           }
+        if ($newVersionAvailable) {
+            $html .= '<div class="available-version">Version v' . $this->escapeHtml($latestVersion) . ' is available</div>';
+        }
          $html .= ' </div>
 </div>
         <style>
@@ -217,5 +217,4 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     {
         return ucwords(str_replace('_', ' ', $this->getModuleName())) . ' Extension';
     }
-
 }

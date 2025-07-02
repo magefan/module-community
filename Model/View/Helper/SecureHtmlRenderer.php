@@ -32,8 +32,8 @@ class SecureHtmlRenderer implements SecureHtmlRendererInterface
         ProductMetadataInterface $productMetadata,
         ObjectManagerInterface $objectManager
     ) {
-       $this->productMetadata = $productMetadata;
-       $this->objectManager = $objectManager;
+        $this->productMetadata = $productMetadata;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -48,10 +48,9 @@ class SecureHtmlRenderer implements SecureHtmlRendererInterface
         array $attributes,
         ?string $content = null,
         bool $textContent = true
-    )
-    {
+    ) {
         $version = $this->productMetadata->getVersion();
-        if (version_compare($version, '2.4.0',">")) {
+        if (version_compare($version, '2.4.0', ">")) {
             return $this->objectManager->get(\Magento\Framework\View\Helper\SecureHtmlRenderer::class)->renderTag($tagName, $attributes, $content, $textContent);
         } else {
             $attrs = [];
@@ -62,6 +61,5 @@ class SecureHtmlRenderer implements SecureHtmlRendererInterface
             }
             return '<' . $tagName . ' ' . implode(' ', $attrs) . '>' . $content . '</' . $tagName . '>';
         }
-
     }
 }

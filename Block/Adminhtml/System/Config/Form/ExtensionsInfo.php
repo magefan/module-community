@@ -91,7 +91,7 @@ class ExtensionsInfo extends Field
                 if ($listKey == 'up_to_date' && version_compare($this->getModuleVersion->execute($moduleName), $moduleInfo->getVersion()) < 0) {
                     continue;
                 }
-                if ($listKey == 'need_update' && version_compare($this->getModuleVersion->execute($moduleName),  $moduleInfo->getVersion()) >= 0) {
+                if ($listKey == 'need_update' && version_compare($this->getModuleVersion->execute($moduleName), $moduleInfo->getVersion()) >= 0) {
                     continue;
                 }
 
@@ -117,5 +117,4 @@ class ExtensionsInfo extends Field
         }
         return $html;
     }
-
 }

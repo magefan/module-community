@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\BreezeThemeDetectionInterface;
+
 class BreezeThemeDetection extends AbstractThemeDetection implements BreezeThemeDetectionInterface
 {
     /**

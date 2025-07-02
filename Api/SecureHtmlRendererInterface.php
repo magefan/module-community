@@ -25,5 +25,4 @@ interface SecureHtmlRendererInterface
         ?string $content = null,
         bool $textContent = true
     );
-
 }

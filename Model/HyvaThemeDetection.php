@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\HyvaThemeDetectionInterface;
+
 class HyvaThemeDetection extends AbstractThemeDetection implements HyvaThemeDetectionInterface
 {
     /**

@@ -11,7 +11,6 @@ namespace Magefan\Community\Model;
 use Magefan\Community\Api\GetWebsitesMapInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-
 class GetWebsitesMap implements GetWebsitesMapInterface
 {
     /**

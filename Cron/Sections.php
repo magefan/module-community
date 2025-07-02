@@ -11,10 +11,6 @@ use Magefan\Community\Model\Section\Info;
 use Magefan\Community\Model\SetLinvFlag;
 use Magento\Framework\App\ResourceConnection;
 
-/**
- * Class Sections
- * @package Magefan\Community
- */
 class Sections
 {
     /**

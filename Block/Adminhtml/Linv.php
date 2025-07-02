@@ -51,8 +51,8 @@ class Linv extends Template
         $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v';
         $select = $connection->select()
             ->from([$table])
-            ->where( 'path LIKE ?', '%' . $path )
-            ->where('value = ?',1);
+            ->where('path LIKE ?', '%' . $path)
+            ->where('value = ?', 1);
         $items = $connection->fetchAll($select);
         $result = [];
 
@@ -81,8 +81,8 @@ class Linv extends Template
         $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v'.'_'.'error_me'.'ss'.'ag'.'e';
         $select = $connection->select()
             ->from([$table])
-            ->where( 'path LIKE ?', '%' . $path )
-            ->where('value != ?','');
+            ->where('path LIKE ?', '%' . $path)
+            ->where('value != ?', '');
         $items = $connection->fetchAll($select);
         $result = [];
 

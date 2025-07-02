@@ -33,8 +33,7 @@ class Php
         SecureHtmlRenderer $mfSecureRenderer,
         HyvaThemeDetection $mfHyvaThemeDetection,
         BreezeThemeDetection $mfBreezeThemeDetection
-    )
-    {
+    ) {
         $this->mfSecureRenderer  = $mfSecureRenderer;
         $this->mfHyvaThemeDetection = $mfHyvaThemeDetection;
         $this->mfBreezeThemeDetection = $mfBreezeThemeDetection;
@@ -50,7 +49,7 @@ class Php
     public function beforeRender(
         \Magento\Framework\View\TemplateEngine\Php $subject,
         \Magento\Framework\View\Element\BlockInterface $block,
-                                                          $fileName,
+        $fileName,
         array $dictionary = []
     ) {
         $dictionary['mfSecureRenderer'] = $this->mfSecureRenderer;
@@ -60,4 +59,3 @@ class Php
         return [$block, $fileName, $dictionary];
     }
 }
-

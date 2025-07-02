@@ -16,5 +16,4 @@ interface HyvaThemeDetectionInterface
      * @return bool
      */
     public function execute($storeId = null): bool;
-
 }

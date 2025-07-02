@@ -8,9 +8,6 @@ namespace Magefan\Community\Block\Adminhtml\Edit;
 
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
-/**
- * Class SaveAndContinueButton
- */
 class SaveAndContinueButton extends GenericButton implements ButtonProviderInterface
 {
 

@@ -11,7 +11,6 @@ namespace Magefan\Community\Model;
 use Magefan\Community\Api\GetParentProductIdsInterface;
 use Magento\Framework\App\ResourceConnection;
 
-
 class GetParentProductIds implements GetParentProductIdsInterface
 {
     /**

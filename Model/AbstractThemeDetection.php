@@ -53,7 +53,6 @@ abstract class AbstractThemeDetection
         StoreManagerInterface $storeManager,
         ScopeConfigInterface $scopeConfig,
         ThemeProviderInterface $themeProvider
-
     ) {
         $this->moduleManager = $moduleManager;
         $this->storeManager = $storeManager;
@@ -91,7 +90,7 @@ abstract class AbstractThemeDetection
                 $storeId = $this->storeManager->getStore()->getId();
             }
 
-            if (!$storeId){
+            if (!$storeId) {
                 $stores = $this->storeManager->getStores();
                 foreach ($stores as $store) {
                     if ($this->isThemeInUse($store->getId())) {

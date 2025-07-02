@@ -45,8 +45,7 @@ class Extension extends \Magento\Backend\App\Action
         WriterInterface $configWriter,
         TypeListInterface $cacheTypeList,
         DateTime $date
-    )
-    {
+    ) {
         $this->configWriter = $configWriter;
         $this->cacheTypeList = $cacheTypeList;
         $this->date = $date;

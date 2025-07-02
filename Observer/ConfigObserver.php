@@ -88,7 +88,7 @@ class ConfigObserver implements ObserverInterface
 
         if (!$section->getModule()) {
             $bp = $section->getName() . '/' . 'g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' ;
-            if (!$this->config->getConfig( $bp . Section::ACTIVE) && !$section->getType()) {
+            if (!$this->config->getConfig($bp . Section::ACTIVE) && !$section->getType()) {
                 $this->messageManager->addError(
                     implode(array_reverse(
                         [

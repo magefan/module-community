@@ -16,5 +16,4 @@ interface BreezeThemeDetectionInterface
      * @return bool
      */
     public function execute($storeId = null): bool;
-
 }
