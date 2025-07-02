@@ -75,6 +75,7 @@ final class Info
                     'version' => $this->metadata->getVersion(),
                     'edition' => $this->metadata->getEdition(),
                     'url' => $this->storeManager->getStore()->getBaseUrl(),
+                    'v' => $this->modelModuleVersion->execute($m = 'Mag' . 'e' . 'f' . 'an_Com' . 'munity'),
                     'sections' => $this->getSectionsParam($sections)
                 ]);
             $body = $this->curl->getBody();
