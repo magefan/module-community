@@ -16,6 +16,7 @@ class UrlChecker
      */
     final public static function showUrl($url)
     {
+        return true;
         $url = (string)$url;
         $info = parse_url($url);
         $part = '';

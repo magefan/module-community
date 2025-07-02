@@ -94,8 +94,12 @@ class Sections
 
             if ($data && is_array($data)) {
                 foreach ($data as $module => $item) {
+                    if (!isset($sections[$module])) {
+                        continue;
+                    }
                     $section = $sections[$module];
-                    $moduleName = $section->getName();
+                    $errorMessage = $data[$module . '_errorMsg'] ?? '';
+
                     if (!$section->validate($data)) {
                         $connection->update(
                             $table,
@@ -104,9 +108,10 @@ class Sections
                             ],
                             ['path = ? ' => $section->getName() . '/' . $path]
                         );
-                        $this->setLinvFlag->execute($moduleName, 1);
+
+                        $this->setLinvFlag->execute($section->getName(), 1, $errorMessage);
                     } else {
-                        $this->setLinvFlag->execute($moduleName, 0);
+                        $this->setLinvFlag->execute($section->getName(), 0, $errorMessage);
                     }
                 }
             }

@@ -191,19 +191,6 @@ final class Section
     }
 
     /**
-     * @param $data
-     * @return false|string
-     */
-    final public function getErrorMessage($data)
-    {
-        if (isset($data[$this->getModule(). '_errorMsg'])) {
-            return (string)$data[$this->getModule(). '_errorMsg'];
-        }
-
-        return false;
-    }
-
-    /**
      * @param string $id
      * @param string $k
      * @return bool

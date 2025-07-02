@@ -44,40 +44,15 @@ class Linv extends Template
     /**
      * @return array
      */
-    public function getItems()
+    public function getItems(): array
     {
-        $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v';
-        $condition = '=';
-        $value = 1;
-
-        return $this->fetchConfigData($path, $condition, $value);
-    }
-
-    /**
-     * @return array
-     */
-    public function getMessages() {
-        $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v'.'me'.'ss'.'ag'.'e';
-        $condition = '!=';
-        $value = '';
-
-        return $this->fetchConfigData($path, $condition, $value);
-    }
-
-    /**
-     * @param string $path
-     * @param string $condition
-     * @param $value
-     * @return array
-     */
-    private function fetchConfigData(string $path, string $condition, $value) {
         $connection = $this->resource->getConnection();
         $table = $this->resource->getTableName('core_config_data');
-
+        $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v';
         $select = $connection->select()
             ->from([$table])
             ->where( 'path LIKE ?', '%' . $path )
-            ->where('value ' . $condition . ' ?', $value);
+            ->where('value = ?',1);
         $items = $connection->fetchAll($select);
         $result = [];
 
@@ -91,7 +66,39 @@ class Linv extends Template
             if ($module && !$section->isEnabled()) {
                 $result[] = $module;
             }
+
         }
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages():array
+    {
+        $connection = $this->resource->getConnection();
+        $table = $this->resource->getTableName('core_config_data');
+        $path = '/g'.'en'.'er'.'al'.'/l'.'in'.'v'.'_'.'error_me'.'ss'.'ag'.'e';
+        $select = $connection->select()
+            ->from([$table])
+            ->where( 'path LIKE ?', '%' . $path )
+            ->where('value != ?','');
+        $items = $connection->fetchAll($select);
+        $result = [];
+
+        foreach ($items as $config) {
+            $configPath = explode('/', $config['path']);
+            $moduleName = $configPath[0];
+            $section = $this->sectionFactory->create([
+                'name' => $moduleName
+            ]);
+            $module = $section->getModule(true);
+            if ($module) {
+                $result[$module] = $config['value'];
+            }
+
+        }
+
         return $result;
     }
 }

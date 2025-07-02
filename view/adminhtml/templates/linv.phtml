@@ -13,10 +13,9 @@
 $items = $block->getItems();
 $messages = $block->getMessages();
 ?>
-<?php if ($items = $block->getItems()) { ?>
-
+<?php if ($items) { ?>
         <div class="messages">
-            <div class="message message-notice notice" style="margin: 20px 3rem;">+
+            <div class="message message-notice notice" style="margin: 20px 3rem;">
                 <div data-ui-id="messages-message-notice" class="linv">
                     <?= 'Important! So' . 'me ' . 'Mag'.'efan'.' Ex'.'tensions'.' a'.'re'.' dis'.'abl'.'ed d'.'ue '.'to i'.'nva'.'lid'.' Product K'.'ey: ' ?>
                     <div style="margin-left: 30px">
@@ -25,6 +24,10 @@ $messages = $block->getMessages();
                             <?php foreach ($items as $key => $name) { ?>
                                 <li>
                                     <?= $block->escapeHtml($result = preg_replace('/([A-Z])/', ' $1', $name)); ?>
+                                    <?php if (isset($messages[$name])) { ?>
+                                         - "<?= $block->escapeHtml($messages[$name]) ?>"
+                                        <?php unset($messages[$name]) ?>
+                                    <?php } ?>
                                 </li>
                             <?php } ?>
                         </ul>
@@ -32,14 +35,18 @@ $messages = $block->getMessages();
                     <?= 'Ple' . 'ase che' . 'ck exten' . 'sions config' . 'uration' ?>.
                 </div>
             </div>
-            <?php foreach ($messages as $key => $message) { ?>
-            <div class="message message-notice notice" style="margin: 20px 3rem;">+
+        </div>
+<?php } ?>
+
+
+<?php if ($messages) { ?>
+    <div class="messages">
+        <?php foreach ($messages as $name => $message) { ?>
+            <div class="message message-notice notice" style="margin: 20px 3rem;">
                 <div data-ui-id="messages-message-notice" class="linv">
-                    <?= 'Important!' . 'Mag'.'efan'.' Ex'.'tension '. $block->escapeHtml($result = preg_replace('/([A-Z])/', ' $1', $name)) .' a'.'re'.' dis'.'abl'.'ed' ?>
-                    <?= $message ?>
+                    <?= 'Important! ' . 'Mag'.'efan'.' '. $block->escapeHtml( preg_replace('/([A-Z])/', ' $1', $name)) .': ' .$block->escapeQuote($message) ?>
                 </div>
             </div>
-            <?php } ?>
-        </div>
-
+        <?php } ?>
+    </div>
 <?php } ?>

@@ -42,20 +42,11 @@ class SetLinvFlag
      * @param $value
      * @return void
      */
-    public function execute($module, $value)
+    public function execute($module, $value, $errorMessage = '')
     {
-        $this->configWriter->save($module . '/g'.'en'.'er'.'al'.'/l'.'in'.'v', $value, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
-        $this->cacheTypeList->cleanType(Config::TYPE_IDENTIFIER);
-    }
-
-    /**
-     * @param $module
-     * @param $message
-     * @return void
-     */
-    public function addMessage($module, $message)
-    {
-        $this->configWriter->save($module . '/g'.'en'.'er'.'al'.'/l'.'in'.'v'.'me'.'ss'.'ag'.'e', $message, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
+        $path = $module . '/g'.'en'.'er'.'al'.'/';
+        $this->configWriter->save($path . 'l'.'in'.'v', $value, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
+        $this->configWriter->save($path . 'l'.'in'.'v'.'_'.'error_me'.'ss'.'ag'.'e', $errorMessage, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
         $this->cacheTypeList->cleanType(Config::TYPE_IDENTIFIER);
     }
 }

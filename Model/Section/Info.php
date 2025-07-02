@@ -96,7 +96,7 @@ final class Info
             $result[$module] = [
                 'key' => $section->getKey(),
                 'section' => $section->getName(),
-                'version' => $this->modelModuleVersion->execute('Magefan_' . $module)
+                'version' => $this->modelModuleVersion->execute('Mag' . 'e' . 'f' . 'an_' . $module)
             ];
         }
         return $result;

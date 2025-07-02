@@ -104,17 +104,17 @@ class ConfigObserver implements ObserverInterface
             }
             return;
         }
-        $module = $section->getName();
         $data = $this->info->load([$section]);
-        $errorMessage = $section->getErrorMessage($data);
 
         if (!$section->validate($data)) {
             $groups['general']['fields']['enabled']['value'] = 0;
-            $this->setLinvFlag->execute($module, 1);
+            $this->setLinvFlag->execute($section->getName(), 1);
             $request->setPostValue('groups', $groups);
 
+            $errorMessage = $section->getErrorMessage($data);
+            $errorMessage = $data[$section->getModule() . '_errorMsg'] ?? '';
+
             if ($errorMessage) {
-                $this->setLinvFlag->addMessage($module, $errorMessage);
                 $this->messageManager->addError($errorMessage);
             } else {
                 $message = implode(array_reverse(
@@ -126,12 +126,10 @@ class ConfigObserver implements ObserverInterface
                         'o','r','P'
                     ]
                 ));
-                $this->setLinvFlag->addMessage($module, $message);
                 $this->messageManager->addError($message);
             }
         } else {
-            $this->setLinvFlag->addMessage($module, '');
-            $this->setLinvFlag->execute($module, 0);
+            $this->setLinvFlag->execute($section->getName(), 0);
         }
     }
 }
