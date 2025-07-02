@@ -9,6 +9,7 @@ namespace Magefan\Community\Model\Section;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\Client\Curl;
+use Magefan\Community\Model\GetModuleVersion;
 
 /**
  * Class Section Info
@@ -32,20 +33,27 @@ final class Info
     private $curl;
 
     /**
+     * @var GetModuleVersion
+     */
+    private $modelModuleVersion;
+
+    /**
      * Info constructor.
      * @param ProductMetadataInterface $metadata
      * @param StoreManagerInterface $storeManager
      * @param Curl $curl
-     * @param array $data
+     * @param GetModuleVersion $modelModuleVersion
      */
     final public function __construct(
         ProductMetadataInterface $metadata,
         StoreManagerInterface $storeManager,
-        Curl $curl
+        Curl $curl,
+        GetModuleVersion $modelModuleVersion
     ) {
         $this->metadata = $metadata;
         $this->storeManager = $storeManager;
         $this->curl = $curl;
+        $this->modelModuleVersion = $modelModuleVersion;
     }
 
     /**
@@ -84,9 +92,11 @@ final class Info
     {
         $result = [];
         foreach ($sections as $section) {
-            $result[$section->getModule()] = [
+            $module = $section->getModule();
+            $result[$module] = [
                 'key' => $section->getKey(),
-                'section' => $section->getName()
+                'section' => $section->getName(),
+                'version' => $this->modelModuleVersion->execute('Mag' . 'e' . 'f' . 'an_' . $module)
             ];
         }
         return $result;

@@ -10,26 +10,37 @@
  *
  * @var $block \Magefan\Community\Block\Adminhtml\Linv
  */
+$disabledItems = $block->getItems();
+$messages = $block->getMessages();
 ?>
-<?php if ($items = $block->getItems()) { ?>
-
+<?php if ($disabledItems || $messages) { ?>
         <div class="messages">
             <div class="message message-notice notice" style="margin: 20px 3rem;">
                 <div data-ui-id="messages-message-notice" class="linv">
-                    <?= 'Important! So' . 'me ' . 'Mag'.'efan'.' Ex'.'tensions'.' a'.'re'.' dis'.'abl'.'ed d'.'ue '.'to i'.'nva'.'lid'.' Product K'.'ey: ' ?>
+                    <?= 'Important!' ?>
                     <div style="margin-left: 30px">
                         <br/>
                         <ul>
-                            <?php foreach ($items as $key => $name) { ?>
+                            <?php foreach ($disabledItems as $key => $name) { ?>
                                 <li>
-                                    <?= $block->escapeHtml($result = preg_replace('/([A-Z])/', ' $1', $name)); ?>
+                                    Mag<span></span>efan <?= $block->escapeHtml($result = preg_replace('/([A-Z])/', ' $1', $name)); ?>:
+                                    <?php if (isset($messages[$name])) { ?>
+                                        <?= $block->escapeHtml($messages[$name]) ?>
+                                        <?php unset($messages[$name]) ?>
+                                    <?php } else { ?>
+                                        <?= ' dis'.'abl'.'ed d'.'ue '.'to i'.'nva'.'lid'.' Product K'.'ey.' ?>
+                                    <?php } ?>
+                                </li>
+                            <?php } ?>
+                            <?php foreach ($messages as $name => $message) { ?>
+                                <li>
+                                    <?= 'Mag'.'efan'.' '. $block->escapeHtml( preg_replace('/([A-Z])/', ' $1', $name)) .': ' .$block->escapeQuote($message) ?>
                                 </li>
                             <?php } ?>
                         </ul>
                     </div>
-                    <?= 'Ple' . 'ase che' . 'ck exten' . 'sions config' . 'uration' ?>.
+                    <?= 'Ple' . 'ase che' . 'ck exten' . 'sion(s) config' . 'uration' ?>.
                 </div>
             </div>
         </div>
-
 <?php } ?>

@@ -104,16 +104,17 @@ class ConfigObserver implements ObserverInterface
             }
             return;
         }
-        $module = $section->getName();
         $data = $this->info->load([$section]);
 
         if (!$section->validate($data)) {
             $groups['general']['fields']['enabled']['value'] = 0;
-            $this->setLinvFlag->execute($module, 1);
+            $errorMessage = $data[$section->getModule() . '_errorMsg'] ?? '';
+            $this->setLinvFlag->execute($section->getName(), 1, $errorMessage);
             $request->setPostValue('groups', $groups);
 
-            $this->messageManager->addError(
-                implode(array_reverse(
+
+            if (!$errorMessage) {
+                $errorMessage = implode(array_reverse(
                     [
                         '.','d','e','l','b','a','s','i','d',' ','y','l','l','a','c','i','t','a','m',
                         'o','t','u','a',' ','n','e','e','b',' ','s','a','h',' ','n','o','i','s','n',
@@ -121,10 +122,11 @@ class ConfigObserver implements ObserverInterface
                         'o',' ','y','t','p','m','e',' ','s','i',' ','y','e','K',' ','t','c','u','d',
                         'o','r','P'
                     ]
-                ))
-            );
+                ));
+            }
+            $this->messageManager->addError($errorMessage);
         } else {
-            $this->setLinvFlag->execute($module, 0);
+            $this->setLinvFlag->execute($section->getName(), 0);
         }
     }
 }
