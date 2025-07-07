@@ -12,7 +12,4 @@
     <event name="controller_action_predispatch_adminhtml_system_config_save">
         <observer name="magefan_community_controller_action_predispatch_adminhtml_system_config_save" instance="Magefan\Community\Observer\ConfigObserver"/>
     </event>
-    <event name="layout_load_before">
-        <observer name="mf_community_layout_load_before" instance="Magefan\Community\Observer\LayoutLoadBefore" />
-    </event>
 </config>

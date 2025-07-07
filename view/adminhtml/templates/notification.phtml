@@ -54,7 +54,7 @@ if (!empty($data)) {
                     <div class="description">
                         <?= /*@noEscape*/ __(
                             'Your ' . $moduleName . ' Extension is outdated.
-                        The lates vession. ' . $block->escapeHtml($block->getLatestVersion()) .', is now available, offering improved features and performance'
+                        The lates version. ' . $block->escapeHtml($block->getLatestVersion()) .', is now available, offering improved features and performance'
                         );
                         ?>
                     </div>
@@ -71,10 +71,10 @@ if (!empty($data)) {
         <div class="message message-notice notice">
                 <div class="wrapper" data-ui-id="messages-message-error">
                     <div class="description">
-                        <?= /*@noEscape*/ __(
-                            'Your ' . $moduleName . ' Extension you can upgrade it',
-                    );
-                        ?>
+                        <?= $block->escapeHtml(__(
+                            'You can upgrade your %1 Extension to unlock more features and improvements.',
+                            $moduleName
+                        )); ?>
                     </div>
                     <div class="actions">
                         <button id="upgrade" title="Upgrade Plan" class="action-upgrade" onclick="window.open('<?= $block->getModuleInfo()->getProductUrl()?>/pricing?utm_source=admin&amp;utm_medium=config&amp;utm_campaign=upgrade-plan', '_blank'); return false;"><span>Upgrade Plan</span></button>

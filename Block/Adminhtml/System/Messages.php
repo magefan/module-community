@@ -21,6 +21,7 @@ class Messages extends \Magento\Backend\Block\Template
     protected $latestVersion = null;
     protected $currentVersion = null;
     protected $extensionName = null;
+    protected $allowedMasage = null;
 
     /**
      * @var Config
@@ -204,6 +205,9 @@ class Messages extends \Magento\Backend\Block\Template
      * @return void
      */
     public function setExtensionName($name = null) {
+        $this->allowedMasage = null;
+        $this->latestVersion = null;
+        $this->currentVersion = null;
         if ($name) {
             $this->extensionName = $name;
             return;
@@ -212,11 +216,11 @@ class Messages extends \Magento\Backend\Block\Template
 
         if (!empty($frontModule[0]) && strpos($frontModule[0], 'Magefan_') !== false) {
             $this->extensionName = $frontModule[0];
-        } else {
+        } /*else {
             $sectionName = (string)$this->getRequest()->getParam('section');
             $section = $this->sectionFactory->create(['name' => $sectionName]);
             $this->extensionName = $section->getModuleName();
-        }
+        }*/
     }
 
     /**
@@ -233,7 +237,8 @@ class Messages extends \Magento\Backend\Block\Template
      * @return mixed|string|null
      */
     private function getFormattedModuleName() {
-        $moduleName = $this->getExtensionName();
+        $moduleName = $this->getExtensionName() ?? '';
+
         $moduleName = str_starts_with($moduleName, 'Magefan_') ? $moduleName : 'Magefan_' . $moduleName;
         return str_replace(['Extra', 'Plus'], '', $moduleName);
     }
@@ -287,6 +292,12 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function allowShowMessage(string $event, string $allowedMessages) {
 
+        $priority = ['enabled', 'update', 'support', 'upgrade'];
+
+        if ($this->allowedMasage ) {
+            return false;
+        }
+
         if ($allowedMessages !== 'all') {
             $allowedEvents = array_map('trim', explode(',', $allowedMessages));
             if (!in_array($event, $allowedEvents)) {
@@ -310,7 +321,14 @@ class Messages extends \Magento\Backend\Block\Template
             ->where('created_at >= ?', (new \DateTime('-1 day'))->format('Y-m-d H:i:s'))
             ->limit(1);
 
-        return !$connection->fetchOne($select);
+        if ($connection->fetchOne($select)) {
+            return false;
+        }
+
+        if (array_search($event, $priority) >= 0) {
+            $this->allowedMasage = $event;
+        }
+        return true;
     }
 
 
