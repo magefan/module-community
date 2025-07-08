@@ -22,6 +22,9 @@
                 <item name="cms_page_edit" xsi:type="array">
                     <item name="OgTags" xsi:type="string">all</item>
                 </item>
+                <item name="sales_order_index" xsi:type="array">
+                    <item name="BetterOrderGrid" xsi:type="string">all</item>
+                </item>
             </argument>
         </arguments>
     </type>

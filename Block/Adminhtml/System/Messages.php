@@ -292,7 +292,7 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function allowShowMessage(string $event, string $allowedMessages) {
 
-        $priority = ['enabled', 'update', 'support', 'upgrade'];
+//        $priority = ['enabled', 'update', 'support', 'upgrade'];
 
         if ($this->allowedMasage ) {
             return false;
@@ -325,9 +325,9 @@ class Messages extends \Magento\Backend\Block\Template
             return false;
         }
 
-        if (array_search($event, $priority) >= 0) {
+//        if (array_search($event, $priority) >= 0) {
             $this->allowedMasage = $event;
-        }
+//        }
         return true;
     }
 
