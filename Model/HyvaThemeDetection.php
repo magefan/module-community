@@ -13,6 +13,8 @@ use Magefan\Community\Api\HyvaThemeDetectionInterface;
 class HyvaThemeDetection extends AbstractThemeDetection implements HyvaThemeDetectionInterface
 {
     /**
+     * Get hyva theme name
+     *
      * @return string
      */
     public function getThemeModuleName(): string
@@ -21,6 +23,8 @@ class HyvaThemeDetection extends AbstractThemeDetection implements HyvaThemeDete
     }
 
     /**
+     * Gte theme name
+     *
      * @return string
      */
     public function getThemeName(): string

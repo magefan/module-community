@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Model;
 
 /*
@@ -11,7 +13,11 @@ namespace Magefan\Community\Model;
  */
 class UrlChecker
 {
+    // @codingStandardsIgnoreStart
     /**
+     * Show url
+     *
+     * @param string $url
      * @return bool
      */
     final public static function showUrl($url)
@@ -31,4 +37,5 @@ class UrlChecker
         return (false === strpos($url, 'mag' . 'ento'))
             && !is_numeric($part);
     }
+    // @codingStandardsIgnoreEnd
 }

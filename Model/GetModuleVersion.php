@@ -43,6 +43,7 @@ class GetModuleVersion implements GetModuleVersionInterface
 
     /**
      * GetModuleVersion constructor.
+     *
      * @param SerializerInterface $serializer
      * @param File $file
      * @param Reader $moduleReader
@@ -61,6 +62,8 @@ class GetModuleVersion implements GetModuleVersionInterface
     }
 
     /**
+     * Get module version
+     *
      * @param string $moduleName
      * @return string
      */

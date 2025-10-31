@@ -19,12 +19,13 @@ class GetWebsitesMap implements GetWebsitesMapInterface
     private $storeManager;
 
     /**
-     * @var
+     * @var array
      */
     private $websitesMap;
 
     /**
      * GetWebsitesMap constructor.
+     *
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
@@ -34,6 +35,8 @@ class GetWebsitesMap implements GetWebsitesMapInterface
     }
 
     /**
+     * Get websites
+     *
      * @return array
      */
     public function execute(): array

@@ -13,6 +13,8 @@ use Magefan\Community\Api\BreezeThemeDetectionInterface;
 class BreezeThemeDetection extends AbstractThemeDetection implements BreezeThemeDetectionInterface
 {
     /**
+     * Get module name
+     *
      * @return string
      */
     public function getThemeModuleName(): string
@@ -21,6 +23,8 @@ class BreezeThemeDetection extends AbstractThemeDetection implements BreezeTheme
     }
 
     /**
+     * Get theme name
+     *
      * @return string
      */
     public function getThemeName(): string

@@ -12,11 +12,12 @@ use Magento\Framework\DataObject;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\App\CacheInterface;
 use Magefan\Community\Api\GetModuleInfoInterface;
+use Psr\Log\LoggerInterface;
 
 class GetModuleInfo implements GetModuleInfoInterface
 {
-    const CACHE_KEY = 'magefan_product_versions_extended_json';
-    const CACHE_LIFETIME = 43200;
+    public const CACHE_KEY = 'magefan_product_versions_extended_json';
+    public const CACHE_LIFETIME = 43200;
 
     /**
      * @var Curl
@@ -34,19 +35,29 @@ class GetModuleInfo implements GetModuleInfoInterface
     private $modulesInfo;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param Curl $curl
      * @param CacheInterface $cache
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Curl $curl,
-        CacheInterface $cache
+        CacheInterface $cache,
+        LoggerInterface $logger
     ) {
         $this->curl = $curl;
         $this->cache = $cache;
+        $this->logger = $logger;
     }
 
     /**
-     * @param $moduleName
+     * Get data by module
+     *
+     * @param mixed $moduleName
      * @return array|DataObject|mixed
      */
     public function execute($moduleName = null)
@@ -66,6 +77,8 @@ class GetModuleInfo implements GetModuleInfoInterface
     }
 
     /**
+     * Get extension info
+     *
      * @return array
      */
     public function getModulesInfo()
@@ -87,6 +100,8 @@ class GetModuleInfo implements GetModuleInfoInterface
     }
 
     /**
+     * Load data
+     *
      * @return array
      */
     private function load(): array
@@ -106,13 +121,15 @@ class GetModuleInfo implements GetModuleInfoInterface
                 $data = json_decode($response, true);
             }
         } catch (\Exception $e) {
-
+            $this->logger->error($e->getMessage());
         }
 
         return $data;
     }
 
     /**
+     * Get cached data
+     *
      * @return array
      */
     private function loadFromCache(): array

@@ -12,7 +12,9 @@ interface HyvaThemeDetectionInterface
 {
 
     /**
-     * @param $storeId
+     * Hyva detector
+     *
+     * @param mixed $storeId
      * @return bool
      */
     public function execute($storeId = null): bool;

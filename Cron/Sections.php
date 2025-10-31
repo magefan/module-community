@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Cron;
 
 use Magefan\Community\Model\SectionFactory;
@@ -38,6 +40,7 @@ class Sections
      * @param ResourceConnection $resource
      * @param SectionFactory $sectionFactory
      * @param Info $info
+     * @param SetLinvFlag $setLinvFlag
      */
     public function __construct(
         ResourceConnection $resource,
@@ -53,6 +56,8 @@ class Sections
 
     /**
      * Execute cron job
+     *
+     * @return void
      */
     public function execute()
     {

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+
 declare(strict_types=1);
 
 namespace Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine;
@@ -6,6 +11,7 @@ namespace Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine;
 use Magefan\Community\Model\BreezeThemeDetection\Proxy as BreezeThemeDetection;
 use Magefan\Community\Model\View\Helper\SecureHtmlRenderer\Proxy as SecureHtmlRenderer;
 use Magefan\Community\Model\HyvaThemeDetection\Proxy as HyvaThemeDetection;
+use Magento\Framework\View\Element\BlockInterface;
 
 class Php
 {
@@ -24,6 +30,7 @@ class Php
      */
     private $mfBreezeThemeDetection;
 
+    // @codingStandardsIgnoreStart
     /**
      * @param SecureHtmlRenderer $mfSecureRenderer
      * @param HyvaThemeDetection $mfHyvaThemeDetection
@@ -38,17 +45,20 @@ class Php
         $this->mfHyvaThemeDetection = $mfHyvaThemeDetection;
         $this->mfBreezeThemeDetection = $mfBreezeThemeDetection;
     }
+    // @codingStandardsIgnoreEnd
 
     /**
+     * Add custom data
+     *
      * @param \Magento\Framework\View\TemplateEngine\Php $subject
-     * @param \Magento\Framework\View\Element\BlockInterface $block
-     * @param $fileName
+     * @param BlockInterface $block
+     * @param string $fileName
      * @param array $dictionary
      * @return array
      */
     public function beforeRender(
         \Magento\Framework\View\TemplateEngine\Php $subject,
-        \Magento\Framework\View\Element\BlockInterface $block,
+        BlockInterface $block,
         $fileName,
         array $dictionary = []
     ) {

@@ -12,7 +12,9 @@ interface BreezeThemeDetectionInterface
 {
 
     /**
-     * @param $storeId
+     * Breeze theme detect by store id
+     *
+     * @param mixed $storeId
      * @return bool
      */
     public function execute($storeId = null): bool;

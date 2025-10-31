@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Api;
 
 use Magento\Framework\DataObject;
@@ -17,7 +19,9 @@ use Magento\Framework\DataObject;
 interface GetModuleInfoInterface
 {
     /**
-     * @param $moduleName
+     * Get data by module
+     *
+     * @param string $moduleName
      * @return array|DataObject|mixed
      */
     public function execute($moduleName = null);

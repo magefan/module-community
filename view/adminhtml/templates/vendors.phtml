@@ -4,20 +4,46 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 ?>
-
+<?php
+/**
+ * @var $block \Magento\Framework\View\Element\Template
+ * @var $escaper \Magento\Framework\Escaper
+ */
+?>
+<?php
+if (!isset($escaper)) {
+    /* Compatability fix for old Magento versions */
+    $escaper = $block;
+}
+?>
 <section class="page-partners">
-    <h2 class="page-sub-title"><?= $block->escapeHtml(__('Extension Vendors')) ?></h2>
+    <h2 class="page-sub-title"><?= $escaper->escapeHtml(__('Extension Vendors')) ?></h2>
     <div data-role="vendors-block" class="partner-block">
         <div class="partner">
-            <a href="<?= 'https://mage' . 'fan.com/' ?>?utm_source=admin&utm_medium=partners&utm_campaign=logo" target="_blank" title="Magefan">
-                <img class="vendor-image" src="<?= $this->getViewFileUrl('Magefan_Community::images/magefan-logo.png') ?>" alt="Magefan" />
+            <a
+                href="<?= 'https://mage' . 'fan.com/' ?>?utm_source=admin&utm_medium=partners&utm_campaign=logo"
+                target="_blank"
+                title="Magefan"
+            >
+                <img
+                    class="vendor-image"
+                    src="<?= $escaper->escapeUrl(
+                        $block->getViewFileUrl('Magefan_Community::images/magefan-logo.png')
+                    ) ?>"
+                    alt="Magefan"
+                />
             </a>
             <h3 class="partner-title">Magefan</h3>
             <p class="partner-description">
-                Magefan is an eCommerce agency delivering top-notch extensions for Magento 2. We help eCommerce projects solve problems and reach their business goals faster.<br>
+                Magefan is an eCommerce agency delivering top-notch extensions for Magento 2. We help eCommerce projects
+                solve problems and reach their business goals faster.<br>
                 <strong>Magefan - eCommerce solutions you can trust.</strong><br/>
-                <a href="<?= 'https://mage' . 'fan.com/' ?>?utm_source=admin&utm_medium=partners&utm_campaign=read-more" target="_blank" title="Magefan">
-                    <?= $block->escapeHtml('Read More') ?>
+                <a
+                    href="<?= 'https://mage' . 'fan.com/'?>?utm_source=admin&utm_medium=partners&utm_campaign=read-more"
+                    target="_blank"
+                    title="Magefan"
+                >
+                    <?= $escaper->escapeHtml('Read More') ?>
                 </a>
             </p>
         </div>

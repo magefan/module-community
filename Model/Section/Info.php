@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Model\Section;
 
 use Magento\Framework\App\ProductMetadataInterface;
@@ -15,6 +17,7 @@ use Magefan\Community\Model\GetModuleVersion;
  * Class Section Info
  * @package Magefan\Community\Model
  */
+// @codingStandardsIgnoreLine
 final class Info
 {
     /**
@@ -37,8 +40,10 @@ final class Info
      */
     private $modelModuleVersion;
 
+    // @codingStandardsIgnoreStart
     /**
      * Info constructor.
+     *
      * @param ProductMetadataInterface $metadata
      * @param StoreManagerInterface $storeManager
      * @param Curl $curl
@@ -55,8 +60,12 @@ final class Info
         $this->curl = $curl;
         $this->modelModuleVersion = $modelModuleVersion;
     }
+    // @codingStandardsIgnoreEnd
 
+    // @codingStandardsIgnoreStart
     /**
+     * Load by curl
+     *
      * @param array $sections
      * @return bool|mixed
      */
@@ -84,8 +93,11 @@ final class Info
             return false;
         }
     }
+    // @codingStandardsIgnoreEnd
 
     /**
+     * Get sections config
+     *
      * @param array $sections
      * @return array
      */

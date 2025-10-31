@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Api;
 
 /**
@@ -15,6 +17,8 @@ namespace Magefan\Community\Api;
 interface GetParentProductIdsInterface
 {
     /**
+     * Get parent product ids
+     *
      * @api
      * @param array $productIds
      * @return array

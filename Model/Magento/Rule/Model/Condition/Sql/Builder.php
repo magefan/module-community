@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Model\Magento\Rule\Model\Condition\Sql;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Rule\Model\Condition\AbstractCondition;
 use Magento\Eav\Api\AttributeRepositoryInterface;
 use Magento\Eav\Model\Entity\Collection\AbstractCollection;
@@ -18,8 +19,8 @@ use Magento\Rule\Model\Condition\Sql\ExpressionFactory;
 
 class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
 {
-    const UNDEFINED_OPERATOR = '<=>';
-    const IS_OPERATOR = '==';
+    private const UNDEFINED_OPERATOR = '<=>';
+    private const IS_OPERATOR = '==';
 
     /**
      * @var array
@@ -39,6 +40,12 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
      */
     private $attributeRepository;
 
+    /**
+     * Construct
+     *
+     * @param ExpressionFactory $expressionFactory
+     * @param AttributeRepositoryInterface $attributeRepository
+     */
     public function __construct(
         ExpressionFactory $expressionFactory,
         AttributeRepositoryInterface $attributeRepository
@@ -47,6 +54,14 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
         $this->attributeRepository = $attributeRepository;
     }
 
+    /**
+     * Add attachment to collection
+     *
+     * @param AbstractCollection $collection
+     * @param Combine $combine
+     * @return void
+     * @throws LocalizedException
+     */
     public function attachConditionToCollection(
         AbstractCollection $collection,
         Combine $combine
@@ -63,7 +78,7 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
      * @param string $value
      * @param bool $isDefaultStoreUsed
      * @return string
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     protected function _getMappedSqlCondition(
         AbstractCondition $condition,
@@ -76,7 +91,7 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
         if (empty($argument)) {
             return (string) $this->_expressionFactory->create(['expression' => '1 = -1']);
         } elseif (preg_match('/[^a-z0-9\-_\.\`]/i', $argument) > 0 && !$argument instanceof \Zend_Db_Expr) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Invalid field'));
+            throw new LocalizedException(__('Invalid field'));
         }
 
         if (self::UNDEFINED_OPERATOR === $condition->getOperatorForValidate()) {
@@ -87,7 +102,7 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
         $conditionOperator = $condition->getOperatorForValidate();
 
         if (!isset($this->_conditionOperatorMap[$conditionOperator])) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Unknown condition operator'));
+            throw new LocalizedException(__('Unknown condition operator'));
         }
 
         $defaultValue = $this->getDefaultValue($this->collectionCopy, $condition->getAttribute());
@@ -153,6 +168,8 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
     }
 
     /**
+     * Get default value
+     *
      * @param AbstractCollection $collection
      * @param string $attributeCode
      * @return int|string
@@ -172,6 +189,8 @@ class Builder extends \Magento\Rule\Model\Condition\Sql\Builder
     }
 
     /**
+     * Is default value available for attribute
+     *
      * @param string $attributeCode
      * @return bool
      */

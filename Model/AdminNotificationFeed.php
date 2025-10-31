@@ -4,19 +4,23 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\GetModuleVersionInterface;
+use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\DeploymentConfig;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Config\ConfigOptionsListConstants;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Adapter\Curl;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
-use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Module\Manager;
+use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\UrlInterface;
 use SimpleXMLElement;
@@ -26,7 +30,7 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
     /**
      * @var string
      */
-    const MAGEFAN_CACHE_KEY = 'magefan_admin_notifications_lastcheck' ;
+    public const MAGEFAN_CACHE_KEY = 'magefan_admin_notifications_lastcheck' ;
 
     /**
      * @var string
@@ -62,17 +66,17 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
     protected $urlBuilder;
 
     /**
-     * @var \Magento\Backend\Model\Auth\Session
+     * @var Session
      */
     protected $_backendAuthSession;
 
     /**
-     * @var \Magento\Framework\Module\ModuleListInterface
+     * @var ModuleListInterface
      */
     protected $_moduleList;
 
     /**
-     * @var \Magento\Framework\Module\Manager
+     * @var Manager
      */
     protected $_moduleManager;
 
@@ -89,9 +93,9 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
     /**
      * @param Context $context
      * @param Registry $registry
-     * @param \Magento\Backend\Model\Auth\Session $backendAuthSession
-     * @param \Magento\Framework\Module\ModuleListInterface $moduleList
-     * @param \Magento\Framework\Module\Manager $moduleManager
+     * @param Session $backendAuthSession
+     * @param ModuleListInterface $moduleList
+     * @param Manager $moduleManager
      * @param CurlFactory $curlFactory
      * @param DeploymentConfig $deploymentConfig
      * @param ProductMetadataInterface $productMetadata
@@ -101,13 +105,14 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
+     * @throws LocalizedException
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession,
-        \Magento\Framework\Module\ModuleListInterface $moduleList,
-        \Magento\Framework\Module\Manager $moduleManager,
+        Session $backendAuthSession,
+        ModuleListInterface $moduleList,
+        Manager $moduleManager,
         \Magento\Framework\HTTP\Adapter\CurlFactory $curlFactory,
         \Magento\Framework\App\DeploymentConfig $deploymentConfig,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
@@ -148,10 +153,11 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
      */
     public function getFeedUrl()
     {
-        if (is_null($this->_feedUrl)) {
+        if ($this->_feedUrl === null) {
             $this->_feedUrl = 'https://mage'.'fan'
                 .'.c'.'om/community/notifications'.'/'.'feed/';
         }
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction
         $urlInfo = parse_url($this->urlBuilder->getBaseUrl());
         $domain = isset($urlInfo['host']) ? $urlInfo['host'] : '';
         $url = $this->_feedUrl . 'domain/' . urlencode($domain);
@@ -369,17 +375,22 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
      */
     private function escapeString(SimpleXMLElement $data)
     {
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction
         return htmlspecialchars((string)$data);
     }
 
     /**
+     * Get inbox factory
+     *
      * @return mixed
      */
     private function getInboxFactory()
     {
         if (null === $this->_inboxFactory) {
+            // phpcs:disable
             $this->_inboxFactory = \Magento\Framework\App\ObjectManager::getInstance()
                 ->get(\Magento\AdminNotification\Model\InboxFactory::class);
+            // phpcs:enable
         }
 
         return $this->_inboxFactory;

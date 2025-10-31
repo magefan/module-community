@@ -4,10 +4,11 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Block\Adminhtml\Edit;
 
 use Magento\Backend\Block\Widget\Context;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\AuthorizationInterface;
 
 class GenericButton
@@ -24,6 +25,7 @@ class GenericButton
 
     /**
      * GenericButton constructor.
+     *
      * @param Context $context
      * @param AuthorizationInterface|null $authorization
      */

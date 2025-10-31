@@ -42,6 +42,8 @@ class Linv extends Template
     }
 
     /**
+     * Get items config
+     *
      * @return array
      */
     public function getItems(): array
@@ -72,6 +74,8 @@ class Linv extends Template
     }
 
     /**
+     * Get messages
+     *
      * @return array
      */
     public function getMessages():array
