@@ -155,13 +155,15 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     public function _editAction()
     {
-        $model = $this->_getModel();
-        $id = $this->getRequest()->getParam('id');
-        if (!$model->getId() && $id) {
-            throw new Exception("Item is not longer exist.", 1);
-        }
-
         try {
+            $model = $this->_getModel();
+            $id = $this->getRequest()->getParam('id');
+            if (!$model->getId() && $id) {
+                // phpcs:disable
+                throw new Exception("Item is not longer exist.", 1);
+                // phpcs:disable
+            }
+
             $this->_getRegistry()->register('current_model', $model);
 
             $this->_view->loadLayout();
@@ -311,12 +313,14 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function _duplicateAction()
     {
-        $originModel = $this->_getModel();
-        if (!$originModel->getId()) {
-            throw new Exception("Item is not longer exist.", 1);
-        }
-
         try {
+            $originModel = $this->_getModel();
+            if (!$originModel->getId()) {
+                // phpcs:disable
+                throw new Exception("Item is not longer exist.", 1);
+                // phpcs:disable
+            }
+
             $model = $originModel->duplicate();
 
             $this->messageManager->addSuccess(__('%1 has been duplicated.', $model->getOwnTitle()));
