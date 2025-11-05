@@ -439,11 +439,11 @@ abstract class Actions extends \Magento\Backend\App\Action
             $status = $this->getRequest()->getParam('status');
             $statusFieldName = $this->_statusField;
 
-            if ($status === null) {
+            if (null === $status) {
                 throw new Exception(__('Parameter "Status" missing in request data.'));
             }
 
-            if ($statusFieldName === null) {
+            if (null === $statusFieldName) {
                 throw new Exception(__('Status Field Name is not specified.'));
             }
 
@@ -529,7 +529,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function _getRegistry()
     {
-        if ($this->_coreRegistry === null) {
+        if (null === $this->_coreRegistry) {
             $this->_coreRegistry = $this->_objectManager->get(Registry::class);
         }
         return $this->_coreRegistry;
@@ -554,7 +554,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function _getModel($load = true)
     {
-        if ($this->_model === null) {
+        if (null === $this->_model) {
             $this->_model = $this->_objectManager->create($this->_modelClass);
 
             $id = (int)$this->getRequest()->getParam($this->_idKey);
