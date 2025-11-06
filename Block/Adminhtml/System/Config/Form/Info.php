@@ -133,7 +133,9 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                 >
                     <img
                     src="' .  $moduleImage . '"
-                    alt=""
+                    alt="' .$this->escapeHtml($fullModuleTitle) . '"
+                    width="64"
+                    height="64"
                     />
                 </a>
             </div>
