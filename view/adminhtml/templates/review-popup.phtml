@@ -1,0 +1,106 @@
+
+<form action="<?= $block->getModuleReviewUrl() ?>" method="post" id="review-form" class="review-form" data-role="product-review-form" data-bind="scope: 'review-form'" style="display: none">
+    <fieldset class="fieldset review-fieldset">
+        <legend class="legend review-legend">
+            <p><?= __('How would you rate your experience?') ?></p>
+        </legend>
+        <div id="product-review-table">
+            <div class="field choice review-field-rating">
+                <label id="rating_label" class="label"></label>
+                <div class="control review-control-vote">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <input
+                            type="radio"
+                            name="ratings[1]"
+                        id="rating_<?= $i ?>"
+                        value="<?= $i ?>"
+                        class="radio"
+                        data-validate="{required:true, messages:{required:'Please select one of each of the ratings above.'}}"
+                        aria-labelledby="rating_label rating_<?= $i ?>_label"
+                        >
+                        <label
+                            for="rating_<?= $i ?>"
+                            title="<?= __('%1 %2', $i, $i > 1 ? 'stars' : 'star') ?>"
+                            class="rating-<?= $i ?>"
+                            id="rating_<?= $i ?>_label">
+                            <span class="star-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37" fill="none">
+                                    <path d="M17.0985 3.41607C17.4859 2.48464 18.8054 2.48464 19.1928 3.41607L22.6792 11.7984C22.8426 12.1911 23.2118 12.4594 23.6357 12.4934L32.6852 13.2189C33.6908 13.2995 34.0985 14.5544 33.3324 15.2107L26.4376 21.1168C26.1147 21.3934 25.9736 21.8275 26.0723 22.2412L28.1787 31.072C28.4128 32.0532 27.3453 32.8288 26.4844 32.3029L18.7368 27.5707C18.3739 27.3491 17.9174 27.3491 17.5545 27.5707L9.80689 32.3029C8.946 32.8288 7.87852 32.0532 8.11258 31.072L10.219 22.2412C10.3177 21.8275 10.1767 21.3934 9.85369 21.1168L2.95894 15.2107C2.19281 14.5544 2.60055 13.2995 3.60611 13.2189L12.6556 12.4934C13.0795 12.4594 13.4488 12.1911 13.6121 11.7984L17.0985 3.41607Z" fill="#E9E9E9"/>
+                                </svg>
+                            </span>
+                            <span class="star-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37" fill="none">
+                                 <path d="M17.0985 3.41607C17.4859 2.48464 18.8054 2.48464 19.1928 3.41607L22.6792 11.7984C22.8426 12.1911 23.2118 12.4594 23.6357 12.4934L32.6852 13.2189C33.6908 13.2995 34.0985 14.5544 33.3324 15.2107L26.4376 21.1168C26.1147 21.3934 25.9736 21.8275 26.0723 22.2412L28.1787 31.072C28.4128 32.0532 27.3453 32.8288 26.4844 32.3029L18.7368 27.5707C18.3739 27.3491 17.9174 27.3491 17.5545 27.5707L9.80689 32.3029C8.946 32.8288 7.87852 32.0532 8.11258 31.072L10.219 22.2412C10.3177 21.8275 10.1767 21.3934 9.85369 21.1168L2.95894 15.2107C2.19281 14.5544 2.60055 13.2995 3.60611 13.2189L12.6556 12.4934C13.0795 12.4594 13.4488 12.1911 13.6121 11.7984L17.0985 3.41607Z" fill="#FFC736"/>
+                                </svg>
+                            </span>
+                        </label>
+                    <?php endfor; ?>
+                </div>
+            </div>
+        </div>
+
+
+        <input type="hidden" name="nickname" id="nickname_field">
+
+        <div class="field review-field-firstname required">
+            <label for="firstname_field" class="label"><span><?= __('First name') ?></span></label>
+            <div class="control">
+                <input type="text" name="firstname" id="firstname_field" class="input-text" placeholder="<?= __('First name') ?>" data-validate="{required:true}">
+            </div>
+        </div>
+
+        <div class="field review-field-lastname required">
+            <label for="lastname_field" class="label"><span><?= __('Last name') ?></span></label>
+            <div class="control">
+                <input type="text" name="lastname" id="lastname_field" class="input-text" placeholder="<?= __('Last name') ?>" data-validate="{required:true}">
+            </div>
+        </div>
+
+        <div class="field review-field-email required">
+            <label for="email_field" class="label"><span><?= __('Email') ?></span></label>
+            <div class="control">
+                <input type="email" name="email" id="email_field" class="input-text" placeholder="<?= __('Enter email') ?>" data-validate="{required:true}">
+            </div>
+        </div>
+
+        <div class="field review-field-summary required">
+            <label for="summary_field" class="label"><span><?= __('Summary') ?></span></label>
+            <div class="control">
+                <input type="text" name="title" id="summary_field" class="input-text" placeholder="<?= __('Enter summary') ?>" data-validate="{required:true}">
+            </div>
+        </div>
+
+        <div class="field review-field-text required">
+            <label for="review_field" class="label"><span><?= __('Share detailed feedback?') ?></span></label>
+            <div class="control">
+                <textarea name="detail" id="review_field" rows="5" placeholder="<?= __('Leave us a message...') ?>" data-validate="{required:true}"></textarea>
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+
+<?php $script = "
+    require(['jquery', 'domReady!'], function($){
+        require(['Magento_Ui/js/modal/alert'], function (alert) {
+            var mfStopAjax;
+            if (mfStopAjax) return;
+            setTimeout(function () {
+                alert({
+                    title: '" . __('Leave a Review') . "',
+                    content: document.getElementById('review-form').outerHTML,
+                    buttons: [{
+                        text: '" . __('Submit Review') . "',
+                        class: 'action primary accept',
+                        click: function () {
+                            this.closeModal(true);
+                        }
+                    }]
+                });
+            }, 5000)   
+        });
+    });
+
+"; ?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
+
