@@ -12,32 +12,222 @@
  * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
  */
 ?>
+
+
+
 <?php
 $script ="
-    window.addEventListener('DOMContentLoaded', function () {
-        function updateMenuHeight() {
-            const submenu = document.querySelector('#menu-magefan-community-elements');
-            if (!submenu) return;
-    
-            const submenuDiv = submenu.querySelector('.submenu');
-            const submenuList = submenu.querySelector('.submenu > ul[role=menu]');
-            if (submenu.classList.contains('_show') && submenuDiv && submenuList) {
-                submenuList.style.maxHeight = (document.documentElement.clientHeight - 120) + 'px';
+    document.addEventListener('DOMContentLoaded', function () {
+        const menu = document.querySelector('#menu-magefan-community-elements');
+        if (!menu) return;
+
+        // Get background color for submenu
+        const bgSubmenu = document.querySelector('.admin__menu .level-0 > .submenu');
+        let bgColor =  '#4a4542'
+        if (bgSubmenu) {
+            bgColor = window.getComputedStyle(bgSubmenu).backgroundColor;
+        }
+
+
+        // 1. Processing ALL .level-1.parent add title + button close
+        const level1Parents = menu.querySelectorAll('.level-1.parent');
+
+        level1Parents.forEach(parent => {
+            // 1.1. Get group title and submenu
+            const groupTitleSpan = parent.querySelector('.submenu-group-title span');
+            const submenu = parent.querySelector('.submenu');
+
+            // 1.2. Set background color for submenu
+            submenu.style.backgroundColor = bgColor;
+            if (!groupTitleSpan || !submenu) return;
+
+            // 1.2.1. Get title text
+            const titleText = groupTitleSpan.textContent.trim();
+
+            // 1.3. Check if title already exists
+            if (submenu.querySelector('.submenu-item-title')) return;
+
+            // 2. Create Title
+            const itemTitle = document.createElement('strong');
+            itemTitle.className = 'submenu-item-title';
+            itemTitle.textContent = titleText;
+
+            // 3. Create Close button
+            const closeBtn = document.createElement('a');
+            closeBtn.href = '#';
+            closeBtn.className = 'action-close-submenu';
+
+            // 4. Add elements to end submenu
+            submenu.prepend(closeBtn);
+            submenu.prepend(itemTitle);
+
+            // 5. Add event listeners
+            closeBtn.addEventListener('click', function () {
+                parent.classList.remove('active');
+            });
+
+            // 6. Close active submenu on click outside submenu
+            menu.querySelector('.action-close').addEventListener('click', function () {
+                parent.classList.remove('active');
+            });
+
+            // 7. Open submenu on click parent
+            parent.addEventListener('click', function () {
+                var isOpen = document.querySelector('#menu-magefan-community-elements .level-1.parent.active .submenu._show');
+                if (isOpen) {
+                    isOpen.classList.remove('_show');
+                }
+                this.classList.add('active');
+                const submenuParentList = this.querySelector('.submenu');
+                if (submenuParentList) {
+                    submenuParentList.classList.toggle('_show');
+                }
+            });
+        });
+
+
+        // Removing columns
+        const submenuContainer = menu.querySelector('.level-0 > .submenu > ul[role=\"menu\"]');
+        if (submenuContainer) {
+
+            // Finds all elements with classes inside .parent.level-1 .level-0 > .submenu
+            const allLevel1Parents = Array.from(menu.querySelectorAll('.level-0 > .submenu .parent.level-1'));
+
+            // Clean (delete .column and everything inside)
+            submenuContainer.innerHTML = '';
+
+            // Add all .parent.level-1 directly to submenu > ul
+            allLevel1Parents.forEach(parent => {
+                submenuContainer.appendChild(parent);
+            });
+
+            // Sorting without columns
+            const level1Items = Array.from(submenuContainer.querySelectorAll('.parent.level-1'));
+            level1Items.sort((a, b) => {
+                const textA = (a.querySelector('.submenu-group-title span')?.textContent || '').trim();
+                const textB = (b.querySelector('.submenu-group-title span')?.textContent || '').trim();
+                return textA.localeCompare(textB);
+            });
+            level1Items.forEach(item => submenuContainer.appendChild(item));
+
+
+            // SEARCH AND FILTER
+            if (level1Items.length > 16) {
+                // Create a search Container
+                const searchContainer = document.createElement('div');
+                searchContainer.className = 'mf-menu-search-container';
+
+                // Create Input
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search in the menu...';
+                searchInput.className = 'mf-menu-search-input';
+
+                // Search button close
+                const searchClose = document.createElement('div');
+                searchClose.className = 'action-search-close';
+                // searchClose.addEventListener('click', function () {
+                //     searchInput.value = '';
+                // });
+
+                // Insert Input in Container
+                searchContainer.appendChild(searchInput);
+
+                // Insert button close
+                searchContainer.appendChild(searchClose);
+
+                // Insert search Container to top submenu Container
+                submenuContainer.parentElement.insertBefore(searchContainer, submenuContainer);
+
+                // Search filtering
+                searchInput.addEventListener('input', function() {
+                    const searchText = this.value.toLowerCase().trim();
+
+                    // Show/hide close button
+                    if (this.value.length > 0) {
+                        searchClose.classList.add('_show');
+                    } else {
+                        searchClose.classList.remove('_show');
+                    }
+
+                    level1Items.forEach(item => {
+                        const titleSpan = item.querySelector('.submenu-group-title span');
+                        const titleText = titleSpan ? titleSpan.textContent.toLowerCase() : '';
+
+                        // Filtering
+                        if (searchText === '' || titleText.includes(searchText)) {
+                            item.style.display = ''; // visible
+                        } else {
+                            item.style.display = 'none'; // hidden
+                        }
+
+                        // Highlighting found text
+                        if (searchText !== '' && titleText.includes(searchText)) {
+                            titleSpan.innerHTML = titleSpan.textContent.replace(
+                                new RegExp(searchText, 'gi'),
+                                match => `<mark style='background: #eb5202;'>\${match}</mark>`
+                            );
+                        } else {
+                            titleSpan.textContent = titleSpan.textContent; // clear the backlight
+                        }
+                    });
+                });
+
+                // Click handler for close button
+                searchClose.addEventListener('click', function() {
+                    // Clear input value
+                    searchInput.value = '';
+
+                    // Hide close button
+                    this.classList.remove('_show');
+
+                    // Show all items
+                    level1Items.forEach(item => {
+                        item.style.display = '';
+
+                        // Clear highlighting
+                        const titleSpan = item.querySelector('.submenu-group-title span');
+                        if (titleSpan) {
+                            titleSpan.textContent = titleSpan.textContent;
+                        }
+                    });
+
+                    // Set focus back to input
+                    searchInput.focus();
+                });
+            }
+        }
+
+
+        // Observer for close active submenu
+        let observer = new MutationObserver(function (mutationsList) {
+            if (!menu.classList.contains('_show')) {
+                let activeSubmenu = menu.querySelector('.level-1.parent.active .submenu._show');
+                if (activeSubmenu) {
+                    activeSubmenu.classList.toggle('_show');
+                }
+            }
+
+            const submenuDiv = menu.querySelector('.submenu');
+            const submenuList = menu.querySelector('.submenu > ul[role=menu]');
+            if (menu.classList.contains('_show') && submenuDiv && submenuList) {
+                const search = menu.querySelector('.mf-menu-search-container')
+                let height = 0;
+                if (search) {
+                    height = search.offsetHeight;
+                }
+                submenuList.style.maxHeight = (document.documentElement.clientHeight - 147 - height) + 'px';
                 submenuDiv.style.position = 'fixed';
                 submenuDiv.style.left = '88px';
                 document.body.style.overflowY = 'hidden';
             } else {
                 document.body.style.overflowY = 'auto';
             }
-        }
+        });
+        observer.observe(menu, { attributes: true, attributeFilter: ['class'] });
 
-        let menuElement = document.querySelector('#menu-magefan-community-elements');
-        if (menuElement) {
-            var observer = new MutationObserver(updateMenuHeight);
-            observer.observe(menuElement, { attributes: true });
-        }
     });
 "
-?>
+ ?>
 
 <?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>

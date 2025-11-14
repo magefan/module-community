@@ -1,33 +1,189 @@
+
 .admin__menu {
-    
+
     // Magefan Community Menu Lvl-0
     #menu-magefan-community-elements {
-        &._show {
-            > .submenu {
-                width: calc(100vw - 8.800000000000001rem);
-                > ul[role=menu] {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
-                    overflow-x: hidden;
-                    overflow-y: auto;
-                    > .column {
-                        display: contents;
+        overflow-x: visible;
+        > .submenu {
+            width: auto;
+            bottom: 0;
+            height: 100vh;
+            max-height: 100vh;
+            min-height: 770px;
+            min-width: 320px;
+            z-index: 698;
+
+            // Submenu title
+            .submenu-title {}
+
+            // Button Close
+            a.action-close-submenu {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 2.4rem 2.8rem;
+                z-index: 999;
+                &:before {
+                    -webkit-font-smoothing: antialiased;
+                    font-family: 'Admin Icons';
+                    font-style: normal;
+                    font-weight: normal;
+                    line-height: 1;
+                    speak: none;
+                    content: '\e62f';
+                    display: block;
+                    color: #ffffff;
+                    font-size: 1.7rem;
+                    width: 20px;
+                    height: 20px;
+                    background-size: 26px;
+                    margin: 0 auto .3rem auto;
+                    transition: color 0.1s linear;
+                }
+                &:hover {
+                    background-color: transparent;
+                }
+            }
+
+            // Search
+            .mf-menu-search-container {
+                margin: 0 30px 30px;
+                position: relative;
+            }
+            .action-search-close {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                right: 14px;
+                z-index: 10;
+                width: 15px;
+                height: 15px;
+                cursor: pointer;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.2s ease;
+            }
+            .action-search-close._show {
+                opacity: 1;
+                visibility: visible;
+            }
+            .action-search-close:before {
+                -webkit-font-smoothing: antialiased;
+                font-family: 'Admin Icons';
+                font-style: normal;
+                font-weight: normal;
+                line-height: 15px;
+                speak: none;
+                content: '\e62f';
+                display: block;
+                width: 15px;
+                height: 15px;
+                color: #000000;
+                font-size: 15px;
+            }
+            // Input Search
+            .mf-menu-search-input {
+                width: 100%;
+                padding: 8px 30px 8px 40px;
+                color: #000;
+                border: 1px solid #292826;
+                border-radius: 4px;
+                font-size: 14px;
+                box-sizing: border-box;
+                background: #ffffff url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIiBmaWxsPSJub25lIj4NCiAgICA8cGF0aCBkPSJNMTcuNSAxNy41TDE0LjU4MzQgMTQuNTgzM00xNi42NjY3IDkuNTgzMzNDMTYuNjY2NyAxMy40OTU0IDEzLjQ5NTQgMTYuNjY2NyA5LjU4MzMzIDE2LjY2NjdDNS42NzEzMiAxNi42NjY3IDIuNSAxMy40OTU0IDIuNSA5LjU4MzMzQzIuNSA1LjY3MTMyIDUuNjcxMzIgMi41IDkuNTgzMzMgMi41QzEzLjQ5NTQgMi41IDE2LjY2NjcgNS42NzEzMiAxNi42NjY3IDkuNTgzMzNaIiBzdHJva2U9IiM0MTM2MmYiIHN0cm9rZS13aWR0aD0iMS42NjY2NyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L3BhdGg+DQo8L3N2Zz4=") no-repeat 2% 7px;
+            }
+
+            // Submenu content
+            > ul[role='menu'] {
+                display: flex;
+                flex-direction: column;
+                //overflow-x: hidden;
+                overflow-y: auto;
+                min-height: 320px;
+                max-height: ~'calc(100vh - 90px)';
+                position: relative;
+                margin-right: 10px;
+                scrollbar-color: rgb(110, 106, 106) transparent;
+                scrollbar-width: thin;
+                .level-1 {
+                    display: flex;
+                    flex-direction: column;
+                    margin-bottom: 0;
+                    cursor: pointer;
+                    .submenu-group-title {
+                        font-weight: normal;
+                        margin: 0;
+                        pointer-events: auto;
+                        &:hover {
+                            background: var(--mfav-menu-bc, #403934);
+                        }
+                    }
+                    // Submenu 2
+                    .submenu {
+                        display: none;
+                        visibility: hidden;
+                        //opacity: 0;
+                        position: fixed;
+                        top: 0;
+                        left: 100%;
+                        bottom: 0;
+                        z-index: 698;
+                        min-width: 310px;
+                        transform: translateX(-100%);
+                        transition-duration: .3s;
+                        transition-property: transform, visibility;
+                        transition-timing-function: ease-in-out;
+                        color: #ffffff;
+                        background: #4a4542;
+                        box-shadow: 0 0 3px #000000;
+                        padding: 2rem 0 0;
+                        cursor: default;
+                        strong.submenu-item-title {
+                            display: block;
+                            font-size: 2.2rem;
+                            font-weight: 600;
+                            margin-bottom: 4.2rem;
+                            margin-left: 3rem;
+                            margin-right: 5.8rem;
+                        }
+                        a.action-close {
+                            padding: 2.4rem 2.8rem;
+                        }
                         > ul[role=menu] {
-                            display: contents;
-                            > li {
-                                display: flex;
-                                flex-direction: column;
-                                min-width: 24.8rem;
-                                border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
-                                margin-bottom: 2rem;
-                                padding-bottom: 2.5rem;
+                            display: flex;
+                            flex-direction: column;
+                            margin: 0 1.5rem;
+                        }
+                    }
+                    &:hover {
+                        //background-color: #0b182a;
+                    }
+                    &.active {
+                        .submenu {
+                            &._show {
+                                display: block;
+                                visibility: visible;
+                                //opacity: 1;
+                                transform: translateX(0);
+                                transition-duration: .3s;
+                                transition-property: transform, visibility;
+                                transition-timing-function: ease-in-out;
+                                z-index: 698;
                             }
                         }
                     }
                 }
+
+                .column {
+                    display: contents;
+                }
+                ul[role='menu'] {
+                    display: contents;
+                }
             }
         }
 
+        // Logo menu
         > a {
             &:before {
                 content: '';
