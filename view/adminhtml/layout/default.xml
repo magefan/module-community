@@ -16,7 +16,7 @@
             <block class="Magefan\Community\Block\Adminhtml\HyvaThemeChecker" name="magefan.hyva.theme.checker" template="Magefan_Community::hyvathemechecker.phtml" after="header"/>
         </referenceContainer>
         <referenceContainer name="content">
-            <block class="Magefan\Community\Block\Adminhtml\ReviewPopup" name="magefan.review.popup" template="Magefan_Community::review-popup.phtml"/>
+            <block class="Magefan\Community\Block\Adminhtml\ReviewPopup" name="magefan.review.popup" template="Magefan_Community::review-popup.phtml" after="-"/>
         </referenceContainer>
     </body>
 </page>
