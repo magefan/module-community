@@ -4,8 +4,11 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Observer;
 
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magefan\Community\Model\SectionFactory;
 use Magefan\Community\Model\Section\Info;
@@ -44,8 +47,10 @@ class ConfigObserver implements ObserverInterface
      */
     private $config;
 
+    // @codingStandardsIgnoreStart
     /**
      * ConfigObserver constructor.
+     *
      * @param SectionFactory $sectionFactory
      * @param Info $info
      * @param ManagerInterface $messageManager
@@ -65,11 +70,15 @@ class ConfigObserver implements ObserverInterface
         $this->setLinvFlag = $setLinvFlag;
         $this->config = $config;
     }
+    // @codingStandardsIgnoreEnd
 
+    // @codingStandardsIgnoreStart
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Check config
+     *
+     * @param Observer $observer
      */
-    final public function execute(\Magento\Framework\Event\Observer $observer)
+    final public function execute(Observer $observer)
     {
         $request = $observer->getEvent()->getRequest();
         $groups = $request->getParam('groups');
@@ -133,4 +142,5 @@ class ConfigObserver implements ObserverInterface
             $this->setLinvFlag->execute($section->getName(), 0, $errorMessage);
         }
     }
+    // @codingStandardsIgnoreEnd
 }

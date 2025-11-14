@@ -10,6 +10,7 @@ namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\GetCategoryByProductInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 
 class GetCategoryByProduct implements GetCategoryByProductInterface
@@ -31,6 +32,7 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
 
     /**
      * GetModuleVersion constructor.
+     *
      * @param CategoryRepositoryInterface $categoryRepository
      * @param StoreManagerInterface $storeManager
      */
@@ -43,9 +45,12 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
     }
 
     /**
+     * Get categories by product
+     *
      * @param mixed $product
      * @param mixed $storeId
      * @returnmixed
+     * @throws NoSuchEntityException
      */
     public function execute($product, $storeId = null)
     {
@@ -79,7 +84,6 @@ class GetCategoryByProduct implements GetCategoryByProductInterface
                 }
             }
         }
-
 
         return $this->productCategory[$key] ?: null;
     }

@@ -9,9 +9,15 @@
  * Help template
  *
  * @var $block \Magefan\Community\Block\Adminhtml\Linv
+ * @var $escaper \Magento\Framework\Escaper
  */
 $disabledItems = $block->getItems();
 $messages = $block->getMessages();
+
+if (!isset($escaper)) {
+    /* Compatability fix for old Magento versions */
+    $escaper = $block;
+}
 ?>
 <?php if ($disabledItems || $messages) { ?>
         <div class="messages">
@@ -22,10 +28,14 @@ $messages = $block->getMessages();
                         <br/>
                         <ul>
                             <?php foreach ($disabledItems as $key => $name) { ?>
+                                <?php
+                                    $result = preg_replace('/([A-Z])/', ' $1', $name)
+                                ?>
                                 <li>
-                                    Mag<span></span>efan <?= $block->escapeHtml($result = preg_replace('/([A-Z])/', ' $1', $name)); ?>:
+                                    Mag<span></span>efan
+                                    <?= $escaper->escapeHtml($result); ?>:
                                     <?php if (isset($messages[$name])) { ?>
-                                        <?= $block->escapeHtml($messages[$name]) ?>
+                                        <?= $escaper->escapeHtml($messages[$name]) ?>
                                         <?php unset($messages[$name]) ?>
                                     <?php } else { ?>
                                         <?= ' dis'.'abl'.'ed d'.'ue '.'to i'.'nva'.'lid'.' Product K'.'ey.' ?>
@@ -34,7 +44,9 @@ $messages = $block->getMessages();
                             <?php } ?>
                             <?php foreach ($messages as $name => $message) { ?>
                                 <li>
-                                    <?= 'Mag'.'efan'.' '. $block->escapeHtml( preg_replace('/([A-Z])/', ' $1', $name)) .': ' .$block->escapeQuote($message) ?>
+                                    <?= 'Mag'.'efan'.' '. $escaper->escapeHtml(
+                                        preg_replace('/([A-Z])/', ' $1', $name)
+                                    ) .': ' .$escaper->escapeQuote($message) ?>
                                 </li>
                             <?php } ?>
                         </ul>

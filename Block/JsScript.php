@@ -24,6 +24,8 @@ class JsScript extends Template
     private $jsMethod;
 
     /**
+     * Set method
+     *
      * @param string $method
      * @return JsScript
      */
@@ -34,6 +36,8 @@ class JsScript extends Template
     }
 
     /**
+     * Get js template
+     *
      * @return string
      */
     public function getTemplate()
@@ -56,6 +60,8 @@ class JsScript extends Template
     }
 
     /**
+     * Add custom html
+     *
      * @return string
      */
     public function toHtml()

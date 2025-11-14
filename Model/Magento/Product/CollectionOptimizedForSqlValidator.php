@@ -11,7 +11,10 @@ namespace Magefan\Community\Model\Magento\Product;
 class CollectionOptimizedForSqlValidator extends \Magento\Catalog\Model\ResourceModel\Product\Collection
 {
     /**
-     * Prevent collect of attribute values in  Magento\Rule\Model\Condition\Product\AbstractProduct::collectValidatedAttributes() since it is not used in SQL validator
+     * Prevent collect of attribute values in
+     * Magento\Rule\Model\Condition\Product\AbstractProduct::collectValidatedAttributes()
+     * since it is not used in SQL validator
+     *
      * @param string $attribute attribute code
      * @return array
      */

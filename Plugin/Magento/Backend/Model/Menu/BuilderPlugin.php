@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Plugin\Magento\Backend\Model\Menu;
 
 use Magento\Backend\Model\Menu\Builder;
@@ -76,9 +78,11 @@ class BuilderPlugin
     }
 
     /**
+     * Add custom data to result
+     *
      * @param Builder $subject
      * @param Menu $menu
-     * @param $result
+     * @param Menu $result
      * @return mixed $result
      */
     public function afterGetResult(Builder $subject, Menu $menu, $result)
@@ -152,7 +156,9 @@ class BuilderPlugin
     }
 
     /**
-     * @param $moduleName
+     * Ge config by module name
+     *
+     * @param string $moduleName
      * @return mixed|null
      */
     private function getConfigSections($moduleName)
@@ -169,6 +175,7 @@ class BuilderPlugin
 
             foreach ($tabs as $tab) {
                 if (in_array($tab->getId(), ['magefan', 'mf_extensions_list'])) {
+                    // phpcs:ignore Magento2.Performance.ForeachArrayMerge
                     $sections = array_merge($sections, $tab->getData()['children']);
                 }
             }
@@ -188,7 +195,9 @@ class BuilderPlugin
     }
 
     /**
-     * @param $resource
+     * Get module by resource
+     *
+     * @param string $resource
      * @return string
      */
     private function getModuleNameByResource($resource)
@@ -200,9 +209,11 @@ class BuilderPlugin
     }
 
     /**
-     * @param $menu
-     * @param $items
-     * @param $parentId
+     * Create menu item
+     *
+     * @param Menu $menu
+     * @param array $items
+     * @param int $parentId
      */
     private function createMenuItem($menu, $items, $parentId)
     {
@@ -282,7 +293,9 @@ class BuilderPlugin
     }
 
     /**
-     * @param $items
+     * Add sub menu item
+     *
+     * @param array $items
      * @return array
      */
     private function getSubItem($items)
@@ -297,6 +310,7 @@ class BuilderPlugin
                         $subItems[] = $item;
                     }
                 } elseif (!empty($item['sub_menu'])) {
+                    // phpcs:ignore Magento2.Performance.ForeachArrayMerge
                     $subItems = array_merge($subItems, $this->getSubItem($item['sub_menu']));
                 }
             }

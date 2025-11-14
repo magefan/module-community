@@ -11,10 +11,10 @@
  */
 ?>
 <?php
-    if (!isset($escaper)) {
-        /* Compatability fix for old Magento versions */
-        $escaper = $block;
-    }
+if (!isset($escaper)) {
+    /* Compatability fix for old Magento versions */
+    $escaper = $block;
+}
 ?>
 <?= $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)
     ->setMethod('getCookie')

@@ -37,6 +37,8 @@ class SecureHtmlRenderer implements SecureHtmlRendererInterface
     }
 
     /**
+     * Render tag
+     *
      * @param string $tagName
      * @param array $attributes
      * @param string|null $content
@@ -51,7 +53,12 @@ class SecureHtmlRenderer implements SecureHtmlRendererInterface
     ) {
         $version = $this->productMetadata->getVersion();
         if (version_compare($version, '2.4.0', ">")) {
-            return $this->objectManager->get(\Magento\Framework\View\Helper\SecureHtmlRenderer::class)->renderTag($tagName, $attributes, $content, $textContent);
+            return $this->objectManager->get(\Magento\Framework\View\Helper\SecureHtmlRenderer::class)->renderTag(
+                $tagName,
+                $attributes,
+                $content,
+                $textContent
+            );
         } else {
             $attrs = [];
             if ($attributes) {
