@@ -133,21 +133,24 @@ class ReviewPopup extends \Magento\Backend\Block\Template
             if (!empty($extra)) {
                 $extra = json_decode($extra, true);
                 $rev = $extra['mf_review'][$moduleName] ?? null;
-                if ($rev && $rev['leave_review'] === false) {
-                    if (!empty($rev['updated_at'])) {
-                        try {
-                            $given = new \DateTime($rev['updated_at']);
-                            $threeDaysAgo = new \DateTime('-3 days');
-                            if ($given > $threeDaysAgo) {
-                                $display = false;
-                            }
+                if ($rev) {
+                    if ($rev['leave_review'] === false) {
+                        if (!empty($rev['updated_at'])) {
+                            try {
+                                $given = new \DateTime($rev['updated_at']);
+                                $threeDaysAgo = new \DateTime('-3 days');
+                                if ($given > $threeDaysAgo) {
+                                    $display = false;
+                                }
 
-                        } catch (\Exception $e) {
+                            } catch (\Exception $e) {
+                            }
                         }
+                    } else {
+                        $display = false;
                     }
-                } else {
-                    $display = false;
                 }
+
             }
         }
         return $this->config->receiveReview() && $this->getModuleReviewUrl() && $this->getProductName() && $display;
