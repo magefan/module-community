@@ -1,0 +1,318 @@
+
+<?php
+/**
+ * @var $block \Magefan\Community\Block\Adminhtml\ReviewPopup
+ */
+?>
+
+<?php
+$moduleName = $this->getModuleName();
+if (strpos($moduleName, '_') !== false) {
+    $moduleName = explode('_', $moduleName)[1];
+}
+?>
+<script>
+    require(['jquery', 'Magento_Ui/js/modal/alert'], function ($, alert) {
+
+        const module = '<?= $block->escapeHtml($moduleName) ?>';
+        setTimeout(function () {
+            alert({
+                title: 'Dou you like this Extension',
+                content: '',
+                buttons: [
+                    {
+                        text: 'No',
+                        class: 'action secondary',
+                        click: function () {
+                            sendRequest({ action: 'cancel' , module: module });
+                            this.closeModal(false);
+                        }
+                    },
+                    {
+                        text: 'Yes',
+                        class: 'action primary',
+                        click: function () {
+                            showReviewPopup();
+                            this.closeModal(false);
+                        }
+                    },
+                ]
+            });
+        }, 5000)
+
+       function showReviewPopup() {
+           const formHtml = `
+        <form action="<?= $block->getModuleReviewUrl() ?>" method="post" id="mf-review-form" class="mf-review-form" data-role="product-mf-review-form" data-bind="scope: 'mf-review-form'">
+            <fieldset class="fieldset review-fieldset">
+                <legend class="legend review-legend">
+                    <p>How would you rate your experience?</p>
+                </legend>
+                <div id="product-review-table">
+                    <div class="field choice review-field-rating">
+                        <label id="rating_label" class="label"></label>
+                        <div class="control review-control-vote">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <input
+                                    type="radio"
+                                    name="ratings"
+                                id="rating_<?= $i ?>"
+                                value="<?= $i ?>"
+                                class="radio"
+                                required
+                                data-msg-required="Please select one of each of the ratings above."
+                                aria-labelledby="rating_label rating_<?= $i ?>_label"
+                                >
+                                <label
+                                    for="rating_<?= $i ?>"
+                                    title="<?= __('%1 %2', $i, $i > 1 ? 'stars' : 'star') ?>"
+                                    class="rating-<?= $i ?>"
+                                    id="rating_<?= $i ?>_label">
+                                    <span class="star-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37" fill="none">
+                                            <path d="M17.0985 3.41607C17.4859 2.48464 18.8054 2.48464 19.1928 3.41607L22.6792 11.7984C22.8426 12.1911 23.2118 12.4594 23.6357 12.4934L32.6852 13.2189C33.6908 13.2995 34.0985 14.5544 33.3324 15.2107L26.4376 21.1168C26.1147 21.3934 25.9736 21.8275 26.0723 22.2412L28.1787 31.072C28.4128 32.0532 27.3453 32.8288 26.4844 32.3029L18.7368 27.5707C18.3739 27.3491 17.9174 27.3491 17.5545 27.5707L9.80689 32.3029C8.946 32.8288 7.87852 32.0532 8.11258 31.072L10.219 22.2412C10.3177 21.8275 10.1767 21.3934 9.85369 21.1168L2.95894 15.2107C2.19281 14.5544 2.60055 13.2995 3.60611 13.2189L12.6556 12.4934C13.0795 12.4594 13.4488 12.1911 13.6121 11.7984L17.0985 3.41607Z" fill="#E9E9E9"/>
+                                        </svg>
+                                    </span>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                    <input type="hidden" name="validate_rating" class="validate-rating" value="" aria-required="true">
+                </div>
+                <input type="hidden" name="nickname" id="nickname_field" class="input-text" value>
+                <div class="field review-field-firstname required">
+                    <label for="firstname_field" class="label"><span><?php /* @escapeNotVerified */ echo __('Firstname') ?></span></label>
+                    <div class="control">
+                        <input type="text" name="firstname" id="firstname_field" class="input-text" required placeholder="" data-bind="value: nickname()" />
+                    </div>
+                </div>
+                <div class="field review-field-lastname required">
+                    <label for="lastname_field" class="label"><span><?php /* @escapeNotVerified */ echo __('Lastname') ?></span></label>
+                    <div class="control">
+                        <input type="text" name="lastname" id="lastname_field" class="input-text"required placeholder="" data-bind="value: nickname()" />
+                    </div>
+                </div>
+                <div class="field review-field-email required">
+                    <label for="email_field" class="label"><span><?= __('Email') ?></span></label>
+                    <div class="control">
+                        <input type="email" name="email" id="email_field" class="input-text" placeholder="<?= __('Enter email') ?>" required>
+                    </div>
+                </div>
+                <div class="field review-field-summary required">
+                    <label for="summary_field" class="label"><span><?= __('Summary') ?></span></label>
+                    <div class="control">
+                        <input type="text" name="title" id="summary_field" class="input-text" placeholder="<?= __('Enter summary') ?>" required>
+                    </div>
+                </div>
+                <div class="field review-field-text required">
+                    <label for="review_field" class="label"><span><?= __('Share detailed feedback?') ?></span></label>
+                    <div class="control">
+                        <textarea name="detail" id="review_field" rows="5" placeholder="<?= __('Leave us a message...') ?>" required></textarea>
+                    </div>
+                </div>
+                <div class="field gdpr required">
+                        <input type="checkbox" name="gdpr-consent" id="gdpr-consent" class="input-checkbox" required>
+                        <label for="gdpr-consent" class="label">&nbsp;<span><?= __('I agree to the processing of my data in accordance with the ') ?> <a href="https://magefan.com/privacy-policy" target="_blank">Privacy Policy</a></span></label>
+                    </div>
+            </fieldset>
+        </form>
+    `;
+           const style = `
+<style>
+/* ==== Review Modal Form Styles ==== */
+.mf-review-form {
+    width: 100%;
+    max-width: 800px;
+    padding: 40px 10%;
+    background: var(--bli-bgc, #fff);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 153, 0, 0.4);
+    box-shadow: 0px 75px 150px 0px rgba(52, 64, 84, 0.14);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.mf-review-form .fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mf-review-form .field {
+    margin-bottom: 18px;
+}
+
+.mf-review-form .label span,
+.mf-review-form .label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    font-size: 14px;
+}
+
+.mf-review-form .control input.input-text,
+.mf-review-form .control textarea {
+    width: 100%;
+    border: 1px solid #d5d5d5;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.mf-review-form .control textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.mf-review-form input.input-text:focus,
+.mf-review-form textarea:focus {
+    border-color: #333;
+    outline: none;
+}
+
+/* ==== Rating Stars ==== */
+.mf-review-form .review-control-vote {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0 15px;
+    overflow: hidden;
+}
+
+.mf-review-form .review-control-vote input[type="radio"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip: rect(0,0,0,0);
+    border: 0;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.mf-review-form .review-control-vote label {
+    display: inline-block;
+    cursor: pointer;
+    line-height: 12px;
+    padding-inline-start: 0;
+    user-select: none;
+    position: relative;
+}
+
+.mf-review-form .review-control-vote label span {
+    display: inline-block;
+}
+
+.mf-review-form .review-control-vote label svg {
+    width: 37px;
+    height: 37px;
+}
+
+.mf-review-form .review-control-vote label .star-1 {
+    display: block;
+}
+
+.mf-review-form .review-control-vote label .star-2 {
+    display: none;
+}
+
+.mf-review-form .review-control-vote label:hover svg path,
+.mf-review-form .review-control-vote input[type="radio"]:checked + label svg path {
+    fill: #FFC736 !important;
+}
+
+</style>
+`;
+
+           alert({
+               title: 'Leave a Review for <?= $block->getProductName() ?>',
+               content: style + formHtml,
+               buttons: [
+                   {
+                       text: 'Submit',
+                       class: 'action primary',
+                       click: function () {
+                           var form = $('#mf-review-form');
+                           if (form.valid()) {
+                               var fn = $('#firstname_field').val();
+                               var ln = $('#lastname_field').val();
+                               $('#nickname_field').val(fn + ' ' + ln);
+                               var dataArray = form.serializeArray();
+                               var data = {};
+                               dataArray.forEach(function(item) {
+                                   data[item.name] = item.value;
+                               });
+                               data.action = form[0]?.action;
+                               data.module = module;
+                               console.log('098708970', data);
+                               sendRequest(data)
+
+                           } else {
+                               console.log('Form is invalid');
+                           }
+                       }
+                   }
+               ]
+           });
+       }
+
+       function sendRequest(data) {
+           console.log('Sending request:', data);
+           $.ajax({
+               url: '<?= $block->getUrl('mfcommunity/review/index')?>',
+               type: 'POST',
+               data: data,
+               showLoader: true,
+               success: function (response) {
+                   console.log('Form submitted successfully:', response);
+               },
+               error: function (xhr) {
+                   console.error(xhr);
+                   alert({
+                       title: $.mage.__('Error'),
+                       content: $.mage.__('An error occurred while submitting your review. Please try again later.')
+                   });
+               }
+           });
+       }
+    });
+</script>
+
+<?php $script = "
+    require(['jquery', 'domReady!'], function($){
+        require(['Magento_Ui/js/modal/alert'], function (alert) {
+            var mfStopAjax;
+            if (mfStopAjax) return;
+            
+                function updateReviewNickname() {
+                    var fn = $('.review-form #firstname_field').val();
+                    var ln = $('.review-form #lastname_field').val();
+                    $('.mf-review-form #nickname_field').val(fn + ' ' + ln);
+                };
+            setTimeout(function () {
+                var form = $('#mf-review-form');
+                if (form.length) {
+                    var formClone = form.clone(true, true).removeAttr('id').show();
+                    formClone.mage('validation', formClone.data('mage-validation'));
+                    alert({
+                        title: '" . __('How would you rate your experience with %1?', $block->getProductName()) . "',
+                        content: formClone,
+                        buttons: [{
+                            text: '" . __('Submit Review') . "',
+                            class: 'action primary accept',
+                            click: function () {
+                                if (formClone.validation() && formClone.valid()) {
+                                    formClone.submit();
+                                    this.closeModal(true);
+                                }
+                            }
+                        }]
+                    });
+                }
+            }, 5000)   
+        });
+    });
+
+"; ?>
+<?php //= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
+

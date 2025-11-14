@@ -57,7 +57,10 @@ class GetModuleInfo implements GetModuleInfoInterface
             return $modulesInfo;
         }
 
-        $moduleKey = explode('_', $moduleName)[1];
+        $moduleKey = $moduleName;
+        if (strpos($moduleName, '_') !== false) {
+            $moduleKey = explode('_', $moduleName)[1];
+        }
 
         if (!isset($modulesInfo[$moduleKey])) {
             $modulesInfo[$moduleKey] = new DataObject();
@@ -94,6 +97,7 @@ class GetModuleInfo implements GetModuleInfoInterface
         $data = [];
         try {
             $url = 'https://mage' . 'fan.com/media/product-versions-extended.json';
+            $url = 'http://mage' . 'fan.loc/media/product-versions-extended.json';
 
             // Make the request
             $this->curl->get($url);
