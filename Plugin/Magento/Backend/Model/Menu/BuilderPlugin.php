@@ -78,14 +78,13 @@ class BuilderPlugin
     }
 
     /**
-     * Add custom data to result
+     * Add custom menu to result
      *
      * @param Builder $subject
      * @param Menu $menu
-     * @param Menu $result
-     * @return mixed $result
+     * @return Menu
      */
-    public function afterGetResult(Builder $subject, Menu $menu, $result)
+    public function afterGetResult(Builder $subject, Menu $menu)
     {
         $menuEnabled = $this->config->menuEnabled();
         if ($menuEnabled) {
@@ -152,7 +151,7 @@ class BuilderPlugin
             }
         }
 
-        return $result;
+        return $menu;
     }
 
     /**
