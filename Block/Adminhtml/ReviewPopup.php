@@ -123,37 +123,48 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      *
      * @return bool
      */
-    private function canDisplay() : bool
+    private function canDisplay(): bool
     {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resourceConnection = $objectManager->get('Magento\Framework\App\ResourceConnection');
         $display = true;
         $moduleName = $this->getModuleName();
         if ($moduleName && strpos($moduleName, '_') !== false) {
             $moduleName = explode('_', $moduleName)[1];
-            $extra = $this->_authSession->getUser()->getExtra();
-            if (!empty($extra)) {
-                $extra = json_decode($extra, true);
-                $rev = $extra['mf_review'][$moduleName] ?? null;
-                if ($rev) {
-                    if ($rev['leave_review'] === false) {
-                        if (!empty($rev['updated_at'])) {
-                            try {
-                                $given = new \DateTime($rev['updated_at']);
-                                $threeDaysAgo = new \DateTime('-3 days');
-                                if ($given > $threeDaysAgo) {
-                                    $display = false;
-                                }
+            $userId = $this->_authSession->getUser()->getId();
+            $connection = $resourceConnection->getConnection();
+            $tableName = $resourceConnection->getTableName('mf_review');
+            $select = $connection->select()
+                ->from($tableName)
+                ->where('user_id = ?', $userId)
+                ->where('module_name = ?', $moduleName)
+                ->limit(1);
 
-                            } catch (\Exception $e) {
+            $review = $connection->fetchRow($select);
+
+            if ($review) {
+                if ((int)$review['is_reviewed'] === 0) {
+                    $updatedAt = $review['updated_at'] ?? null;
+                    if ($updatedAt) {
+                        try {
+                            $given = new \DateTime($updatedAt);
+                            $threeDaysAgo = new \DateTime('-3 days');
+                            if ($given > $threeDaysAgo) {
+                                $display = false;
                             }
+                        } catch (\Exception $e) {
+                            // ignore
                         }
-                    } else {
-                        $display = false;
                     }
+                } else {
+                    $display = false;
                 }
-
             }
         }
-        return $this->config->receiveReview() && $this->getModuleReviewUrl() && $this->getProductName() && $display;
+        return $this->config->receiveReview()
+            && $this->getModuleReviewUrl()
+            && $this->getProductName()
+            && $display;
     }
 
     /**

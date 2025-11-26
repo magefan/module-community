@@ -19,6 +19,8 @@ class Index extends \Magento\Backend\App\Action
         'detail'
     ];
 
+    private const RATINGS_OPTION = [ 1 => [0=>16], 2 => [1=>17], 3 => [2=>18], 4 => [3=>19], 5 => [4=>20]];
+
     /**
      * @var \Magento\Backend\Model\Auth\Session
      */
@@ -74,6 +76,10 @@ class Index extends \Magento\Backend\App\Action
                 return $result->setData(['success' => false,'message' => __('Please fill all required fields.')]);
             }
             $reviewData[$field] = $this->_request->getParam($field);
+
+            if ($field == 'ratings') {
+                $reviewData[$field] = self::RATINGS_OPTION[$this->_request->getParam($field)];
+            }
         }
         try {
             $url = $reviewAction;
@@ -109,14 +115,34 @@ class Index extends \Magento\Backend\App\Action
 
     private function setReviewStatus($moduleName, $status = true)
     {
-        $user = $this->_authSession->getUser();
-        $extra = $user->getExtra();
-        $extraArray = !empty($extra) ? json_decode($extra,true) : [];
-        $extraArray['mf_review'][$moduleName] = [
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resourceConnection = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resourceConnection->getConnection();
+        $tableName = $resourceConnection->getTableName('mf_review');
+        $userId = $this->_authSession->getUser()->getId();
+
+        $select = $connection->select()
+            ->from($tableName)
+            ->where('user_id = ?', $userId)
+            ->where('module_name = ?', $moduleName);
+        $existing = $connection->fetchRow($select);
+
+        $data = [
+            'module_name' => $moduleName,
+            'user_id' => $userId,
+            'is_reviewed' => $status ? 1 : 0,
             'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-            'leave_review' => $status
         ];
-        $user->setExtra(json_encode($extraArray));
-        $user->save();
+
+        if ($existing) {
+            $connection->update(
+                $tableName,
+                $data,
+                ['id = ?' => $existing['id']]
+            );
+        } else {
+            $data['created_at'] = (new \DateTime())->format('Y-m-d H:i:s');
+            $connection->insert($tableName, $data);
+        }
     }
 }

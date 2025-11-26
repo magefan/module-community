@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ *
+ * Glory to Ukraine! Glory to the heroes!
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="mf_review" resource="default" engine="innodb" comment="Magefan Blog Post Table">
+        <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="varchar" name="module_name" nullable="true" length="255" comment="Module Name"/>
+        <column xsi:type="smallint" name="is_reviewed" padding="6" unsigned="false" nullable="false" identity="false" default="1" comment="Is Post Active"/>
+        <column xsi:type="int" name="user_id" padding="11" unsigned="false" nullable="true" identity="false" comment="User ID"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="true" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+    </table>
+</schema>

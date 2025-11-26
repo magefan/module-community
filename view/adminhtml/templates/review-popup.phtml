@@ -246,9 +246,10 @@ if (strpos($moduleName, '_') !== false) {
                                data.module = module;
                                console.log('098708970', data);
                                sendRequest(data)
-
+                               this.closeModal(false);
                            } else {
                                console.log('Form is invalid');
+                               this.closeModal(false);
                            }
                        }
                    }
