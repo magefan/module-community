@@ -19,7 +19,13 @@ class Index extends \Magento\Backend\App\Action
         'detail'
     ];
 
-    private const RATINGS_OPTION = [ 1 => [0=>16], 2 => [1=>17], 3 => [2=>18], 4 => [3=>19], 5 => [4=>20]];
+    private const RATINGS_OPTION = [
+        1 => [0 => 16],
+        2 => [1 => 17],
+        3 => [2 => 18],
+        4 => [3 => 19],
+        5 => [4 => 20]
+    ];
 
     /**
      * @var \Magento\Backend\Model\Auth\Session
@@ -55,6 +61,11 @@ class Index extends \Magento\Backend\App\Action
         parent::__construct($context);
     }
 
+    /**
+     * Executes the main review processing logic based on request parameters.
+     *
+     * @return \Magento\Framework\Controller\Result\Json
+     */
     public function execute()
     {
         $reviewData = [];
@@ -102,6 +113,12 @@ class Index extends \Magento\Backend\App\Action
         }
     }
 
+    /**
+     * Handle a reminder to delay review prompt for a specific module.
+     *
+     * @param string $moduleName
+     * @return \Magento\Framework\Controller\Result\Json
+     */
     private function remindLater($moduleName)
     {
         $result = $this->resultJsonFactory->create();
@@ -113,6 +130,14 @@ class Index extends \Magento\Backend\App\Action
         }
     }
 
+    /**
+     * Updates or inserts the review status for a given module and user.
+     *
+     * @param string $moduleName
+     * @param bool $status
+     *
+     * @return void
+     */
     private function setReviewStatus($moduleName, $status = true)
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
