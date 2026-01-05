@@ -161,10 +161,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
                 }
             }
         }
-        var_dump($this->config->receiveReview()
-            , $this->getModuleReviewUrl()
-            , $this->getProductName()
-            , $display);
         return $this->config->receiveReview()
             && $this->getModuleReviewUrl()
             && $this->getProductName()
