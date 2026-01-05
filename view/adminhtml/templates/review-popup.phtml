@@ -6,6 +6,7 @@
 ?>
 
 <?php
+var_dump($block->getModuleName());
 $moduleName = $this->getModuleName();
 if (strpos($moduleName, '_') !== false) {
     $moduleName = explode('_', $moduleName)[1];
@@ -174,6 +175,8 @@ if (strpos($moduleName, '_') !== false) {
 /* ==== Rating Stars ==== */
 .mf-review-form .review-control-vote {
     display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
     gap: 6px;
     margin: 10px 0 15px;
     overflow: hidden;
@@ -188,6 +191,8 @@ if (strpos($moduleName, '_') !== false) {
     margin: -1px;
     overflow: hidden;
     padding: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .mf-review-form .review-control-vote label {
@@ -216,6 +221,15 @@ if (strpos($moduleName, '_') !== false) {
     display: none;
 }
 
+/* Базовий стан зірки */
+.review-control-vote label svg path {
+    fill: #E9E9E9;
+    transition: fill .2s ease;
+}
+
+/* Hover – підсвічуємо всі попередні */
+.review-control-vote label:hover svg path,
+.review-control-vote label:hover ~ label svg path,
 .mf-review-form .review-control-vote label:hover svg path,
 .mf-review-form .review-control-vote input[type="radio"]:checked + label svg path {
     fill: #FFC736 !important;

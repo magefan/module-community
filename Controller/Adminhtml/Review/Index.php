@@ -20,11 +20,11 @@ class Index extends \Magento\Backend\App\Action
     ];
 
     private const RATINGS_OPTION = [
-        1 => [0 => 16],
-        2 => [1 => 17],
+        5 => [0 => 16],
+        4 => [1 => 17],
         3 => [2 => 18],
-        4 => [3 => 19],
-        5 => [4 => 20]
+        2 => [3 => 19],
+        1 => [4 => 20]
     ];
 
     /**
