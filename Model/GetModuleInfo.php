@@ -97,7 +97,6 @@ class GetModuleInfo implements GetModuleInfoInterface
         $data = [];
         try {
             $url = 'https://mage' . 'fan.com/media/product-versions-extended.json';
-            $url = 'http://mage' . 'fan.loc/media/product-versions-extended.json';
 
             // Make the request
             $this->curl->get($url);
