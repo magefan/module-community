@@ -376,7 +376,7 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
     private function escapeString(SimpleXMLElement $data)
     {
         // phpcs:ignore Magento2.Functions.DiscouragedFunction
-        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return htmlspecialchars((string)$data, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     /**
