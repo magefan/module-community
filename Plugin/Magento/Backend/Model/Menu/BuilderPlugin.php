@@ -152,7 +152,7 @@ class BuilderPlugin
             }
         }
 
-        return $result;
+        return $menu;
     }
 
     /**
