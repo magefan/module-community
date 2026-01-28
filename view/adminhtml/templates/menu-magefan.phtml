@@ -12,32 +12,28 @@
  * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
  */
 ?>
+
 <?php
 $script ="
-    window.addEventListener('DOMContentLoaded', function () {
-        function updateMenuHeight() {
-            const submenu = document.querySelector('#menu-magefan-community-elements');
-            if (!submenu) return;
-    
-            const submenuDiv = submenu.querySelector('.submenu');
-            const submenuList = submenu.querySelector('.submenu > ul[role=menu]');
-            if (submenu.classList.contains('_show') && submenuDiv && submenuList) {
-                submenuList.style.maxHeight = (document.documentElement.clientHeight - 120) + 'px';
-                submenuDiv.style.position = 'fixed';
-                submenuDiv.style.left = '88px';
-                document.body.style.overflowY = 'hidden';
-            } else {
-                document.body.style.overflowY = 'auto';
-            }
-        }
+    document.addEventListener('DOMContentLoaded', loadMagefanMenu);
 
-        let menuElement = document.querySelector('#menu-magefan-community-elements');
-        if (menuElement) {
-            var observer = new MutationObserver(updateMenuHeight);
-            observer.observe(menuElement, { attributes: true });
-        }
-    });
-"
-?>
+    function loadMagefanMenu()
+    {
+        var scriptUrl = '" . $block->getViewFileUrl("Magefan_Community::js/magefan-menu.js") . "';
+        var script = document.createElement('script');
+        script.src = scriptUrl;
+        script.type = 'text/javascript';
+        script.async = true;
+
+        script.onload = function() {
+            MagefanMenuManager.init();
+        };
+
+        script.onerror = function() {
+            console.error('Failed to load the script: ' + scriptUrl);
+        };
+
+        document.head.appendChild(script);
+    }"; ?>
 
 <?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
