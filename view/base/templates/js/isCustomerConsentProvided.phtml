@@ -27,6 +27,9 @@ if (!isset($escaper)) {
         if (MagefanJs.getCookie('mf_cookie_consent')) {
             return true;
         };
+        if (MagefanJs.getCookie('amcookie_allowed')) {
+            return true;
+        };
         let cookie = MagefanJs.getCookie(
             '{$escaper->escapeHtml(\Magento\Cookie\Helper\Cookie::IS_USER_ALLOWED_SAVE_COOKIE)}'
         );
