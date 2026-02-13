@@ -287,3 +287,70 @@
 .accordion .form-inline .config .magefan-section tr:nth-child(even) td {
     background-color: #f5f5f5;
 }
+
+// Message
+.notices-wrapper {
+    .messages.mf-massages {
+        margin-top: 20px;
+        .message {
+            padding: 1.2rem 1.6rem 1.2rem 5rem;
+            margin-bottom: 20px;
+            .wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                .description {
+                    display: flex;
+                    flex-direction: column;
+                    row-gap: 6px;
+                    flex-grow: 1;
+                    font-size: 1.4rem;
+                    line-height: 2rem;
+                    font-weight: 500;
+                }
+            }
+            &:before {
+                display: inline-block;
+                top: 50%;
+                transform: translateY(-50%);
+                margin: 0;
+                left: 1.6rem;
+            }
+            &.notice {
+                &:before {
+                    content: '';
+                    width: 24px;
+                    height: 24px;
+                    background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDIyIDIyIiBmaWxsPSJub25lIj4NCiAgICA8cGF0aCBkPSJNMTEgMEM0LjkyMDMxIDAgMCA0LjkxOTc1IDAgMTFDMCAxNy4wNzk2IDQuOTE5NzUgMjIgMTEgMjJDMTcuMDc5NyAyMiAyMiAxNy4wODAyIDIyIDExQzIyIDQuOTIwMzkgMTcuMDgwMiAwIDExIDBaTTEyLjEyOTYgMTUuMzY2NUMxMi4xMjk2IDE1LjcxNDEgMTEuNjIyOCAxNi4wNjE1IDExLjAwMDIgMTYuMDYxNUMxMC4zNDg2IDE2LjA2MTUgOS44ODUzNSAxNS43MTQxIDkuODg1MzUgMTUuMzY2NVY5Ljg0OTlDOS44ODUzNSA5LjQ0NDQ5IDEwLjM0ODcgOS4xNjkzMiAxMS4wMDAyIDkuMTY5MzJDMTEuNjIyOCA5LjE2OTMyIDEyLjEyOTYgOS40NDQ0OSAxMi4xMjk2IDkuODQ5OVYxNS4zNjY1Wk0xMS4wMDAzIDcuODM3MzNDMTAuMzM0MiA3LjgzNzMzIDkuODEyOTkgNy4zNDUwNCA5LjgxMjk5IDYuNzk0NzhDOS44MTI5OSA2LjI0NDU2IDEwLjMzNDIgNS43NjY3NSAxMS4wMDAzIDUuNzY2NzVDMTEuNjUxOCA1Ljc2Njc1IDEyLjE3MzEgNi4yNDQ1NiAxMi4xNzMxIDYuNzk0NzhDMTIuMTczMSA3LjM0NTA0IDExLjY1MTggNy44MzczMyAxMS4wMDAzIDcuODM3MzNaIiBmaWxsPSIjRkZCRjAwIi8+DQo8L3N2Zz4=") no-repeat center center;
+                }
+            }
+        }
+        .actions {
+            //margin-left: auto;
+            button {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                padding: 8px 16px;
+                border: none;
+            }
+            .action-update,
+            .action-upgrade {
+                color: #182230;
+                background: #FFCD36;
+                box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+                &:hover {
+                    opacity: 0.7;
+                }
+            }
+            .action-remind-later {
+                color: #182230;
+                background: none;
+                border: none;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
