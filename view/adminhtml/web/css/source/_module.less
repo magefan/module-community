@@ -55,7 +55,7 @@
                     speak: none;
                     content: '\e62f';
                     display: block;
-                    color: #ffffff;
+                    color: @submenu-section-label__color;
                     font-size: 1.7rem;
                     width: 20px;
                     height: 20px;
@@ -65,6 +65,9 @@
                 }
                 &:hover {
                     background-color: transparent;
+                    &:before {
+                        color: @color-white;
+                    }
                 }
             }
 
@@ -134,12 +137,12 @@
                     margin-bottom: 0;
                     cursor: pointer;
                     .submenu-group-title {
-                        color: #fcfcfc;
+                        color: @submenu-link__color;
                         font-weight: normal;
                         margin: 0;
                         pointer-events: auto;
                         &:hover {
-                            background: var(--mfav-menu-bc, #403934);
+                            background: var(--mfav-menu-bc, @submenu-link__focus__background-color);
                         }
                     }
                     // Submenu 2
@@ -157,8 +160,9 @@
                         transition-duration: .3s;
                         transition-property: transform, visibility;
                         transition-timing-function: ease-in-out;
-                        color: #ffffff;
-                        background: #4a4542;
+                        //color: #ffffff;
+                        //background: #4a4542;
+                        color: @submenu-title__color;
                         box-shadow: 0 0 3px #000000;
                         padding: 2rem 0 0;
                         cursor: default;
@@ -183,7 +187,7 @@
                         //background-color: #0b182a;
                     }
                     &.active {
-                        background: var(--mfav-menu-bc, #403934);
+                        background: var(--mfav-menu-bc, @submenu-link__focus__background-color);
 
                         .submenu {
                             &._show {
@@ -199,7 +203,7 @@
                         }
 
                         .submenu-group-title {
-                            color:#fff!important
+                            color: @submenu-link__color;
                         }
                     }
                 }
