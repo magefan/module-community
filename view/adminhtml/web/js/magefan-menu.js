@@ -102,7 +102,7 @@ var MagefanMenuManager = {
             if (groupTitleParent) {
                 var link = document.createElement('a');
                 link.href = "#";
-                link.className = groupTitleParent.className;
+                // link.className = groupTitleParent.className;
                 link.innerHTML = groupTitleParent.innerHTML;
 
                 groupTitleParent.replaceWith(link);
