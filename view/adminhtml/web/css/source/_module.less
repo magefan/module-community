@@ -17,6 +17,7 @@
                 content: '\e900';
                 font-family: 'Magefan-Icons';
                 font-size: 24px;
+                line-height: 24px;
             }
             &:hover {
                 &:before {
@@ -219,11 +220,13 @@
             .submenu-group-title {
                 span {
                     display: flex;
+                    align-items: flex-start;
                     justify-content: space-between;
                     &:after {
                         content: '\e900';
                         font-family: 'Magefan-Icons';
-                        font-size: 24px;
+                        font-size: 20px;
+                        line-height: 20px;
                         display: inline-block;
                         width: 20px;
                         min-width: 20px;
@@ -248,6 +251,7 @@
         }
     }
 
+    // Marketing
     [data-ui-id^=menu-magento-].level-0 {
         [data-ui-id^=menu-magento-].level-1 {
             [data-ui-id^=menu-magefan-].level-2 {
@@ -257,7 +261,8 @@
                     &:after {
                         content: '\e900';
                         font-family: 'Magefan-Icons';
-                        font-size: 24px;
+                        font-size: 20px;
+                        line-height: 20px;
                         display: inline-block;
                         width: 20px;
                         min-width: 20px;
@@ -279,7 +284,8 @@
 .config-nav .magefan-tab .admin__page-nav-title:before {
     content: '\e900';
     font-family: 'Magefan-Icons';
-    font-size: 34px;
+    font-size: 22px;
+    line-height: 22px;
     display: block;
     width: 30px;
     height: 30px;
