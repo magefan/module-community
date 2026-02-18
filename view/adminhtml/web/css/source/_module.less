@@ -10,6 +10,7 @@
 
     // Magefan Community Menu Lvl-0
     #menu-magefan-community-elements {
+        overflow-x: visible;
 
         // Logo menu
         > a {
@@ -26,7 +27,7 @@
             }
         }
 
-        overflow-x: visible;
+        // Submenu
         > .submenu {
             width: auto;
             bottom: 0;
@@ -39,36 +40,9 @@
             // Submenu title
             .submenu-title {}
 
-            // Button Close
-            a.action-close-submenu {
-                position: absolute;
-                top: 0;
-                right: 0;
-                padding: 2.4rem 2.8rem;
-                z-index: 999;
-                &:before {
-                    -webkit-font-smoothing: antialiased;
-                    font-family: 'Admin Icons';
-                    font-style: normal;
-                    font-weight: normal;
-                    line-height: 1;
-                    speak: none;
-                    content: '\e62f';
-                    display: block;
-                    color: @submenu-section-label__color;
-                    font-size: 1.7rem;
-                    width: 20px;
-                    height: 20px;
-                    background-size: 26px;
-                    margin: 0 auto .3rem auto;
-                    transition: color 0.1s linear;
-                }
-                &:hover {
-                    background-color: transparent;
-                    &:before {
-                        color: @color-white;
-                    }
-                }
+            // Button Close 1
+            .action-close {
+                &:before {}
             }
 
             // Search
@@ -217,6 +191,38 @@
                 }
                 ul[role='menu'] {
                     display: contents;
+                }
+            }
+
+            // Button Close 2
+            a.action-close-submenu {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 2.4rem 2.8rem;
+                z-index: 999;
+                &:before {
+                    -webkit-font-smoothing: antialiased;
+                    font-family: 'Admin Icons';
+                    font-style: normal;
+                    font-weight: normal;
+                    line-height: 1;
+                    speak: none;
+                    content: '\e62f';
+                    display: block;
+                    color: @submenu-section-label__color;
+                    font-size: 1.7rem;
+                    width: 20px;
+                    height: 20px;
+                    background-size: 26px;
+                    margin: 0 auto .3rem auto;
+                    transition: color 0.1s linear;
+                }
+                &:hover {
+                    background-color: transparent;
+                    &:before {
+                        color: @color-white;
+                    }
                 }
             }
         }
