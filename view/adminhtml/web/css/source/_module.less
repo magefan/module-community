@@ -187,7 +187,11 @@
                         //background-color: #0b182a;
                     }
                     &.active {
-                        background: var(--mfav-menu-bc, @submenu-link__focus__background-color);
+                        //background: var(--mfav-menu-bc, @submenu-link__focus__background-color);
+                        
+                        > a {
+                            background: var(--mfav-menu-bc, @submenu-link__focus__background-color);
+                        }
 
                         .submenu {
                             &._show {
