@@ -27,9 +27,30 @@ if (!isset($escaper)) {
         if (MagefanJs.getCookie('mf_cookie_consent')) {
             return true;
         };
-        if (MagefanJs.getCookie('amcookie_allowed')) {
+        
+        if (MagefanJs.getCookie('amcookie_allowed') == '0') {
             return true;
-        };
+        } else {
+            var disallowedStr = MagefanJs.getCookie('amcookie_disallowed');
+            var cookieArray = disallowedStr.split(',');
+            
+            var cookiesToCheck = ['_fbp', '_fbc', '_ga'];
+            var foundCookies = [];
+            
+            for (var i = 0; i < cookieArray.length; i++) {
+                var currentCookie = cookieArray[i].trim(); 
+                if (cookiesToCheck.indexOf(currentCookie) !== -1) {
+                    foundCookies.push(currentCookie);
+                }
+            }
+            console.log(foundCookies);
+            if (foundCookies.length > 0) {
+                return false;
+            } 
+            
+            return true;
+        }
+        
         let cookie = MagefanJs.getCookie(
             '{$escaper->escapeHtml(\Magento\Cookie\Helper\Cookie::IS_USER_ALLOWED_SAVE_COOKIE)}'
         );
