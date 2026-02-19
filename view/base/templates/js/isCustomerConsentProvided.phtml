@@ -28,25 +28,23 @@ if (!isset($escaper)) {
             return true;
         };
         
-        if (MagefanJs.getCookie('amcookie_allowed') == '0') {
-            return true;
-        } else {
+        var amcookie = MagefanJs.getCookie('amcookie_allowed');
+        if (amcookie) {
+        
+            if (amcookie === '0') {
+                return true;
+            } 
             var disallowedStr = MagefanJs.getCookie('amcookie_disallowed');
             var cookieArray = disallowedStr.split(',');
             
             var cookiesToCheck = ['_fbp', '_fbc', '_ga'];
-            var foundCookies = [];
             
             for (var i = 0; i < cookieArray.length; i++) {
                 var currentCookie = cookieArray[i].trim(); 
                 if (cookiesToCheck.indexOf(currentCookie) !== -1) {
-                    foundCookies.push(currentCookie);
+                     return false;
                 }
             }
-            
-            if (foundCookies.length > 0) {
-                return false;
-            } 
             
             return true;
         }
