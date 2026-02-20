@@ -88,12 +88,13 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                 break;
             }
         }
-
+        $moduleReviewUrl = false;
         if ($latestVersion = $moduleInfo->getVersion()) {
 
             $fullModuleTitle = $moduleInfo->getProductName();
             $moduleUrl = $moduleInfo->getProductUrl();
             $moduleImage = $moduleInfo->getProductImage();
+            $moduleReviewUrl = $moduleInfo->getReviewUrl();
 
             $newVersionAvailable = version_compare($latestVersion, $currentVersion) > 0;
             $moduleTitle = str_replace(['Magento 2', 'Magento'], ['', ''], (string)$fullModuleTitle);
@@ -198,61 +199,83 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                         User Guide
                         </a>
                         </span>
-                    </span>' : '') . '
+                    </span>' : '') . (($canUpgradeToMaxPlan || $newVersionAvailable) && $moduleReviewUrl ?'
+                    <span class="block-dot"></span>
+                    <span class="block-review">
+						<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M10.3421 3.16519C10.5534 2.73717 10.659 2.52315 10.8024 2.45478C10.9272 2.39528 11.0722 2.39528 11.1969 2.45478C11.3404 2.52315 11.446 2.73717 11.6573 3.16519L13.6617 7.226C13.7241 7.35236 13.7553 7.41554 13.8009 7.4646C13.8412 7.50803 13.8896 7.54322 13.9434 7.56822C14.0041 7.59646 14.0738 7.60665 14.2133 7.62703L18.6969 8.28238C19.1691 8.3514 19.4051 8.3859 19.5144 8.50122C19.6094 8.60156 19.6542 8.73943 19.6361 8.87645C19.6153 9.03393 19.4443 9.2004 19.1025 9.53334L15.8593 12.6922C15.7582 12.7907 15.7077 12.8399 15.6751 12.8985C15.6462 12.9504 15.6277 13.0073 15.6205 13.0663C15.6124 13.1328 15.6244 13.2024 15.6482 13.3415L16.4135 17.8033C16.4942 18.2739 16.5345 18.5091 16.4587 18.6488C16.3927 18.7703 16.2754 18.8555 16.1395 18.8807C15.9832 18.9096 15.7719 18.7985 15.3494 18.5763L11.341 16.4683C11.2161 16.4027 11.1537 16.3698 11.0879 16.3569C11.0296 16.3455 10.9697 16.3455 10.9115 16.3569C10.8457 16.3698 10.7832 16.4027 10.6584 16.4683L6.65002 18.5763C6.22743 18.7985 6.01613 18.9096 5.8599 18.8807C5.72397 18.8555 5.60667 18.7703 5.54068 18.6488C5.46484 18.5091 5.5052 18.2739 5.58591 17.8033L6.35115 13.3415C6.37501 13.2024 6.38694 13.1328 6.37887 13.0663C6.37172 13.0073 6.35319 12.9504 6.32431 12.8985C6.29169 12.8399 6.24114 12.7907 6.14004 12.6922L2.89685 9.53334C2.55503 9.2004 2.38412 9.03393 2.36332 8.87645C2.34523 8.73943 2.38993 8.60156 2.48499 8.50122C2.59424 8.3859 2.83031 8.3514 3.30246 8.28238L7.78613 7.62703C7.92556 7.60665 7.99528 7.59646 8.056 7.56822C8.10976 7.54322 8.15816 7.50803 8.19851 7.4646C8.24409 7.41554 8.27528 7.35236 8.33765 7.226L10.3421 3.16519Z" stroke="#DA5D28" stroke-width="1.83333" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+						<span>
+							<a href="' . $moduleReviewUrl . $utmParam .'&utm_campaign=review-link" target="_blank" >Leave a Review</a>
+						</span>
+					</span>
+					' : ' ') . '
                 </div>
             </div>
         </div>
 
         <div class="col-actions">
             <div class="actions">';
-        if ($canUpgradeToMaxPlan) {
-            $escapedUrl = $this->escapeHtml($moduleUrl . '/pricing'  . $utmParam);
-            $html .= '<button
-            id="upgrade"
-            title="Upgrade Plan"
-            class="action-upgrade"
-            onclick="window.open(\'' . $escapedUrl . '&utm_campaign=upgrade-plan\', \'_blank\'); return false;"
-            >
-            <span>Upgrade Plan</span>
-            </button>';
-        }
+				if ($canUpgradeToMaxPlan) {
+					$escapedUrl = $this->escapeHtml($moduleUrl . '/pricing'  . $utmParam);
+					$html .= '<button
+					id="upgrade"
+					title="Upgrade Plan"
+					class="action-upgrade"
+					onclick="window.open(\'' . $escapedUrl . '&utm_campaign=upgrade-plan\', \'_blank\'); return false;"
+					>
+						<span>Upgrade Plan</span>
+					</button>';
+				}
 
-        if ($newVersionAvailable) {
-            $partUpdateProductUrl = 'fan.com/downloadable/customer/products';
-            $html .= '<button
-            id="update"
-            title="Upgrade to new Version"
-            class="action-update"
-            onclick="window.open(
-                \'https://mage' . $partUpdateProductUrl . $utmParam . '&utm_campaign=update-to-new-version\',\'_blank\'
-             ); return false;">
-            <span>Upgrade to new Version</span>
-            <span class="mf-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M15.5664 10.9766H3.92578C3.38633 10.9766 2.94922 10.5395 2.94922 10C2.94922 9.46055 3.38633
-            9.02344 3.92578 9.02344H15.5664C16.1059 9.02344 16.543 9.46055 16.543 10C16.543 10.5395 16.1059 10.9766
-            15.5664 10.9766Z"
-            fill="white"
-            />
-            <path d="M11.0942 15.5938C10.8321 15.5938 10.5703 15.4887 10.3778 15.2813C10.011 14.886 10.0344 14.268
-            10.4297 13.9012L14.6278 10.0078L10.3028 6.10392C9.90236 5.7426 9.87072 5.12502 10.2321 4.72463C10.5934
-            4.32424 11.211 4.2926 11.6113 4.65393L16.7285 9.27307C16.9321 9.45666 17.0488 9.71721 17.0508
-            9.99142C17.0528 10.2656 16.9395 10.5278 16.7383 10.7141L11.7578 15.3332C11.5699 15.5074 11.3317
-            15.5938 11.0942 15.5938Z"
-            fill="white"
-            />
-            </svg></span></button>';
-        }
-            $html .= '</div>
-           ';
-        if ($newVersionAvailable) {
-            $html .= '<div class="available-version">
-                Version v' . $this->escapeHtml($latestVersion) . ' is available
-            </div>';
-        }
+				if ($newVersionAvailable) {
+					$partUpdateProductUrl = 'fan.com/downloadable/customer/products';
+					$html .= '<button
+					id="update"
+					title=" Get latest Version"
+					class="action-update"
+					onclick="window.open(
+						\'https://mage' . $partUpdateProductUrl . $utmParam . '&utm_campaign=update-to-new-version\',\'_blank\'
+					 ); return false;">
+					<span>Get latest Version</span>
+					<span class="mf-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+					<path d="M15.5664 10.9766H3.92578C3.38633 10.9766 2.94922 10.5395 2.94922 10C2.94922 9.46055 3.38633
+					9.02344 3.92578 9.02344H15.5664C16.1059 9.02344 16.543 9.46055 16.543 10C16.543 10.5395 16.1059 10.9766
+					15.5664 10.9766Z"
+					fill="white"
+					/>
+					<path d="M11.0942 15.5938C10.8321 15.5938 10.5703 15.4887 10.3778 15.2813C10.011 14.886 10.0344 14.268
+					10.4297 13.9012L14.6278 10.0078L10.3028 6.10392C9.90236 5.7426 9.87072 5.12502 10.2321 4.72463C10.5934
+					4.32424 11.211 4.2926 11.6113 4.65393L16.7285 9.27307C16.9321 9.45666 17.0488 9.71721 17.0508
+					9.99142C17.0528 10.2656 16.9395 10.5278 16.7383 10.7141L11.7578 15.3332C11.5699 15.5074 11.3317
+					15.5938 11.0942 15.5938Z"
+					fill="white"
+					/>
+					</svg></span></button>';
+				}
+					$html .= '</div>
+				   ';
+				if ($newVersionAvailable) {
+					$html .= '<div class="available-version">
+						Version v' . $this->escapeHtml($latestVersion) . ' is available
+					</div>';
+				}
+                if (!$canUpgradeToMaxPlan && !$newVersionAvailable && $moduleReviewUrl) {
+                    $html .= '<div class="block-action-review">
+                                    <button id="review" title="Leave a Review (Get $10 in reward points)" class="action-review" onclick="window.open(\'' . $moduleReviewUrl . $utmParam .'&utm_campaign=review-button\', \'_blank\'); return false;">
+                                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.3421 3.16519C10.5534 2.73717 10.659 2.52315 10.8024 2.45478C10.9272 2.39528 11.0722 2.39528 11.1969 2.45478C11.3404 2.52315 11.446 2.73717 11.6573 3.16519L13.6617 7.226C13.7241 7.35236 13.7553 7.41554 13.8009 7.4646C13.8412 7.50803 13.8896 7.54322 13.9434 7.56822C14.0041 7.59646 14.0738 7.60665 14.2133 7.62703L18.6969 8.28238C19.1691 8.3514 19.4051 8.3859 19.5144 8.50122C19.6094 8.60156 19.6542 8.73943 19.6361 8.87645C19.6153 9.03393 19.4443 9.2004 19.1025 9.53334L15.8593 12.6922C15.7582 12.7907 15.7077 12.8399 15.6751 12.8985C15.6462 12.9504 15.6277 13.0073 15.6205 13.0663C15.6124 13.1328 15.6244 13.2024 15.6482 13.3415L16.4135 17.8033C16.4942 18.2739 16.5345 18.5091 16.4587 18.6488C16.3927 18.7703 16.2754 18.8555 16.1395 18.8807C15.9832 18.9096 15.7719 18.7985 15.3494 18.5763L11.341 16.4683C11.2161 16.4027 11.1537 16.3698 11.0879 16.3569C11.0296 16.3455 10.9697 16.3455 10.9115 16.3569C10.8457 16.3698 10.7832 16.4027 10.6584 16.4683L6.65002 18.5763C6.22743 18.7985 6.01613 18.9096 5.8599 18.8807C5.72397 18.8555 5.60667 18.7703 5.54068 18.6488C5.46484 18.5091 5.5052 18.2739 5.58591 17.8033L6.35115 13.3415C6.37501 13.2024 6.38694 13.1328 6.37887 13.0663C6.37172 13.0073 6.35319 12.9504 6.32431 12.8985C6.29169 12.8399 6.24114 12.7907 6.14004 12.6922L2.89685 9.53334C2.55503 9.2004 2.38412 9.03393 2.36332 8.87645C2.34523 8.73943 2.38993 8.60156 2.48499 8.50122C2.59424 8.3859 2.83031 8.3514 3.30246 8.28238L7.78613 7.62703C7.92556 7.60665 7.99528 7.59646 8.056 7.56822C8.10976 7.54322 8.15816 7.50803 8.19851 7.4646C8.24409 7.41554 8.27528 7.35236 8.33765 7.226L10.3421 3.16519Z" stroke="#344054" stroke-width="1.83333" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>Leave a review (Get $10 in reward points)</span>
+                                    </button>
+                                </div>';
+                }
 
-         $fontPath = "Magefan_Community::fonts/variable/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2";
-         $html .= ' </div>
+				$fontPath = "Magefan_Community::fonts/variable/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2";
+				$html .= ' 
+ 			</div>
+ 
 </div>
         <style>
             @font-face {
@@ -288,17 +311,12 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .row-2 {display: flex;align-items: center;}
             .section-info .row-2 .block-dev {color: #98A2B3;}
             .section-info .row-2 .block-dev a {color: #DA5D28;}
-            .section-info .row-2 .block-dot {
-                margin: 0 12px;
-                color: #98A2B3;
-                background-color: #98A2B3;
-                width: 3px;
-                height: 3px;
-                border-radius: 50%;
-            }
+            .section-info .row-2 .block-dot {margin: 0 12px;color: #98A2B3;background-color: #98A2B3;width: 3px;height: 3px;border-radius: 50%;}
             .section-info .row-2 .block-guide {display: flex;align-items: center;gap: 5px;}
             .section-info .row-2 .block-guide a {font-size: 18px;font-weight: 500;color: #DA5D28;}
-            .section-info .col-actions {display: flex;flex-direction: column;align-items: flex-end;}
+            .section-info .row-2 .block-review {display: flex;align-items: center;gap: 5px;}
+            .section-info .row-2 .block-review a {font-size: 18px;font-weight: 500;color: #DA5D28;}
+            .section-info .col-actions {display: flex;flex-direction: column;align-items: flex-end;justify-content: center;}
             .section-info .col-actions .actions {display: flex;align-items: center;gap: 18px;}
             .section-info .col-actions button {
                 padding: 9px 16px 9px;
@@ -345,6 +363,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                 margin-right: 36px;
                 color: #8D8D8D;
             }
+            .section-info .col-actions button.action-review {display: flex;align-items: center;gap: 4px;color: #344054;background: #ffffff;}
         </style>
         ';
 
