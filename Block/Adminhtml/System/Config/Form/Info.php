@@ -118,8 +118,6 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             $canUpgradeToMaxPlan = false;
         }
 
-        $newVersionAvailable = $canUpgradeToMaxPlan = true;
-
         $moduleImage = $moduleImage ?
             $this->escapeHtml($moduleImage) :
             ('https://mag' . 'ef' . 'an.com/media/magefan-logo-2025.png');
