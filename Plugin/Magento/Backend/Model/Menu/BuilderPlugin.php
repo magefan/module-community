@@ -97,8 +97,6 @@ class BuilderPlugin
     {
         $menuEnabled = $this->config->menuEnabled();
         if ($menuEnabled) {
-            $modulesInfo = $this->getModuleInfo->execute();
-
             $item = $this->menuItemFactory->create([
                 'data' => [
                     'id' => 'Magefan_Community::elements',
@@ -203,63 +201,73 @@ class BuilderPlugin
                 }
             }
 
-            try {
-                $added = []; // track already processed parents to avoid duplicates
-
-                foreach ($menu as $item) {
-                    if ($item->hasChildren()) {
-                        foreach ($item->getChildren() as $children) {
-                            $id = $children->getId();
-                            // check if id starts with Magefan_ but skip Magefan_Community itself
-                            if (strpos($id, 'Magefan_') !== 0) {
-                                continue;
-                            }
-                            if (strpos($id, 'Magefan_Community::elements') === 0) {
-                                continue;
-                            }
-
-                            if (in_array($id, $added)) {
-                                continue;
-                            }
-
-                            $added[] = $id;
-
-                            // extract module name from id e.g. Magefan_Blog::elements -> Magefan_Blog
-                            $module = explode('::', $id)[0];
-                            $module = explode('_', $module)[1];
-                            $url = !empty($modulesInfo[$module]) ? $modulesInfo[$module]->getDocumentationUrl() : '';
-                            // unique id per module to avoid conflicts
-                            $newItemId = $id . '_user_guides';
-                            if (!$url) {
-                                continue;
-                            }
-
-                            try {
-                                $encodedUrl = 'mf-ug-url-start' . base64_encode($url) . 'mf-ug-url-end';
-
-                                $userGuideItem = $this->menuItemFactory->create([
-                                    'data' => [
-                                        'id'       => $newItemId,
-                                        'title'    => 'User Guides',
-                                        'module'   => 'Magefan_Community',
-                                        'resource' => 'Magefan_Community::elements',
-                                        'action'   => $encodedUrl,
-                                    ]
-                                ]);
-
-                                $menu->add($userGuideItem, $id, 6000);
-
-                            } catch (\Exception $e) {
-                            }
-                        }
-                    }
-                }
-
-            } catch (\Exception $e) {
-            }
+            $this->addUserGuideLinks($menu);
         }
 
         return $menu;
+    }
+
+    /**
+     * @param Menu $menu
+     * @return void
+     */
+    private function addUserGuideLinks(Menu $menu): void
+    {
+        try {
+            $modulesInfo = $this->getModuleInfo->execute();
+            $added = []; // track already processed parents to avoid duplicates
+
+            foreach ($menu as $item) {
+                if ($item->hasChildren()) {
+                    foreach ($item->getChildren() as $children) {
+                        $id = $children->getId();
+                        // check if id starts with Magefan_ but skip Magefan_Community itself
+                        if (strpos($id, 'Magefan_') !== 0) {
+                            continue;
+                        }
+                        if (strpos($id, 'Magefan_Community::elements') === 0) {
+                            continue;
+                        }
+
+                        if (in_array($id, $added)) {
+                            continue;
+                        }
+
+                        $added[] = $id;
+
+                        // extract module name from id e.g. Magefan_Blog::elements -> Magefan_Blog
+                        $module = explode('::', $id)[0];
+                        $module = explode('_', $module)[1];
+                        $url = !empty($modulesInfo[$module]) ? $modulesInfo[$module]->getDocumentationUrl() : '';
+                        // unique id per module to avoid conflicts
+                        $newItemId = $id . '_user_guides';
+                        if (!$url) {
+                            continue;
+                        }
+
+                        try {
+                            $encodedUrl = 'mf-ug-url-start' . base64_encode($url) . 'mf-ug-url-end';
+
+                            $userGuideItem = $this->menuItemFactory->create([
+                                'data' => [
+                                    'id'       => $newItemId,
+                                    'title'    => 'User Guides',
+                                    'module'   => 'Magefan_Community',
+                                    'resource' => 'Magefan_Community::elements',
+                                    'action'   => $encodedUrl,
+                                ]
+                            ]);
+
+                            $menu->add($userGuideItem, $id, 6000);
+
+                        } catch (\Exception $e) {
+                        }
+                    }
+                }
+            }
+
+        } catch (\Exception $e) {
+        }
     }
 
     /**
