@@ -29,6 +29,99 @@
 })();
 
 /**
+ * Magefan Menu Extensions and User Guides
+ */
+const menuItems = [
+    {
+        selector: '[data-ui-id="menu-magefan-community-magefan-extensions"]',
+        url: 'https://magefan.com/magento-2-extensions?utm_source=admin&utm_medium=menu&utm_campaign=extensions',
+    },
+    {
+        selector: '[data-ui-id="menu-magefan-community-magefan-user-guides"]',
+        url: 'https://magefan.com/blog/user-guides?utm_source=admin&utm_medium=menu&utm_campaign=guides',
+    },
+];
+
+menuItems.forEach(function(item) {
+    let el = document.querySelector(item.selector);
+    if (!el) return;
+
+    // replace <strong> with <a>
+    let strong = el.querySelector('strong.submenu-group-title');
+    if (strong) {
+        let a = document.createElement('a');
+        a.href      = item.url;
+        a.target = '_blank';
+        a.className = strong.className;
+        a.innerHTML = strong.innerHTML;
+        a.style.setProperty('color', '#fff', 'important');
+
+        strong.parentNode.replaceChild(a, strong);
+    }
+
+    // hide dummy submenu
+    let submenu = el.querySelector('.submenu');
+    if (submenu) submenu.style.display = 'none';
+
+});
+
+document.querySelectorAll('.level-2[data-ui-id]').forEach(function(li) {
+    let link = li.querySelector('a');
+    if (link) {
+        let span = link.querySelector('span');
+        if (span && span.textContent.trim() === 'User Guides') {
+            let href = link.getAttribute('href') || '';
+
+            // remove trailing slash added by Magento
+            href = href.replace(/\/+$/, '');
+
+            // detect our encoded url marker
+            let markerIndex = href.indexOf('mfurl_');
+            if (markerIndex !== -1) {
+                // extract base64 part after marker
+                // href will look like: /admin/mfurl_aHR0cHM6Ly9tYWdlZmFuLmNvbQ==
+                var encoded = href.substring(href.indexOf('mfurl_') + 'mfurl_'.length);
+
+                // remove any trailing slashes from encoded part too
+                encoded = encoded.replace(/\/+$/, '');
+
+                function base64url_decode(encoded) {
+                    // replace base64url chars back to standard base64
+                    var base64 = encoded
+                        .replace(/-/g, '+')
+                        .replace(/_/g, '/');
+
+                    // add padding if needed
+                    while (base64.length % 4 !== 0) {
+                        base64 += '=';
+                    }
+
+                    return atob(base64);
+                }
+
+                var userGuidesUrl = null;
+                try {
+                    userGuidesUrl = base64url_decode(encoded);
+                    userGuidesUrl += '?utm_source=admin&utm_medium=menu&utm_campaign=sub-guide';
+                } catch (e) {
+                    console.error(e.message);
+                }
+
+                if (userGuidesUrl) {
+                    // replace link behavior
+                    link.href = userGuidesUrl; // replace the href with the url
+                    link.target = '_blank';
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        window.open(userGuidesUrl, '_blank');
+                    });
+                }
+            }
+        }
+    }
+});
+
+/**
  * Magefan Menu Manager - Compatible with browsers from 2015+
  */
 var MagefanMenuManager = {
@@ -216,9 +309,24 @@ var MagefanMenuManager = {
      * Sort submenu items alphabetically
      */
     sortSubmenuItems: function() {
+        var LAST_ITEMS = [
+            'menu-magefan-community-magefan-extensions',
+            'menu-magefan-community-magefan-user-guides',
+        ];
+
         var items = Array.from(this.elements.submenuContainer.querySelectorAll('.parent.level-1'));
 
-        items.sort(function(a, b) {
+        // separate last items from sortable items
+        var sortableItems = items.filter(function(item) {
+            return !LAST_ITEMS.includes(item.getAttribute('data-ui-id'));
+        });
+
+        var lastItems = items.filter(function(item) {
+            return LAST_ITEMS.includes(item.getAttribute('data-ui-id'));
+        });
+
+        // sort only sortable items
+        sortableItems.sort(function(a, b) {
             var spanA = a.querySelector('.submenu-group-title span');
             var spanB = b.querySelector('.submenu-group-title span');
             var textA = (spanA ? spanA.textContent : '').trim();
@@ -226,7 +334,12 @@ var MagefanMenuManager = {
             return textA.localeCompare(textB);
         });
 
-        items.forEach(function(item) {
+        // append sorted items first, then last items at the end
+        sortableItems.forEach(function(item) {
+            this.elements.submenuContainer.appendChild(item);
+        }, this);
+
+        lastItems.forEach(function(item) {
             this.elements.submenuContainer.appendChild(item);
         }, this);
     },
