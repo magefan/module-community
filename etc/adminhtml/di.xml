@@ -12,4 +12,15 @@
             type="Magefan\Community\Plugin\Magento\Backend\Model\Menu\BuilderPlugin"
         />
     </type>
+
+    <type name="Magefan\Community\Block\Adminhtml\Info">
+        <arguments>
+            <argument name="fullActionModuleMap" xsi:type="array">
+                <!-- Extensions that enhance native Magento admin pages -->
+                <item name="adminhtml_sitemap_index" xsi:type="string">Magefan_XmlSitemap</item>
+                <item name="sales_order_index" xsi:type="string">Magefan_BetterOrderGrid</item>
+                <item name="catalog_product_index" xsi:type="string">Magefan_ProductGridInline</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
