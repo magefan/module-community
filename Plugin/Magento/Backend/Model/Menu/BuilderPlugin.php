@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Plugin\Magento\Backend\Model\Menu;
 
+use Magefan\Community\Api\GetModuleInfoInterface;
 use Magento\Backend\Model\Menu\Builder;
 use Magento\Backend\Model\Menu;
 use Magento\Backend\Model\Menu\ItemFactory;
@@ -54,20 +55,26 @@ class BuilderPlugin
     private $magefanModules;
 
     /**
+     * @var GetModuleInfoInterface
+     */
+    private $getModuleInfo;
+
+    /**
      * BuilderPlugin constructor.
-     *
      * @param ItemFactory $menuItemFactory
      * @param Config $config
      * @param Structure $structure
      * @param ModuleListInterface $moduleList
      * @param Manager $moduleManager
+     * @param GetModuleInfoInterface $getModuleInfo
      */
     public function __construct(
         ItemFactory $menuItemFactory,
         Config $config,
         Structure $structure,
         ModuleListInterface $moduleList,
-        Manager $moduleManager
+        Manager $moduleManager,
+        GetModuleInfoInterface $getModuleInfo
     ) {
         $this->menuItemFactory = $menuItemFactory;
         $this->config = $config;
@@ -75,6 +82,7 @@ class BuilderPlugin
         $this->moduleList = $moduleList;
         $this->moduleManager = $moduleManager;
         $this->magefanModules = $this->getMagefanModules();
+        $this->getModuleInfo = $getModuleInfo;
     }
 
     /**
@@ -122,6 +130,48 @@ class BuilderPlugin
             ]);
             $menu->add($item, 'Magefan_Community::extension_and_notification', 1000);
 
+            $item = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => 'Magefan_Community::magefan_extensions',
+                    'title'    => 'Magefan Marketplace',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                ]
+            ]);
+            $menu->add($item, 'Magefan_Community::elements', 6000);
+
+            $item = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => 'Magefan_Community::magefan_extensions_child',
+                    'title'    => 'Extensions',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                    'action'   => 'adminhtml/system_config/edit/section/mfextension',
+                ]
+            ]);
+            $menu->add($item, 'Magefan_Community::magefan_extensions', 10);
+
+            $item = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => 'Magefan_Community::magefan_user_guides',
+                    'title'    => 'Magefan User Guides',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                ]
+            ]);
+            $menu->add($item, 'Magefan_Community::elements', 6000);
+
+            $item = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => 'Magefan_Community::magefan_user_guides_child',
+                    'title'    => 'User Guides',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                    'action'   => 'adminhtml/system_config/edit/section/mfextension',
+                ]
+            ]);
+            $menu->add($item, 'Magefan_Community::magefan_user_guides', 10);
+
             unset($this->configSections['Magefan_Community']);
 
             foreach ($this->magefanModules as $moduleName) {
@@ -150,9 +200,74 @@ class BuilderPlugin
                     $menu->add($item, $section['resource'] . '_custom', 1000);
                 }
             }
+
+            $this->addUserGuideLinks($menu);
         }
 
         return $menu;
+    }
+
+    /**
+     * @param Menu $menu
+     * @return void
+     */
+    private function addUserGuideLinks(Menu $menu): void
+    {
+        try {
+            $modulesInfo = $this->getModuleInfo->execute();
+            $added = []; // track already processed parents to avoid duplicates
+
+            foreach ($menu as $item) {
+                if ($item->hasChildren()) {
+                    foreach ($item->getChildren() as $children) {
+                        $id = $children->getId();
+                        // check if id starts with Magefan_ but skip Magefan_Community itself
+                        if (strpos($id, 'Magefan_') !== 0) {
+                            continue;
+                        }
+                        if (strpos($id, 'Magefan_Community::elements') === 0) {
+                            continue;
+                        }
+
+                        if (in_array($id, $added)) {
+                            continue;
+                        }
+
+                        $added[] = $id;
+
+                        // extract module name from id e.g. Magefan_Blog::elements -> Magefan_Blog
+                        $module = explode('::', $id)[0];
+                        $module = explode('_', $module)[1];
+                        $url = !empty($modulesInfo[$module]) ? $modulesInfo[$module]->getDocumentationUrl() : '';
+                        // unique id per module to avoid conflicts
+                        $newItemId = $id . '_user_guides';
+                        if (!$url) {
+                            continue;
+                        }
+
+                        try {
+                            $encodedUrl = 'mf-ug-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-ug-url-end';
+
+                            $userGuideItem = $this->menuItemFactory->create([
+                                'data' => [
+                                    'id'       => $newItemId,
+                                    'title'    => 'User Guides',
+                                    'module'   => 'Magefan_Community',
+                                    'resource' => 'Magefan_Community::elements',
+                                    'action'   => $encodedUrl,
+                                ]
+                            ]);
+
+                            $menu->add($userGuideItem, $id, 6000);
+
+                        } catch (\Exception $e) {
+                        }
+                    }
+                }
+            }
+
+        } catch (\Exception $e) {
+        }
     }
 
     /**

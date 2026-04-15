@@ -216,9 +216,24 @@ var MagefanMenuManager = {
      * Sort submenu items alphabetically
      */
     sortSubmenuItems: function() {
+        var LAST_ITEMS = [
+            'menu-magefan-community-magefan-extensions',
+            'menu-magefan-community-magefan-user-guides',
+        ];
+
         var items = Array.from(this.elements.submenuContainer.querySelectorAll('.parent.level-1'));
 
-        items.sort(function(a, b) {
+        // separate last items from sortable items
+        var sortableItems = items.filter(function(item) {
+            return !LAST_ITEMS.includes(item.getAttribute('data-ui-id'));
+        });
+
+        var lastItems = items.filter(function(item) {
+            return LAST_ITEMS.includes(item.getAttribute('data-ui-id'));
+        });
+
+        // sort only sortable items
+        sortableItems.sort(function(a, b) {
             var spanA = a.querySelector('.submenu-group-title span');
             var spanB = b.querySelector('.submenu-group-title span');
             var textA = (spanA ? spanA.textContent : '').trim();
@@ -226,7 +241,12 @@ var MagefanMenuManager = {
             return textA.localeCompare(textB);
         });
 
-        items.forEach(function(item) {
+        // append sorted items first, then last items at the end
+        sortableItems.forEach(function(item) {
+            this.elements.submenuContainer.appendChild(item);
+        }, this);
+
+        lastItems.forEach(function(item) {
             this.elements.submenuContainer.appendChild(item);
         }, this);
     },
@@ -427,3 +447,76 @@ var MagefanMenuManager = {
         submenuDiv.style.left = this.config.menuLeftPosition;
     }
 };
+
+(function() {
+    function addMainUserGuideAndMarketplaceLinks() {
+        /**
+         * Magefan Menu Extensions and User Guides
+         */
+        const menuItems = [
+            {
+                selector: '[data-ui-id="menu-magefan-community-magefan-extensions"]',
+                url: 'https://magefan.com/magento-2-extensions?utm_source=admin&utm_medium=menu&utm_campaign=extensions',
+            },
+            {
+                selector: '[data-ui-id="menu-magefan-community-magefan-user-guides"]',
+                url: 'https://magefan.com/blog/user-guides?utm_source=admin&utm_medium=menu&utm_campaign=guides',
+            },
+        ];
+
+        menuItems.forEach(function(item) {
+            let el = document.querySelector(item.selector);
+            if (!el) return;
+
+            // replace <strong> with <a>
+            let strong = el.querySelector('strong.submenu-group-title');
+            if (strong) {
+                let a = document.createElement('a');
+                a.href      = item.url;
+                a.target = '_blank';
+                a.className = strong.className;
+                a.innerHTML = strong.innerHTML;
+                a.style.setProperty('color', '#fff', 'important');
+
+                strong.parentNode.replaceChild(a, strong);
+            }
+
+            // hide dummy submenu
+            let submenu = el.querySelector('.submenu');
+            if (submenu) submenu.style.display = 'none';
+
+        });
+    }
+
+    function addUserGuideLinks() {
+        document.querySelectorAll('a[href*="mf-ug-url-start"]').forEach(function(link) {
+            var match =  link.getAttribute('href')
+                .match(/mf-ug-url-start(.+?)mf-ug-url-end/);
+            if (!match) return;
+
+            var encoded = match[1];
+            var decoded;
+
+            try {
+                // Convert base64url back to standard base64 before decoding
+                var b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4) { b64 += '='; }
+                decoded = atob(b64);
+            } catch (e) {
+                return;
+            }
+
+            if (!decoded) return;
+
+            link.href = decoded + '?utm_source=admin&utm_medium=menu&utm_campaign=sub-guide';
+            link.target = '_blank';
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(link.href, '_blank');
+            });
+        });
+    }
+
+    addMainUserGuideAndMarketplaceLinks();
+    addUserGuideLinks();
+})();
