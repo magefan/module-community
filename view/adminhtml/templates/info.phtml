@@ -1,0 +1,159 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ *
+ * @var \Magefan\Community\Block\Adminhtml\Info $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+if (!isset($escaper)) {
+    /* Compatibility fix for old Magento versions */
+    $escaper = $block;
+}
+
+$mfSecureRenderer = $block->getMfSecureRenderer();
+$moduleTitle     = $block->getModuleTitle();
+$needToUpdate    = $block->needToUpdate();
+$canUpgradePlan  = $block->canUpgradeToMaxPlan();
+$latestVersion   = $block->getLatestVersion();
+$moduleUrl       = $block->getModuleUrl();
+$utmParam        = '?utm_source=admin&utm_medium=grid';
+
+if (!$needToUpdate && !$canUpgradePlan) {
+    return;
+}
+?>
+<style>
+    .notices-wrapper .messages.mf-massages { margin-top: 20px; }
+    .notices-wrapper .messages.mf-massages .message {
+        padding: 1.2rem 1.6rem 1.2rem 5rem;
+        margin-bottom: 20px;
+    }
+    .notices-wrapper .messages.mf-massages .message .wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .notices-wrapper .messages.mf-massages .message .wrapper .description {
+        display: flex;
+        flex-direction: column;
+        row-gap: 6px;
+        flex-grow: 1;
+        font-size: 1.4rem;
+        line-height: 2rem;
+        font-weight: 500;
+    }
+    .notices-wrapper .messages.mf-massages .message:before {
+        display: inline-block;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+        left: 1.6rem;
+    }
+    .notices-wrapper .messages.mf-massages .message.notice:before {
+        content: '';
+        width: 24px;
+        height: 24px;
+        background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDIyIDIyIiBmaWxsPSJub25lIj4NCiAgICA8cGF0aCBkPSJNMTEgMEM0LjkyMDMxIDAgMCA0LjkxOTc1IDAgMTFDMCAxNy4wNzk2IDQuOTE5NzUgMjIgMTEgMjJDMTcuMDc5NyAyMiAyMiAxNy4wODAyIDIyIDExQzIyIDQuOTIwMzkgMTcuMDgwMiAwIDExIDBaTTEyLjEyOTYgMTUuMzY2NUMxMi4xMjk2IDE1LjcxNDEgMTEuNjIyOCAxNi4wNjE1IDExLjAwMDIgMTYuMDYxNUMxMC4zNDg2IDE2LjA2MTUgOS44ODUzNSAxNS43MTQxIDkuODg1MzUgMTUuMzY2NVY5Ljg0OTlDOS44ODUzNSA5LjQ0NDQ5IDEwLjM0ODcgOS4xNjkzMiAxMS4wMDAyIDkuMTY5MzJDMTEuNjIyOCA5LjE2OTMyIDEyLjEyOTYgOS40NDQ0OSAxMi4xMjk2IDkuODQ5OVYxNS4zNjY1Wk0xMS4wMDAzIDcuODM3MzNDMTAuMzM0MiA3LjgzNzMzIDkuODEyOTkgNy4zNDUwNCA5LjgxMjk5IDYuNzk0NzhDOS44MTI5OSA2LjI0NDU2IDEwLjMzNDIgNS43NjY3NSAxMS4wMDAzIDUuNzY2NzVDMTEuNjUxOCA1Ljc2Njc1IDEyLjE3MzEgNi4yNDQ1NiAxMi4xNzMxIDYuNzk0NzhDMTIuMTczMSA3LjM0NTA0IDExLjY1MTggNy44MzczMyAxMS4wMDAzIDcuODM3MzNaIiBmaWxsPSIjRkZCRjAwIi8+DQo8L3N2Zz4=") no-repeat center center;
+    }
+    .notices-wrapper .messages.mf-massages .actions button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 16px;
+        border: none;
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-update,
+    .notices-wrapper .messages.mf-massages .actions .action-upgrade {
+        color: #182230;
+        background: #FFCD36;
+        box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-update:hover,
+    .notices-wrapper .messages.mf-massages .actions .action-upgrade:hover {
+        opacity: 0.7;
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-remind-later {
+        color: #182230;
+        background: none;
+        border: none;
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-remind-later:hover {
+        text-decoration: underline;
+    }
+</style>
+<div class="messages mf-massages">
+    <?php if ($needToUpdate): ?>
+    <div class="message message-notice notice">
+        <div class="wrapper" data-ui-id="messages-message-notice">
+            <div class="description">
+                <?= $escaper->escapeHtml($moduleTitle) ?> <?= /* @noEscape */ __('is outdated.') ?>
+                <?= /* @noEscape */ __('The latest version') ?> <strong><?= $escaper->escapeHtml($latestVersion) ?></strong> <?= /* @noEscape */ __('is now available, offering improved features and performance.') ?>
+            </div>
+            <div class="actions">
+                <button id="mf-update" title="<?= $escaper->escapeHtmlAttr(__('Update Extension')) ?>" class="action-update"
+                        onclick="window.open('https://mage<?= /* @noEscape */ 'fan' ?>.com/downloadable/customer/products<?= $escaper->escapeHtmlAttr($utmParam) ?>&amp;utm_campaign=update-to-new-version', '_blank'); return false;">
+                    <span><?= /* @noEscape */ __('Update Extension') ?></span>
+                </button>
+                <button id="mf-remind-later-update" title="<?= $escaper->escapeHtmlAttr(__('Remind Later')) ?>" class="action-remind-later"
+                        onclick="mfRemindLater(this, 'update'); return false;">
+                    <span><?= /* @noEscape */ __('Remind Later') ?></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+    <?php if ($canUpgradePlan): ?>
+    <div class="message message-notice notice">
+        <div class="wrapper" data-ui-id="messages-message-notice">
+            <div class="description">
+                <?= /* @noEscape */ __(
+                    'Upgrade %1 to the %2 plan to unlock more features.',
+                    $escaper->escapeHtml($moduleTitle),
+                    strtoupper((string)$block->getModuleInfo()->getMaxPlan())
+                ) ?>
+            </div>
+            <div class="actions">
+                <button id="mf-upgrade-plan" title="<?= $escaper->escapeHtmlAttr(__('Upgrade Plan')) ?>" class="action-upgrade"
+                        onclick="window.open('<?= $escaper->escapeHtmlAttr($moduleUrl . '/pricing' . $utmParam) ?>&amp;utm_campaign=upgrade-plan', '_blank'); return false;">
+                    <span><?= /* @noEscape */ __('Upgrade Plan') ?></span>
+                </button>
+                <button id="mf-remind-later-upgrade" title="<?= $escaper->escapeHtmlAttr(__('Remind Later')) ?>" class="action-remind-later"
+                        onclick="mfRemindLater(this, 'upgrade'); return false;">
+                    <span><?= /* @noEscape */ __('Remind Later') ?></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+<?php
+$moduleTitleJs   = $escaper->escapeJs($moduleTitle);
+$remindLaterUrl  = $escaper->escapeJs($block->escapeUrl($block->getUrl('mfcommunity/remindlater/index')));
+$script = <<<JS
+function mfRemindLater(el, event) {
+    var messageBlock = el.closest('.message');
+    if (messageBlock) {
+        messageBlock.style.transition = 'opacity 0.5s';
+        messageBlock.style.opacity = '0';
+        setTimeout(function() { messageBlock.style.display = 'none'; }, 500);
+        require(['jquery', 'domReady!'], function($) {
+            $.ajax({
+                url: '{$remindLaterUrl}',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    event: event,
+                    module: '{$moduleTitleJs}'
+                },
+                success: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    }
+}
+JS;
+echo $mfSecureRenderer->renderTag('script', [], $script, false);
+?>
