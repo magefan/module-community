@@ -98,6 +98,15 @@ var MagefanMenuManager = {
         Array.from(this.elements.level1Parents).forEach(function(parent) {
             var submenu = parent.querySelector('.submenu');
             var groupTitleSpan = parent.querySelector('.submenu-group-title span');
+            var groupTitleParent = groupTitleSpan.parentElement;
+            if (groupTitleParent) {
+                var link = document.createElement('a');
+                link.href = "#";
+                // link.className = groupTitleParent.className;
+                link.innerHTML = groupTitleParent.innerHTML;
+
+                groupTitleParent.replaceWith(link);
+            }
 
             if (!groupTitleSpan || !submenu) {
                 return;
