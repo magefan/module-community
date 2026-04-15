@@ -99,6 +99,18 @@ var MagefanMenuManager = {
             var submenu = parent.querySelector('.submenu');
             var groupTitleSpan = parent.querySelector('.submenu-group-title span');
 
+            if (!groupTitleSpan) return;
+
+            var groupTitleParent = groupTitleSpan.parentElement;
+            if (groupTitleParent && groupTitleParent.nodeName === 'STRONG') {
+                var link = document.createElement('a');
+                link.href = "#";
+                 link.className = 'mf-submenu-group-title';
+                link.innerHTML = groupTitleParent.innerHTML;
+
+                groupTitleParent.replaceWith(link);
+            }
+
             if (!groupTitleSpan || !submenu) {
                 return;
             }
@@ -234,8 +246,8 @@ var MagefanMenuManager = {
 
         // sort only sortable items
         sortableItems.sort(function(a, b) {
-            var spanA = a.querySelector('.submenu-group-title span');
-            var spanB = b.querySelector('.submenu-group-title span');
+            var spanA = a.querySelector('.mf-submenu-group-title span');
+            var spanB = b.querySelector('.mf-submenu-group-title span');
             var textA = (spanA ? spanA.textContent : '').trim();
             var textB = (spanB ? spanB.textContent : '').trim();
             return textA.localeCompare(textB);
@@ -313,7 +325,7 @@ var MagefanMenuManager = {
         searchClose.classList.toggle('_show', searchText.length > 0);
 
         items.forEach(function(item) {
-            var titleSpan = item.querySelector('.submenu-group-title span');
+            var titleSpan = item.querySelector('.mf-submenu-group-title span');
             if (!titleSpan) return;
 
             var titleText = titleSpan.textContent.toLowerCase();
@@ -366,7 +378,7 @@ var MagefanMenuManager = {
         items.forEach(function(item) {
             item.style.display = '';
 
-            var titleSpan = item.querySelector('.submenu-group-title span');
+            var titleSpan = item.querySelector('.mf-submenu-group-title span');
             if (titleSpan) {
                 var originalText = titleSpan.getAttribute('data-original-text');
                 if (originalText) {
@@ -474,9 +486,8 @@ var MagefanMenuManager = {
                 let a = document.createElement('a');
                 a.href      = item.url;
                 a.target = '_blank';
-                a.className = strong.className;
                 a.innerHTML = strong.innerHTML;
-                a.style.setProperty('color', '#fff', 'important');
+                a.className = 'mf-submenu-group-title';
 
                 strong.parentNode.replaceChild(a, strong);
             }
