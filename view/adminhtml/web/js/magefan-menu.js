@@ -99,7 +99,7 @@ var MagefanMenuManager = {
             var submenu = parent.querySelector('.submenu');
             var groupTitleSpan = parent.querySelector('.submenu-group-title span');
             var groupTitleParent = groupTitleSpan.parentElement;
-            if (groupTitleParent) {
+            if (groupTitleParent && groupTitleParent.nodeName === 'STRONG') {
                 var link = document.createElement('a');
                 link.href = "#";
                 // link.className = groupTitleParent.className;
@@ -483,9 +483,7 @@ var MagefanMenuManager = {
                 let a = document.createElement('a');
                 a.href      = item.url;
                 a.target = '_blank';
-                a.className = strong.className;
                 a.innerHTML = strong.innerHTML;
-                a.style.setProperty('color', '#fff', 'important');
 
                 strong.parentNode.replaceChild(a, strong);
             }
