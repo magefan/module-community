@@ -246,7 +246,7 @@ class BuilderPlugin
                         }
 
                         try {
-                            $encodedUrl = 'mf-ug-url-start' . base64_encode($url) . 'mf-ug-url-end';
+                            $encodedUrl = 'mf-ug-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-ug-url-end';
 
                             $userGuideItem = $this->menuItemFactory->create([
                                 'data' => [
