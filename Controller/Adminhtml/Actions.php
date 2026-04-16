@@ -605,4 +605,21 @@ abstract class Actions extends \Magento\Backend\App\Action
 
         return $inputFilter;
     }
+
+    /**
+     * Define active menu item in menu block
+     *
+     * @param string $itemId current active menu item
+     * @return $this
+     */
+    protected function _setActiveMenu($itemId)
+    {
+        /** @var $menuBlock \Magento\Backend\Block\Menu */
+        $menuBlock = $this->_view->getLayout()->getBlock('menu');
+        if (!$menuBlock) {
+            return $this;
+        }
+
+        return parent::_setActiveMenu($itemId);
+    }
 }
