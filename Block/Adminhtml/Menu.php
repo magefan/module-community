@@ -41,7 +41,8 @@ class Menu extends Template
         $this->serializer = $serializer;
     }
 
-    /** Get Groups Json
+    /**
+     * Get Groups Json
      * @return string
      */
     public function getGroupsJson(): string
