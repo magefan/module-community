@@ -12,4 +12,9 @@
             type="Magefan\Community\Plugin\Magento\Backend\Model\Menu\BuilderPlugin"
         />
     </type>
+
+    <type name="Magento\Config\Block\System\Config\Tabs">
+        <plugin name="mf_add_dynami_tabs_to_config"
+                type="Magefan\Community\Plugin\Magento\Config\Block\System\Config\Tabs\AddTabs"/>
+    </type>
 </config>
