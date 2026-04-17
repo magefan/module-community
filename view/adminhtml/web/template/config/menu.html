@@ -1,0 +1,29 @@
+<ul class="admin__page-nav-items items magefan-menu-config-wrapper" data-role="content" role="tabpanel" aria-hidden="true">
+    <!-- ko foreach: $data.items -->
+    <!-- ko if: $data.type === 'group' -->
+    <li class="config-nav-block admin__page-nav mf-group _collapsed"
+        data-collapsible="true"
+        role="tablist"
+        data-bind='mageInit: {"collapsible":{"active": $parent.isActive($data.extensions), "openedState": "_show", "closedState": "_hide", "collapsible": true, "animate": 200}}'>
+        <span class="admin__page-nav-title title _collapsible magefan-nav"
+              data-role="title"
+              role="tab">
+            <span data-bind="text: $data.name"></span>
+        </span>
+        <ul class="admin__page-nav-items items"
+            data-role="content"
+            role="tabpanel"
+            aria-hidden="true">
+            <!-- ko template: $parent.templates.items --><!-- /ko -->
+        </ul>
+    </li>
+    <!-- /ko -->
+    <!-- ko if: $data.type === 'single' -->
+    <li class="admin__page-nav-item item"
+        data-bind="css: {'_active' : $data.is_active}">
+        <a class="admin__page-nav-link item-nav"
+           data-bind="text: $data.name, attr: {href: $data.url}, title: $data.name"></a>
+    </li>
+    <!-- /ko -->
+    <!-- /ko -->
+</ul>

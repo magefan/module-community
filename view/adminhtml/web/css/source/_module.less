@@ -158,7 +158,11 @@
                         > ul[role=menu] {
                             display: flex;
                             flex-direction: column;
+                            overflow-y: auto;
+                            max-height: ~'calc(100vh - 90px)';
                             margin: 0 1.5rem;
+                            scrollbar-color: rgb(110, 106, 106) transparent;
+                            scrollbar-width: thin;
                         }
                     }
                     &:hover {
@@ -225,6 +229,23 @@
                     }
                 }
             }
+        }
+    }
+
+    // Group headers inside Magefan menu
+    #menu-magefan-community-elements {
+        .mf-group-header {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: @submenu-link__color;
+            opacity: .5;
+            padding: .8rem 3rem .4rem;
+            margin-top: .8rem;
+            pointer-events: none;
+            list-style: none;
         }
     }
 
@@ -295,7 +316,7 @@
 
 
 // Store Configuration Magefan Extension
-.config-nav .magefan-tab .admin__page-nav-title:before {
+.config-nav .magefan-tab .admin__page-nav-title:not(.magefan-nav):before {
     content: '\e900';
     font-family: 'Magefan-Icons';
     font-size: 30px;
@@ -310,9 +331,27 @@
     margin-left: 40px;
 }
 
+.config-nav .magefan-tab .admin__page-nav-title.magefan-nav {
+    text-transform: none;
+}
+
+.config-nav .magefan-tab .mf-group .admin__page-nav-item {
+    margin-left: 1.4rem;
+}
+
+.config-nav .magefan-tab .mf-group._hide .admin__page-nav-title._collapsible:after {content: '\e628';}
+
+.config-nav .magefan-tab .mf-group {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
 .accordion .form-inline .config .data-grid .magefan-section td {
     padding: 1rem;
 }
 .accordion .form-inline .config .magefan-section tr:nth-child(even) td {
     background-color: #f5f5f5;
 }
+
+
