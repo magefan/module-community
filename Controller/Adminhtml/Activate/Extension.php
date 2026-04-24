@@ -23,6 +23,10 @@ use Magefan\Community\Model\Section;
 class Extension extends \Magento\Backend\App\Action
 {
     /**
+     * ACL resource required to activate extensions.
+     */
+    public const ADMIN_RESOURCE = 'Magento_Config::config';
+    /**
      * @var WriterInterface
      */
     private $configWriter;
