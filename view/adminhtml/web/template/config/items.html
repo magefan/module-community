@@ -1,0 +1,8 @@
+<!-- ko foreach: $data.extensions -->
+<li class="admin__page-nav-item item"
+    data-bind="css: {'_active' : $data.is_active}">
+    <a class="admin__page-nav-link item-nav"
+       data-bind="text: $data.name, attr: {href: $data.url}, title: $data.name">
+    </a>
+</li>
+<!-- /ko -->
