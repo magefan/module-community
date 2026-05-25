@@ -10,7 +10,10 @@
  * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
  */
 ?>
-<?= $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)->setMethod('ajax')->toHtml() ?>
+<?= $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)
+    ->setMethod('ajax')
+    ->setScriptAttributes($block->getScriptAttributes())
+    ->toHtml() ?>
 <?php $script = "
     window.MagefanJs = window.MagefanJs || {};
     window.MagefanJs.sendBeacon = function(options) {
