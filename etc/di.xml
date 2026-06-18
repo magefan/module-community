@@ -18,6 +18,9 @@
     <type name="Magento\Framework\View\TemplateEngine\Php">
         <plugin name="Magefan_Community_Plugin_Magento_Framework_View_TemplateEngine_Php" type="Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine\Php" sortOrder="10" disabled="false"/>
     </type>
+    <type name="Magento\Framework\Stdlib\CookieManagerInterface">
+        <plugin name="Magefan_Community_SkipPhpSessionCookieResponseForFlaggedRequests" type="Magefan\Community\Plugin\Magento\Framework\Stdlib\CookieManagerInterfacePlugin" sortOrder="10" disabled="false"/>
+    </type>
 
     <!-- Add blockVariables to FireMultimedia since to override Magento\Framework\View\TemplateEngine\Php -->
      <type name="FireMultimedia\DevHelper\Framework\View\TemplateEngine\Processor">

@@ -12,6 +12,14 @@
 ?>
 <?php $script = "
     window.MagefanJs = window.MagefanJs || {};
+
+    window.MagefanJs.addNoPhpCookieResp = function (options) {
+        if (options.no_magefan_no_php_cookie_resp) {
+            return options.url;
+        }
+        return options.url + (options.url.indexOf('?') === -1 ? '?' : '&') + 'magefan_no_php_cookie_resp=1';
+    };
+
     window.MagefanJs.ajax = function(options) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
@@ -21,7 +29,7 @@
             }
         };
 
-        xmlhttp.open(options.type, options.url, true);
+        xmlhttp.open(options.type, MagefanJs.addNoPhpCookieResp(options), true);
 
         var requestHeader = Object.assign({}, {
             'X-Requested-With': 'XMLHttpRequest',
