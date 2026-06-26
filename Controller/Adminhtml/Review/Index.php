@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Controller\Adminhtml\Review;
 
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\HTTP\Client\Curl;
 class Index extends \Magento\Backend\App\Action
