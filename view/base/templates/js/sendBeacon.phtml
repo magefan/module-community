@@ -19,13 +19,14 @@
     window.MagefanJs.sendBeacon = function(options) {
         if (options.url) {
             if (window.navigator && navigator.sendBeacon) {
-                navigator.sendBeacon(MagefanJs.addNoPhpCookieResp(options), new Blob([JSON.stringify(options.data)], {type: 'application/json'}));
+                options = window.MagefanJs.requestOptionsModifier(options);
+                navigator.sendBeacon(options.url, new Blob([JSON.stringify(options.data)], {type: 'application/json'}));
             } else {
                 MagefanJs.ajax({
                     type: 'POST',
                     url: options.url,
                     data: JSON.stringify(options.data),
-                    no_magefan_no_php_cookie_resp: options.no_magefan_no_php_cookie_resp,
+                    magefan_php_cookie_resp: options.magefan_php_cookie_resp,
                     requestHeader: {
                         'Content-type' : 'application/json'
                     }

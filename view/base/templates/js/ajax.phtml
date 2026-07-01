@@ -13,14 +13,15 @@
 <?php $script = "
     window.MagefanJs = window.MagefanJs || {};
 
-    window.MagefanJs.addNoPhpCookieResp = function (options) {
-        if (options.no_magefan_no_php_cookie_resp) {
-            return options.url;
+    window.MagefanJs.requestOptionsModifier = function (options) {
+        if (options && options.url && !options.magefan_php_cookie_resp) {
+            options.url += (options.url.indexOf('?') === -1 ? '?' : '&') + 'magefan_no_php_cookie_resp=1';
         }
-        return options.url + (options.url.indexOf('?') === -1 ? '?' : '&') + 'magefan_no_php_cookie_resp=1';
+        return options;
     };
 
     window.MagefanJs.ajax = function(options) {
+        options = window.MagefanJs.requestOptionsModifier(options);
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
@@ -29,7 +30,7 @@
             }
         };
 
-        xmlhttp.open(options.type, MagefanJs.addNoPhpCookieResp(options), true);
+        xmlhttp.open(options.type, options.url, true);
 
         var requestHeader = Object.assign({}, {
             'X-Requested-With': 'XMLHttpRequest',
