@@ -78,5 +78,26 @@ if (!isset($escaper)) {
 
         return false;
     };
+
+    window.MagefanJs.dispatchConsentEvent = function() {
+        var allowedGroups = MagefanJs.getCookie('mf_cookie_groups');
+        var disallowedGroups = MagefanJs.getCookie('mf_cookie_groups_disallowed');
+
+        document.dispatchEvent(new CustomEvent('mf:consentReady', {
+            detail: {
+                consented: MagefanJs.isCustomerConsentProvided(),
+                allowedGroups: allowedGroups === 'all' ? 'all' : (allowedGroups ? allowedGroups.split(',') : []),
+                disallowedGroups: disallowedGroups ? disallowedGroups.split(',') : []
+            }
+        }));
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        window.MagefanJs.dispatchConsentEvent();
+    });
+
+    document.addEventListener('mf:initCookiesListener', function() {
+        window.MagefanJs.dispatchConsentEvent();
+    });
 "; ?>
 <?= /* @noEscape */ $mfSecureRenderer->renderTag('script', $block->getScriptAttributes() ?: [], $script, false) ?>
