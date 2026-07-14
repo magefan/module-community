@@ -1,0 +1,39 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+?>
+<?php
+/**
+ * @var $block \Magefan\Community\Block\JsScript
+ * @var $mfSecureRenderer \Magefan\Community\Api\SecureHtmlRendererInterface
+ */
+?>
+<?= $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)
+    ->setMethod('ajax')
+    ->setScriptAttributes($block->getScriptAttributes())
+    ->toHtml() ?>
+<?php $script = "
+    window.MagefanJs = window.MagefanJs || {};
+    window.MagefanJs.sendBeacon = function(options) {
+        if (options.url) {
+            if (window.navigator && navigator.sendBeacon) {
+                options = window.MagefanJs.requestOptionsModifier(options);
+                navigator.sendBeacon(options.url, new Blob([JSON.stringify(options.data)], {type: 'application/json'}));
+            } else {
+                MagefanJs.ajax({
+                    type: 'POST',
+                    url: options.url,
+                    data: JSON.stringify(options.data),
+                    magefan_php_cookie_resp: options.magefan_php_cookie_resp,
+                    requestHeader: {
+                        'Content-type' : 'application/json'
+                    }
+                });
+            }
+        }
+    };
+"; ?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', $block->getScriptAttributes() ?: [], $script, false) ?>
+
