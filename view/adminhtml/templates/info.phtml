@@ -157,8 +157,9 @@ if (!$isDisable && !$needToUpdate && !$canUpgradePlan) {
     <?php } ?>
 </div>
 <?php
-$moduleTitleJs   = $escaper->escapeJs($moduleTitle);
-$remindLaterUrl  = $escaper->escapeJs($escaper->escapeUrl($block->getUrl('mfcommunity/remindlater/index')));
+$remindLaterUrl = $escaper->escapeJs($escaper->escapeUrl($block->getUrl('mfcommunity/remindlater/index')));
+$moduleNameJs   = $escaper->escapeJs($block->getModuleName());
+echo /* @NoEscape */ $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)->setMethod('sendBeacon')->toHtml();
 $script = <<<JS
 function mfRemindLater(el, event) {
     var messageBlock = el.closest('.message');
@@ -166,19 +167,9 @@ function mfRemindLater(el, event) {
         messageBlock.style.transition = 'opacity 0.5s';
         messageBlock.style.opacity = '0';
         setTimeout(function() { messageBlock.style.display = 'none'; }, 500);
-        require(['jquery', 'domReady!'], function($) {
-            $.ajax({
-                url: '{$remindLaterUrl}',
-                type: 'post',
-                dataType: 'json',
-                data: {
-                    event: event,
-                    module: '{$block->getModuleName()}'
-                },
-                success: function(data) {
-                    console.log(data);
-                }
-            });
+        MagefanJs.sendBeacon({
+            url: '{$remindLaterUrl}',
+            data: { event: event, module: '{$moduleNameJs}' }
         });
     }
 }

@@ -18,6 +18,7 @@ use Magefan\Community\Model\Config;
 use Magento\Config\Model\Config\Structure;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Backend\Model\Auth\Session as AuthSession;
+use Magento\Framework\Module\Manager as ModuleManager;
 
 /**
  * Admin Magefan info block for extension grid/index pages
@@ -43,6 +44,11 @@ class Info extends \Magento\Backend\Block\Template
      * @var AuthSession
      */
     private $authSession;
+
+    /**
+     * @var ModuleManager
+     */
+    private $moduleManager;
 
     /**
      * @var GetModuleVersionInterface
@@ -90,6 +96,7 @@ class Info extends \Magento\Backend\Block\Template
      * @param Structure $configStructure
      * @param ResourceConnection $resourceConnection
      * @param AuthSession $authSession
+     * @param ModuleManager $moduleManager
      * @param array $data
      * @param GetModuleVersionInterface|null $getModuleVersion
      * @param SecureHtmlRendererInterface|null $mfSecureRenderer
@@ -103,6 +110,7 @@ class Info extends \Magento\Backend\Block\Template
         Structure $configStructure,
         ResourceConnection $resourceConnection,
         AuthSession $authSession,
+        ModuleManager $moduleManager,
         array $data = [],
         ?GetModuleVersionInterface $getModuleVersion = null,
         ?SecureHtmlRendererInterface $mfSecureRenderer = null,
@@ -113,6 +121,7 @@ class Info extends \Magento\Backend\Block\Template
         $this->configStructure = $configStructure;
         $this->resourceConnection = $resourceConnection;
         $this->authSession = $authSession;
+        $this->moduleManager = $moduleManager;
         $this->config = $config;
         $this->routeConfig = $routeConfig;
         $this->fullActionModuleMap = $fullActionModuleMap;
@@ -169,7 +178,8 @@ class Info extends \Magento\Backend\Block\Template
 
         $fullAction = $request->getFullActionName();
         if ($fullAction && isset($this->fullActionModuleMap[$fullAction])) {
-            return $this->moduleNameCache = $this->fullActionModuleMap[$fullAction];
+            $value = $this->fullActionModuleMap[$fullAction];
+            return $this->moduleNameCache = is_array($value) ? (string)reset($value) : (string)$value;
         }
 
         return $this->moduleNameCache = '';
@@ -183,7 +193,12 @@ class Info extends \Magento\Backend\Block\Template
     public function isFullActionModule(): bool
     {
         $fullAction = $this->getRequest()->getFullActionName();
-        return $fullAction && isset($this->fullActionModuleMap[$fullAction]);
+        if (!$fullAction || !isset($this->fullActionModuleMap[$fullAction])) {
+            return false;
+        }
+        $value = $this->fullActionModuleMap[$fullAction];
+        $modules = is_array($value) ? $value : [$value];
+        return in_array($this->getModuleName(), $modules, true);
     }
 
     /**
@@ -426,13 +441,34 @@ class Info extends \Magento\Backend\Block\Template
      */
     protected function _toHtml(): string
     {
+        $fullAction = $this->getRequest()->getFullActionName();
+
+        if ($fullAction && isset($this->fullActionModuleMap[$fullAction]) && !$this->getData('module_name')) {
+            $value = $this->fullActionModuleMap[$fullAction];
+            $modules = is_array($value) ? $value : [$value];
+            if (count($modules) > 1) {
+                $html = '';
+                foreach ($modules as $module) {
+                    if (!$this->moduleManager->isEnabled($module)) {
+                        continue;
+                    }
+                    $this->moduleNameCache = null;
+                    $this->moduleInfoCache = null;
+                    $this->configSectionCache = null;
+                    $this->setData('module_name', $module);
+                    $html .= parent::_toHtml();
+                }
+                $this->unsetData('module_name');
+                return $html;
+            }
+        }
+
         $moduleName = $this->getModuleName();
-        if (!$moduleName) {
+        if (!$moduleName || !$this->moduleManager->isEnabled($moduleName)) {
             return '';
         }
 
-        $fullAction = $this->getRequest()->getFullActionName();
-        $isMappedAction = isset($this->fullActionModuleMap[$fullAction]);
+        $isMappedAction = $fullAction && isset($this->fullActionModuleMap[$fullAction]);
         if (!$isMappedAction && $this->getRequest()->getActionName() !== 'index') {
             return '';
         }
