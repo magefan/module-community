@@ -21,5 +21,11 @@
         <index referenceId="MF_MESSAGE_REMIND_LATER_ADMIN_USER_ID">
             <column name="admin_user_id"/>
         </index>
+
+        <constraint xsi:type="unique" referenceId="MF_MESSAGE_REMIND_LATER_USER_MODULE_EVENT">
+            <column name="admin_user_id"/>
+            <column name="module_name"/>
+            <column name="event"/>
+        </constraint>
     </table>
 </schema>

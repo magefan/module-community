@@ -20,6 +20,23 @@
                 <item name="adminhtml_sitemap_index" xsi:type="string">Magefan_XmlSitemap</item>
                 <item name="sales_order_index" xsi:type="string">Magefan_BetterOrderGrid</item>
                 <item name="catalog_product_index" xsi:type="string">Magefan_ProductGridInline</item>
+                <item name="cms_page_edit" xsi:type="string">Magefan_CmsDisplayRules</item>
+                <item name="cms_block_edit" xsi:type="string">Magefan_CmsDisplayRules</item>
+                <item name="adminhtml_dashboard_index" xsi:type="string">Magefan_Security</item>
+                <item name="sales_rule_promo_quote_edit" xsi:type="string">Magefan_CouponCodeLink</item>
+                <item name="sales_order_view" xsi:type="string">Magefan_BetterCheckout</item>
+                <item name="customer_index_orders" xsi:type="string">Magefan_BetterOrderGrid</item>
+                <item name="sales_archive_orders" xsi:type="string">Magefan_BetterOrderGrid</item>
+                <item name="sales_order_status_index" xsi:type="string">Magefan_BetterOrderGrid</item>
+                <item name="catalog_product_action_attribute_edit" xsi:type="string">Magefan_ProductGridInline</item>
+                <item name="catalog_product_edit" xsi:type="string">Magefan_AlternateHreflang</item>
+                <item name="catalog_category_edit" xsi:type="string">Magefan_AlternateHreflang</item>
+                <item name="catalog_product_attribute_edit" xsi:type="string">Magefan_TranslationExtra</item>
+                <item name="cmstree_page_edit" xsi:type="string">Magefan_AlternateHreflang</item>
+                <item name="sales_order_status_edit" xsi:type="string">Magefan_BetterOrderGrid</item>
+                <item name="sales_order_status_new" xsi:type="string">Magefan_BetterOrderGrid</item>
+                <item name="adminhtml_widget_instance_edit" xsi:type="string">Magefan_BlogExtra</item>
+                <item name="sales_order_create_load_block_search" xsi:type="string">Magefan_OrderEdit</item>
             </argument>
         </arguments>
     </type>

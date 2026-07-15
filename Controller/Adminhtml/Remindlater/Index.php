@@ -53,7 +53,7 @@ class Index extends Action
         $moduleName = (string)$this->getRequest()->getParam('module');
         $userId     = (int)$this->_auth->getUser()->getId();
 
-        if (!$event || !$moduleName) {
+        if (!$event || !$moduleName || !$userId) {
             return $result->setData(['success' => false, 'message' => 'Missing parameters.']);
         }
 
@@ -63,7 +63,7 @@ class Index extends Action
 
             $connection->insertOnDuplicate(
                 $table,
-                ['user_id' => $userId, 'module_name' => $moduleName, 'event' => $event],
+                ['admin_user_id' => $userId, 'module_name' => $moduleName, 'event' => $event],
                 ['created_at']
             );
 

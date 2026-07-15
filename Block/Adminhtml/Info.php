@@ -14,10 +14,10 @@ use Magefan\Community\Api\GetModuleInfoInterface;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\App\Route\ConfigInterface as RouteConfigInterface;
 use Magento\Framework\DataObject;
-use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
-use Magento\Framework\Module\Dir;
-use Magento\Framework\Module\ModuleListInterface;
 use Magefan\Community\Model\Config;
+use Magento\Config\Model\Config\Structure;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Backend\Model\Auth\Session as AuthSession;
 
 /**
  * Admin Magefan info block for extension grid/index pages
@@ -25,14 +25,24 @@ use Magefan\Community\Model\Config;
 class Info extends \Magento\Backend\Block\Template
 {
     /**
+     * @var Structure
+     */
+    private $configStructure;
+
+    /**
      * @var RouteConfigInterface
      */
     private $routeConfig;
 
     /**
-     * @var ModuleListInterface
+     * @var ResourceConnection
      */
-    protected $moduleList;
+    private $resourceConnection;
+
+    /**
+     * @var AuthSession
+     */
+    private $authSession;
 
     /**
      * @var GetModuleVersionInterface
@@ -50,11 +60,6 @@ class Info extends \Magento\Backend\Block\Template
     protected $getModuleInfo;
 
     /**
-     * @var ModuleDirReader
-     */
-    private $moduleDirReader;
-
-    /**
      * Map of full action names to Magefan module names for extensions
      * that enhance native Magento admin pages (no own route).
      * Format: ['full_action_name' => 'Magefan_ModuleName']
@@ -64,11 +69,27 @@ class Info extends \Magento\Backend\Block\Template
     private $fullActionModuleMap;
 
     /**
+     * @var string|null
+     */
+    private $moduleNameCache;
+
+    /**
+     * @var DataObject|null
+     */
+    private $moduleInfoCache;
+
+    /**
+     * @var string|null
+     */
+    private $configSectionCache;
+
+    /**
      * @param Context $context
      * @param Config $config
      * @param RouteConfigInterface $routeConfig
-     * @param ModuleListInterface $moduleList
-     * @param ModuleDirReader $moduleDirReader
+     * @param Structure $configStructure
+     * @param ResourceConnection $resourceConnection
+     * @param AuthSession $authSession
      * @param array $data
      * @param GetModuleVersionInterface|null $getModuleVersion
      * @param SecureHtmlRendererInterface|null $mfSecureRenderer
@@ -79,8 +100,9 @@ class Info extends \Magento\Backend\Block\Template
         Context $context,
         Config $config,
         RouteConfigInterface $routeConfig,
-        ModuleListInterface $moduleList,
-        ModuleDirReader $moduleDirReader,
+        Structure $configStructure,
+        ResourceConnection $resourceConnection,
+        AuthSession $authSession,
         array $data = [],
         ?GetModuleVersionInterface $getModuleVersion = null,
         ?SecureHtmlRendererInterface $mfSecureRenderer = null,
@@ -88,10 +110,11 @@ class Info extends \Magento\Backend\Block\Template
         array $fullActionModuleMap = []
     ) {
         parent::__construct($context, $data);
+        $this->configStructure = $configStructure;
+        $this->resourceConnection = $resourceConnection;
+        $this->authSession = $authSession;
         $this->config = $config;
         $this->routeConfig = $routeConfig;
-        $this->moduleList = $moduleList;
-        $this->moduleDirReader = $moduleDirReader;
         $this->fullActionModuleMap = $fullActionModuleMap;
         $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
             GetModuleVersionInterface::class
@@ -123,9 +146,13 @@ class Info extends \Magento\Backend\Block\Template
      */
     public function getModuleName(): string
     {
+        if ($this->moduleNameCache !== null) {
+            return $this->moduleNameCache;
+        }
+
         $moduleName = $this->getData('module_name');
         if ($moduleName) {
-            return (string)$moduleName;
+            return $this->moduleNameCache = (string)$moduleName;
         }
 
         $request = $this->getRequest();
@@ -135,17 +162,81 @@ class Info extends \Magento\Backend\Block\Template
             $modules = $this->routeConfig->getModulesByFrontName($frontName, 'adminhtml');
             foreach ($modules as $module) {
                 if (strpos($module, 'Magefan_') === 0) {
-                    return $module;
+                    return $this->moduleNameCache = $module;
                 }
             }
         }
 
         $fullAction = $request->getFullActionName();
         if ($fullAction && isset($this->fullActionModuleMap[$fullAction])) {
-            return $this->fullActionModuleMap[$fullAction];
+            return $this->moduleNameCache = $this->fullActionModuleMap[$fullAction];
         }
 
-        return '';
+        return $this->moduleNameCache = '';
+    }
+
+    /**
+     * Whether the module was resolved via the full-action map.
+     *
+     * @return bool
+     */
+    public function isFullActionModule(): bool
+    {
+        $fullAction = $this->getRequest()->getFullActionName();
+        return $fullAction && isset($this->fullActionModuleMap[$fullAction]);
+    }
+
+    /**
+     * Whether the current admin user clicked "Remind Later" for the given event.
+     *
+     * @param string $event
+     * @return bool
+     */
+    public function isRemindedLater(string $event): bool
+    {
+        if ($event === 'enabled' && !$this->isFullActionModule()) {
+            return false;
+        }
+
+        try {
+            $userId = (int)$this->authSession->getUser()->getId();
+        } catch (\Exception $e) {
+            return false;
+        }
+        if (!$userId) {
+            return false;
+        }
+
+        try {
+            $connection = $this->resourceConnection->getConnection();
+            $table = $this->resourceConnection->getTableName('mf_message_remind_later');
+            $moduleName = $this->getModuleName();
+
+            $select = $connection->select()
+                ->from($table, ['id', 'created_at'])
+                ->where('admin_user_id = ?', $userId)
+                ->where('module_name = ?', $moduleName)
+                ->where('event = ?', $event)
+                ->limit(1);
+            $row = $connection->fetchRow($select);
+
+            if (!$row) {
+                if ($event !== 'enabled') {
+                    $connection->insert($table, [
+                        'admin_user_id' => $userId,
+                        'module_name'   => $moduleName,
+                        'event'         => $event,
+                    ]);
+                    return true;
+                }
+                return false;
+            }
+
+            $remindAt = strtotime($row['created_at']) + 30 * 24 * 3600;
+            return time() < $remindAt;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -155,7 +246,10 @@ class Info extends \Magento\Backend\Block\Template
      */
     public function getModuleInfo(): DataObject
     {
-        return $this->getModuleInfo->execute($this->getModuleName());
+        if ($this->moduleInfoCache !== null) {
+            return $this->moduleInfoCache;
+        }
+        return $this->moduleInfoCache = $this->getModuleInfo->execute($this->getModuleName());
     }
 
     /**
@@ -171,6 +265,16 @@ class Info extends \Magento\Backend\Block\Template
         }
         $parts = explode('_', $this->getModuleName());
         return isset($parts[1]) ? ucwords(str_replace('_', ' ', $parts[1])) . ' Extension' : '';
+    }
+
+    /**
+     * Human-readable module title, e.g. "Blog Extension", "Better Order Grid Extension"
+     *
+     * @return string
+     */
+    public function getModuleChangeLogUrl(): string
+    {
+        return $this->getModuleInfo()->getChangeLogUrl();
     }
 
     /**
@@ -190,7 +294,6 @@ class Info extends \Magento\Backend\Block\Template
      */
     public function getCurrentVersion(): string
     {
-        return '2.0.7';
         $moduleName = $this->getModuleName();
         foreach (['Extra', 'Plus'] as $plan) {
             if ($v = $this->getModuleVersion->execute($moduleName . $plan)) {
@@ -254,7 +357,6 @@ class Info extends \Magento\Backend\Block\Template
      */
     public function canUpgradeToMaxPlan(): bool
     {
-        return true;
         $maxPlan = $this->getModuleInfo()->getMaxPlan();
         if (!$maxPlan) {
             return false;
@@ -273,6 +375,49 @@ class Info extends \Magento\Backend\Block\Template
     }
 
     /**
+     * Config section key for the current module, or empty string if not found.
+     *
+     * @return string
+     */
+    public function getConfigSection(): string
+    {
+        if ($this->configSectionCache !== null) {
+            return $this->configSectionCache;
+        }
+
+        $moduleName = $this->getModuleName();
+        if (!$moduleName) {
+            return $this->configSectionCache = '';
+        }
+
+        try {
+            $tabs = $this->configStructure->getTabs();
+        } catch (\Exception $e) {
+            return $this->configSectionCache = '';
+        }
+
+        $sections = [];
+        foreach ($tabs as $tab) {
+            if (in_array($tab->getId(), ['magefan', 'mf_extensions_list'])) {
+                // phpcs:ignore Magento2.Performance.ForeachArrayMerge
+                $sections = array_merge($sections, $tab->getData()['children']);
+            }
+        }
+
+        foreach ($sections as $key => $section) {
+            if (empty($section['resource']) || strpos($section['resource'], 'Magefan_') !== 0) {
+                continue;
+            }
+            $parts = explode(':', $section['resource']);
+            if ($parts[0] === $moduleName) {
+                return $this->configSectionCache = $key;
+            }
+        }
+
+        return $this->configSectionCache = '';
+    }
+
+    /**
      * Only render on Magefan extension pages where the module is installed.
      * For own-route extensions: restricted to index/grid actions.
      * For native-page extensions: shown on any action listed in the map.
@@ -288,68 +433,9 @@ class Info extends \Magento\Backend\Block\Template
 
         $fullAction = $this->getRequest()->getFullActionName();
         $isMappedAction = isset($this->fullActionModuleMap[$fullAction]);
-
         if (!$isMappedAction && $this->getRequest()->getActionName() !== 'index') {
             return '';
         }
-
-        if (!$this->getModuleVersion->execute($moduleName)) {
-            return '';
-        }
-
-        if (!$this->isExtensionEnabled()) {
-            return '';
-        }
-
         return parent::_toHtml();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEnabled() {
-        foreach ($this->_storeManager->getStores() as $store) {
-            $configPath = $this->getConfigSection() . '/' . 'g' . 'e' . 'n' . 'e' . 'r' . 'a' . 'l' . '/' . 'e' . 'n' . 'a' . 'b' . 'l' . 'e' . 'd';
-            if ($this->config->getConfig($configPath, (int)$store->getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Derive the system config section ID by reading the module's system.xml.
-     *
-     * @return string|null
-     */
-    public function getConfigSection(): ?string
-    {
-        if ($section = $this->getRequest()->getParam('section')) {
-            return (string)$section;
-        }
-
-        $moduleName = $this->getModuleName();
-        if (!$moduleName) {
-            return null;
-        }
-
-        $xmlPath = $this->moduleDirReader->getModuleDir(Dir::MODULE_ETC_DIR, $moduleName)
-            . '/adminhtml/system.xml';
-
-        if (!file_exists($xmlPath)) {
-            return null;
-        }
-
-        $dom = new \DOMDocument();
-        if (!@$dom->load($xmlPath)) {
-            return null;
-        }
-
-        $sections = $dom->getElementsByTagName('section');
-        if ($sections->length > 0) {
-            return $sections->item(0)->getAttribute('id') ?: null;
-        }
-
-        return null;
     }
 }
