@@ -16,7 +16,7 @@ use Magento\Framework\App\Route\ConfigInterface as RouteConfigInterface;
 use Magento\Framework\DataObject;
 use Magefan\Community\Model\Config;
 use Magento\Config\Model\Config\Structure;
-use Magento\Framework\App\ResourceConnection;
+use Magefan\Community\Model\ResourceModel\RemindLater as RemindLaterResource;
 use Magento\Backend\Model\Auth\Session as AuthSession;
 use Magento\Framework\Module\Manager as ModuleManager;
 
@@ -36,9 +36,9 @@ class Info extends \Magento\Backend\Block\Template
     private $routeConfig;
 
     /**
-     * @var ResourceConnection
+     * @var RemindLaterResource
      */
-    private $resourceConnection;
+    private $remindLaterResource;
 
     /**
      * @var AuthSession
@@ -94,7 +94,7 @@ class Info extends \Magento\Backend\Block\Template
      * @param Config $config
      * @param RouteConfigInterface $routeConfig
      * @param Structure $configStructure
-     * @param ResourceConnection $resourceConnection
+     * @param RemindLaterResource $remindLaterResource
      * @param AuthSession $authSession
      * @param ModuleManager $moduleManager
      * @param array $data
@@ -108,7 +108,7 @@ class Info extends \Magento\Backend\Block\Template
         Config $config,
         RouteConfigInterface $routeConfig,
         Structure $configStructure,
-        ResourceConnection $resourceConnection,
+        RemindLaterResource $remindLaterResource,
         AuthSession $authSession,
         ModuleManager $moduleManager,
         array $data = [],
@@ -119,7 +119,7 @@ class Info extends \Magento\Backend\Block\Template
     ) {
         parent::__construct($context, $data);
         $this->configStructure = $configStructure;
-        $this->resourceConnection = $resourceConnection;
+        $this->remindLaterResource = $remindLaterResource;
         $this->authSession = $authSession;
         $this->moduleManager = $moduleManager;
         $this->config = $config;
@@ -216,32 +216,19 @@ class Info extends \Magento\Backend\Block\Template
         try {
             $userId = (int)$this->authSession->getUser()->getId();
         } catch (\Exception $e) {
-            return false;
+            return true;
         }
         if (!$userId) {
-            return false;
+            return true;
         }
 
         try {
-            $connection = $this->resourceConnection->getConnection();
-            $table = $this->resourceConnection->getTableName('mf_message_remind_later');
             $moduleName = $this->getModuleName();
-
-            $select = $connection->select()
-                ->from($table, ['id', 'created_at'])
-                ->where('admin_user_id = ?', $userId)
-                ->where('module_name = ?', $moduleName)
-                ->where('event = ?', $event)
-                ->limit(1);
-            $row = $connection->fetchRow($select);
+            $row = $this->remindLaterResource->getRow($userId, $moduleName, $event);
 
             if (!$row) {
                 if ($event !== 'enabled') {
-                    $connection->insert($table, [
-                        'admin_user_id' => $userId,
-                        'module_name'   => $moduleName,
-                        'event'         => $event,
-                    ]);
+                    $this->remindLaterResource->insert($userId, $moduleName, $event);
                     return true;
                 }
                 return false;
@@ -250,7 +237,7 @@ class Info extends \Magento\Backend\Block\Template
             $remindAt = strtotime($row['created_at']) + 30 * 24 * 3600;
             return time() < $remindAt;
         } catch (\Exception $e) {
-            return false;
+            return true;
         }
     }
 

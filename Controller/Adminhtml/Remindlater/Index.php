@@ -8,9 +8,9 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Controller\Adminhtml\Remindlater;
 
+use Magefan\Community\Model\ResourceModel\RemindLater as RemindLaterResource;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Controller\Result\JsonFactory;
 
 class Index extends Action
@@ -21,23 +21,31 @@ class Index extends Action
     private $jsonFactory;
 
     /**
-     * @var ResourceConnection
+     * @var RemindLaterResource
      */
-    private $resourceConnection;
+    private $remindLaterResource;
 
     /**
      * @param Context $context
      * @param JsonFactory $jsonFactory
-     * @param ResourceConnection $resourceConnection
+     * @param RemindLaterResource $remindLaterResource
      */
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,
-        ResourceConnection $resourceConnection
+        RemindLaterResource $remindLaterResource
     ) {
         $this->jsonFactory = $jsonFactory;
-        $this->resourceConnection = $resourceConnection;
+        $this->remindLaterResource = $remindLaterResource;
         parent::__construct($context);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function _processUrlKeys()
+    {
+        return true;
     }
 
     /**
@@ -49,8 +57,11 @@ class Index extends Action
     {
         $result = $this->jsonFactory->create();
 
-        $event      = (string)$this->getRequest()->getParam('event');
-        $moduleName = (string)$this->getRequest()->getParam('module');
+        $body = (string)$this->getRequest()->getContent();
+        $json = $body ? (json_decode($body, true) ?: []) : [];
+
+        $event      = (string)($this->getRequest()->getParam('event') ?: ($json['event'] ?? ''));
+        $moduleName = (string)($this->getRequest()->getParam('module') ?: ($json['module'] ?? ''));
         $userId     = (int)$this->_auth->getUser()->getId();
 
         if (!$event || !$moduleName || !$userId) {
@@ -58,14 +69,7 @@ class Index extends Action
         }
 
         try {
-            $connection = $this->resourceConnection->getConnection();
-            $table = $this->resourceConnection->getTableName('mf_message_remind_later');
-
-            $connection->insertOnDuplicate(
-                $table,
-                ['admin_user_id' => $userId, 'module_name' => $moduleName, 'event' => $event],
-                ['created_at']
-            );
+            $this->remindLaterResource->upsert($userId, $moduleName, $event);
 
             return $result->setData(['success' => true]);
         } catch (\Exception $e) {
