@@ -157,7 +157,9 @@ if (!$isDisable && !$needToUpdate && !$canUpgradePlan) {
     <?php } ?>
 </div>
 <?php
-$remindLaterUrl = $escaper->escapeJs($escaper->escapeUrl($block->getUrl('mfcommunity/remindlater/index')));
+$remindLaterUrl = $escaper->escapeJs($escaper->escapeUrl(
+    $block->getUrl('mfcommunity/remindlater/index', ['_nosecret' => false])
+));
 $moduleNameJs   = $escaper->escapeJs($block->getModuleName());
 echo /* @NoEscape */ $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)->setMethod('sendBeacon')->toHtml();
 $script = <<<JS

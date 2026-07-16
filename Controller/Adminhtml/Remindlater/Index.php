@@ -41,7 +41,9 @@ class Index extends Action
     }
 
     /**
-     * @inheritDoc
+     * Skip secret key / form key validation — request comes from navigator.sendBeacon.
+     *
+     * @return bool
      */
     public function _processUrlKeys()
     {
