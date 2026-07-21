@@ -1,0 +1,180 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ *
+ * @var \Magefan\Community\Block\Adminhtml\Info $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+if (!isset($escaper)) {
+    /* Compatibility fix for old Magento versions */
+    $escaper = $block;
+}
+
+$mfSecureRenderer = $block->getMfSecureRenderer();
+$moduleTitle     = $block->getModuleTitle();
+$needToUpdate    = $block->needToUpdate();
+$canUpgradePlan  = $block->canUpgradeToMaxPlan();
+$latestVersion   = $block->getLatestVersion();
+$moduleUrl       = $block->getModuleUrl();
+$utmParam        = '?utm_source=admin&utm_medium=grid';
+$isDisable       = !$block->isExtensionEnabled() && !$block->isRemindedLater('enabled');
+$needToUpdate    = $needToUpdate && !$block->isRemindedLater('update');
+$canUpgradePlan  = $canUpgradePlan && !$block->isRemindedLater('upgrade');
+$showButton      = $block->isFullActionModule();
+
+if (!$isDisable && !$needToUpdate && !$canUpgradePlan) {
+    return;
+}
+?>
+<style>
+    .notices-wrapper .messages.mf-massages { margin-top: 20px; }
+    .notices-wrapper .messages.mf-massages .message {
+        padding: 1.2rem 1.6rem 1.2rem 5rem;
+        margin-bottom: 20px;
+    }
+    .notices-wrapper .messages.mf-massages .message .wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .notices-wrapper .messages.mf-massages .message .wrapper .description {
+        display: flex;
+        flex-direction: column;
+        row-gap: 6px;
+        flex-grow: 1;
+        font-size: 1.4rem;
+        line-height: 2rem;
+        font-weight: 500;
+    }
+    .notices-wrapper .messages.mf-massages .message:before {
+        display: inline-block;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+        left: 1.6rem;
+    }
+    .notices-wrapper .messages.mf-massages .message.notice:before {
+        content: '';
+        width: 24px;
+        height: 24px;
+        background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDIyIDIyIiBmaWxsPSJub25lIj4NCiAgICA8cGF0aCBkPSJNMTEgMEM0LjkyMDMxIDAgMCA0LjkxOTc1IDAgMTFDMCAxNy4wNzk2IDQuOTE5NzUgMjIgMTEgMjJDMTcuMDc5NyAyMiAyMiAxNy4wODAyIDIyIDExQzIyIDQuOTIwMzkgMTcuMDgwMiAwIDExIDBaTTEyLjEyOTYgMTUuMzY2NUMxMi4xMjk2IDE1LjcxNDEgMTEuNjIyOCAxNi4wNjE1IDExLjAwMDIgMTYuMDYxNUMxMC4zNDg2IDE2LjA2MTUgOS44ODUzNSAxNS43MTQxIDkuODg1MzUgMTUuMzY2NVY5Ljg0OTlDOS44ODUzNSA5LjQ0NDQ5IDEwLjM0ODcgOS4xNjkzMiAxMS4wMDAyIDkuMTY5MzJDMTEuNjIyOCA5LjE2OTMyIDEyLjEyOTYgOS40NDQ0OSAxMi4xMjk2IDkuODQ5OVYxNS4zNjY1Wk0xMS4wMDAzIDcuODM3MzNDMTAuMzM0MiA3LjgzNzMzIDkuODEyOTkgNy4zNDUwNCA5LjgxMjk5IDYuNzk0NzhDOS44MTI5OSA2LjI0NDU2IDEwLjMzNDIgNS43NjY3NSAxMS4wMDAzIDUuNzY2NzVDMTEuNjUxOCA1Ljc2Njc1IDEyLjE3MzEgNi4yNDQ1NiAxMi4xNzMxIDYuNzk0NzhDMTIuMTczMSA3LjM0NTA0IDExLjY1MTggNy44MzczMyAxMS4wMDAzIDcuODM3MzNaIiBmaWxsPSIjRkZCRjAwIi8+DQo8L3N2Zz4=") no-repeat center center;
+    }
+    .notices-wrapper .messages.mf-massages .actions button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 16px;
+        border: none;
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-update,
+    .notices-wrapper .messages.mf-massages .actions .action-upgrade {
+        color: #182230;
+        background: #FFCD36;
+        box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-update:hover,
+    .notices-wrapper .messages.mf-massages .actions .action-upgrade:hover {
+        opacity: 0.7;
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-remind-later {
+        color: #182230;
+        background: none;
+        border: none;
+    }
+    .notices-wrapper .messages.mf-massages .actions .action-remind-later:hover {
+        text-decoration: underline;
+    }
+</style>
+<div class="messages mf-massages">
+    <?php if ($isDisable) { ?>
+        <div class="message message-error">
+            <div class="wrapper" data-ui-id="messages-message-error">
+                <div class="description">
+                    <span><?= /*@noEscape*/  __(
+                        'Magefan %1 is disabled. To enable the extension, navigate to <a href="%2" target="_blank">Stores > Configuration > Magefan Extensions > %3</a>.',
+                        $moduleTitle,
+                        $block->getUrl(
+                            'adminhtml/system_config/edit',
+                            ['section' => $block->getConfigSection()]
+                        ),
+                        str_replace(' Extension', '', $moduleTitle)
+                    ) ?></span>
+                </div>
+                <?php if ($showButton) { ?>
+                <div class="actions">
+                    <button id="remind-later" title="<?= $escaper->escapeHtmlAttr(__('Remind Later')) ?>" class="action-remind-later" onclick="mfRemindLater(this,'enabled')"><span><?= /* @noEscape */ __('Remind Later') ?></span></button>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    <?php } elseif ($needToUpdate) { ?>
+    <div class="message message-notice notice">
+        <div class="wrapper" data-ui-id="messages-message-notice">
+            <div class="description">
+                <span><?= /* @noEscape */ __(
+                    'Your %1 is out of date. Update to %2 to get the latest improvements, fixes, and new features. View what\'s new in our <a href="%3" target="_blank">change log.</a>',
+                    $escaper->escapeHtml($moduleTitle),
+                    '<strong>v' . $escaper->escapeHtml($latestVersion) . '</strong>',
+                    $escaper->escapeHtml($block->getModuleChangeLogUrl() . $utmParam . '&utm_campaign=update-to-new-version')
+                ) ?></span>
+            </div>
+            <div class="actions">
+                <button id="mf-update" title="<?= $escaper->escapeHtmlAttr(__('Update Extension')) ?>" class="action-update"
+                        onclick="window.open('https://mage<?= /* @noEscape */ 'fan' ?>.com/downloadable/customer/products<?= $escaper->escapeHtmlAttr($utmParam) ?>&amp;utm_campaign=update-to-new-version', '_blank'); return false;">
+                    <span><?= /* @noEscape */ __('Update Extension') ?></span>
+                </button>
+                <button id="mf-remind-later-update" title="<?= $escaper->escapeHtmlAttr(__('Remind Later')) ?>" class="action-remind-later"
+                        onclick="mfRemindLater(this, 'update'); return false;">
+                    <span><?= /* @noEscape */ __('Remind Later') ?></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php } elseif ($canUpgradePlan) { ?>
+    <div class="message message-notice notice">
+        <div class="wrapper" data-ui-id="messages-message-notice">
+            <div class="description">
+                <span><?= /* @noEscape */ __(
+                    'Take your %1 further. Upgrade to the %2 plan and unlock more features.',
+                    '<strong>' . $escaper->escapeHtml($moduleTitle) . '</strong>',
+                    '<strong>' . $escaper->escapeHtml(ucfirst((string)$block->getModuleInfo()->getMaxPlan())) . '</strong>'
+                ); ?></span>
+            </div>
+            <div class="actions">
+                <button id="mf-upgrade-plan" title="<?= $escaper->escapeHtmlAttr(__('Upgrade Plan')) ?>" class="action-upgrade"
+                        onclick="window.open('<?= $escaper->escapeHtmlAttr($moduleUrl . '/pricing' . $utmParam) ?>&amp;utm_campaign=upgrade-plan', '_blank'); return false;">
+                    <span><?= /* @noEscape */ __('Upgrade Plan') ?></span>
+                </button>
+                <button id="mf-remind-later-upgrade" title="<?= $escaper->escapeHtmlAttr(__('Remind Later')) ?>" class="action-remind-later"
+                        onclick="mfRemindLater(this, 'upgrade'); return false;">
+                    <span><?= /* @noEscape */ __('Remind Later') ?></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+</div>
+<?php
+$remindLaterUrl = $escaper->escapeJs($escaper->escapeUrl(
+    $block->getUrl('mfcommunity/remindlater/index', ['_nosecret' => false])
+));
+$moduleNameJs   = $escaper->escapeJs($block->getModuleName());
+echo /* @NoEscape */ $block->getLayout()->createBlock(\Magefan\Community\Block\JsScript::class)->setMethod('sendBeacon')->toHtml();
+$script = <<<JS
+function mfRemindLater(el, event) {
+    var messageBlock = el.closest('.message');
+    if (messageBlock) {
+        messageBlock.style.transition = 'opacity 0.5s';
+        messageBlock.style.opacity = '0';
+        setTimeout(function() { messageBlock.style.display = 'none'; }, 500);
+        MagefanJs.sendBeacon({
+            url: '{$remindLaterUrl}',
+            data: { event: event, module: '{$moduleNameJs}' }
+        });
+    }
+}
+JS;
+echo $mfSecureRenderer->renderTag('script', [], $script, false);
+?>
