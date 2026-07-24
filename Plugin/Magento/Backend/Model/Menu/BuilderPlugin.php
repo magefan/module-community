@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Plugin\Magento\Backend\Model\Menu;
 
 use Magefan\Community\Api\GetModuleInfoInterface;
+use Magefan\Community\Api\GetModuleVersionInterface;
 use Magento\Backend\Model\Menu\Builder;
 use Magento\Backend\Model\Menu;
 use Magento\Backend\Model\Menu\ItemFactory;
@@ -60,6 +61,11 @@ class BuilderPlugin
     private $getModuleInfo;
 
     /**
+     * @var GetModuleVersionInterface
+     */
+    private $getModuleVersion;
+
+    /**
      * BuilderPlugin constructor.
      * @param ItemFactory $menuItemFactory
      * @param Config $config
@@ -67,6 +73,7 @@ class BuilderPlugin
      * @param ModuleListInterface $moduleList
      * @param Manager $moduleManager
      * @param GetModuleInfoInterface $getModuleInfo
+     * @param GetModuleVersionInterface|null $getModuleVersion
      */
     public function __construct(
         ItemFactory $menuItemFactory,
@@ -74,7 +81,8 @@ class BuilderPlugin
         Structure $structure,
         ModuleListInterface $moduleList,
         Manager $moduleManager,
-        GetModuleInfoInterface $getModuleInfo
+        GetModuleInfoInterface $getModuleInfo,
+        ?GetModuleVersionInterface $getModuleVersion = null
     ) {
         $this->menuItemFactory = $menuItemFactory;
         $this->config = $config;
@@ -83,6 +91,9 @@ class BuilderPlugin
         $this->moduleManager = $moduleManager;
         $this->magefanModules = $this->getMagefanModules();
         $this->getModuleInfo = $getModuleInfo;
+        $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
+            GetModuleVersionInterface::class
+        );
     }
 
     /**
@@ -236,36 +247,93 @@ class BuilderPlugin
                         $added[] = $id;
 
                         // extract module name from id e.g. Magefan_Blog::elements -> Magefan_Blog
-                        $module = explode('::', $id)[0];
-                        $module = explode('_', $module)[1];
-                        $url = !empty($modulesInfo[$module]) ? $modulesInfo[$module]->getDocumentationUrl() : '';
-                        // unique id per module to avoid conflicts
-                        $newItemId = $id . '_user_guides';
-                        if (!$url) {
-                            continue;
-                        }
+                        $moduleFullName = explode('::', $id)[0];
+                        $module = explode('_', $moduleFullName)[1];
+                        $moduleInfo = !empty($modulesInfo[$module]) ? $modulesInfo[$module] : null;
 
-                        try {
-                            $encodedUrl = 'mf-ug-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-ug-url-end';
-
-                            $userGuideItem = $this->menuItemFactory->create([
-                                'data' => [
-                                    'id'       => $newItemId,
-                                    'title'    => 'User Guides',
-                                    'module'   => 'Magefan_Community',
-                                    'resource' => 'Magefan_Community::elements',
-                                    'action'   => $encodedUrl,
-                                ]
-                            ]);
-
-                            $menu->add($userGuideItem, $id, 6000);
-
-                        } catch (\Exception $e) {
-                        }
+                        $this->addUserGuideLink($menu, $id, $moduleInfo);
+                        $this->addUpgradePlanLink($menu, $id, $moduleFullName, $moduleInfo);
                     }
                 }
             }
 
+        } catch (\Exception $e) {
+        }
+    }
+
+    /**
+     * Add "User Guides" sub menu item for a module
+     *
+     * @param Menu $menu
+     * @param string $id
+     * @param \Magento\Framework\DataObject|null $moduleInfo
+     * @return void
+     */
+    private function addUserGuideLink(Menu $menu, string $id, $moduleInfo): void
+    {
+        $url = $moduleInfo ? $moduleInfo->getDocumentationUrl() : '';
+        if (!$url) {
+            return;
+        }
+
+        try {
+            $encodedUrl = 'mf-ug-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-ug-url-end';
+
+            $userGuideItem = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => $id . '_user_guides',
+                    'title'    => 'User Guides',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                    'action'   => $encodedUrl,
+                ]
+            ]);
+
+            $menu->add($userGuideItem, $id, 6000);
+        } catch (\Exception $e) {
+        }
+    }
+
+    /**
+     * Add "Upgrade Plan" sub menu item for a module, if a higher paid plan is available for it
+     *
+     * @param Menu $menu
+     * @param string $id
+     * @param string $moduleFullName
+     * @param \Magento\Framework\DataObject|null $moduleInfo
+     * @return void
+     */
+    private function addUpgradePlanLink(Menu $menu, string $id, string $moduleFullName, $moduleInfo): void
+    {
+        if (!$moduleInfo || !$moduleInfo->getMaxPlan()) {
+            return;
+        }
+
+        $canUpgradeToMaxPlan = !$this->getModuleVersion->execute(
+            $moduleFullName . ucfirst($moduleInfo->getMaxPlan())
+        );
+
+        if (!$canUpgradeToMaxPlan) {
+            return;
+        }
+
+        $moduleUrl = $moduleInfo->getProductUrl() ?: 'https://magefan.com/';
+        $url = rtrim($moduleUrl, '/') . '/pricing';
+
+        try {
+            $encodedUrl = 'mf-upg-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-upg-url-end';
+
+            $upgradePlanItem = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => $id . '_upgrade_plan',
+                    'title'    => 'Upgrade Plan',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                    'action'   => $encodedUrl,
+                ]
+            ]);
+
+            $menu->add($upgradePlanItem, $id, 6001);
         } catch (\Exception $e) {
         }
     }
