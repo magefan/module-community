@@ -97,10 +97,18 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
      */
     protected function renderWidgetsInfo(AbstractElement $element): string
     {
-        $fieldConfig = $element->getFieldConfig();
-        $path = explode('/', (string)($fieldConfig['path'] ?? ''));
-        $section = ObjectManager::getInstance()->create(Section::class, ['name' => $path[0]]);
-        $baseModule = str_replace(['Plus', 'Extra'], '', $section->getModuleName());
+        $moduleName = $this->getModuleName();
+        if ($moduleName == 'Magefan_Community') {
+            $fieldConfig = $element->getFieldConfig();
+            $path = explode('/', (string)($fieldConfig['path'] ?? ''));
+            $section = ObjectManager::getInstance()->create(Section::class, ['name' => $path[0]]);
+            $moduleName = (string)$section->getModuleName();
+        }
+
+        if (!$moduleName) {
+            return '';
+        }
+        $baseModule = str_replace(['Magefan_','Plus', 'Extra'], '', $moduleName);
         $namespacePrefix = 'Magefan\\' . $baseModule;
         $moduleWidgets = [];
         foreach ($this->widgetModel->getWidgets() as $code => $widget) {
@@ -138,24 +146,25 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
 
         foreach ($moduleWidgets as $widget) {
             $name        = $this->escapeHtml($widget['name']);
-            $description = $this->escapeHtml($widget['description']);
+            $description = $widget['description'];
             $widgetUrl   = $this->escapeHtml(
                 $this->getUrl('adminhtml/widget_instance/new', ['mf_wcode' => $widget['code']])
             );
 
-            $html .= '<a href="' . $widgetUrl . '" target="blank" '
-                . ' style="display:flex;align-items:center;justify-content:space-between;gap:16px;'
-                . 'padding:14px 16px;border:1px solid #ececec;border-radius:8px;background:#fbfbfb;'
-                . 'text-decoration:none;transition:border-color 0.15s,background 0.15s;">'
+            $html .= '<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;'
+                . 'padding:14px 16px;border:1px solid #ececec;border-radius:8px;background:#fbfbfb;">'
                 . '<div>'
                 .   '<div style="font-size:14px;font-weight:600;color:#1a1a1a;">' . $name . '</div>'
                 .   ($description
                         ? '<div style="font-size:12.5px;color:#8f8f8f;margin-top:3px;">' . $description . '</div>'
                         : '')
                 . '</div>'
-                . '<span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;'
-                .   'color:#eb5202;white-space:nowrap;flex-shrink:0;">Open in Widgets ' . $chevron . '</span>'
-                . '</a>';
+                . '<a href="' . $widgetUrl . '" target="_blank"'
+                .   ' style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;'
+                .   'color:#eb5202;white-space:nowrap;flex-shrink:0;text-decoration:none;">'
+                .   'Open in Widgets ' . $chevron
+                . '</a>'
+                . '</div>';
         }
 
         $html .= '</div></div></div>';
