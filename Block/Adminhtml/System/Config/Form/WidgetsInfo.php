@@ -98,32 +98,21 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
     protected function renderWidgetsInfo(AbstractElement $element): string
     {
         $fieldConfig = $element->getFieldConfig();
-        $path        = explode('/', (string)($fieldConfig['path'] ?? ''));
-        $section     = ObjectManager::getInstance()->create(Section::class, ['name' => $path[0]]);
-        $moduleName  = 'Magefan_' . str_replace(['Plus', 'Extra'], '', $section->getModuleName());
-        $baseNamespace = str_replace('_', '\\', $moduleName);
-        $namespaces = [
-            $baseNamespace . '\\',
-            $baseNamespace . 'Plus\\',
-            $baseNamespace . 'Extra\\',
-        ];
+        $path = explode('/', (string)($fieldConfig['path'] ?? ''));
+        $section = ObjectManager::getInstance()->create(Section::class, ['name' => $path[0]]);
+        $baseModule = str_replace(['Plus', 'Extra'], '', $section->getModuleName());
+        $namespacePrefix = 'Magefan\\' . $baseModule;
         $moduleWidgets = [];
         foreach ($this->widgetModel->getWidgets() as $code => $widget) {
             $class = $widget['@']['type'] ?? '';
-            $matches = false;
-            foreach ($namespaces as $namespace) {
-                if (strpos($class, $namespace) === 0) {
-                    $matches = true;
-                    break;
-                }
-            }
-            if ($matches) {
+            if (strpos($class, $namespacePrefix) !== false) {
                 $moduleWidgets[] = [
                     'name'        => (string)($widget['name'] ?? ''),
                     'description' => (string)($widget['description'] ?? ''),
                     'code'        => $code,
                 ];
             }
+
         }
 
         if (empty($moduleWidgets)) {
@@ -151,10 +140,10 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
             $name        = $this->escapeHtml($widget['name']);
             $description = $this->escapeHtml($widget['description']);
             $widgetUrl   = $this->escapeHtml(
-                $this->getUrl('adminhtml/widget_instance/new', ['code' => $widget['code']])
+                $this->getUrl('adminhtml/widget_instance/new', ['mf_wcode' => $widget['code']])
             );
 
-            $html .= '<a href="' . $widgetUrl . '" '
+            $html .= '<a href="' . $widgetUrl . '" target="blank" '
                 . ' style="display:flex;align-items:center;justify-content:space-between;gap:16px;'
                 . 'padding:14px 16px;border:1px solid #ececec;border-radius:8px;background:#fbfbfb;'
                 . 'text-decoration:none;transition:border-color 0.15s,background 0.15s;">'

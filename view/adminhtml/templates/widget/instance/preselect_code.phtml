@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magefan\Community\Api\SecureHtmlRendererInterface $mfSecureRenderer */
+
+if (!isset($escaper)) {
+    /* Compatibility fix for old Magento versions */
+    $escaper = $block;
+}
+
+$widgetCode = $block->getRequest()->getParam('mf_wcode');
+if (!$widgetCode) {
+    return;
+}
+$script = "
+require(['jquery', 'domReady!'], function ($) {
+    const select = $('select[name=\"code\"]');
+    if (select.length && select.val() === '') {
+        select.val('" . $escaper->escapeJs($widgetCode) ."');
+    }
+});
+"?>
+<?= /* @noEscape */ $mfSecureRenderer->renderTag('script', [], $script, false) ?>
+
+
