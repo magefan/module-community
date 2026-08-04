@@ -50,32 +50,27 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
     /**
      * @param ModuleListInterface $moduleList
      * @param Context $context
+     * @param GetModuleVersionInterface $getModuleVersion
+     * @param SecureHtmlRendererInterface $mfSecureRenderer
+     * @param GetModuleInfoInterface $getModuleInfo
+     * @param \Magento\Widget\Model\Widget $widgetModel
      * @param array $data
-     * @param GetModuleVersionInterface|null $getModuleVersion
-     * @param SecureHtmlRendererInterface|null $mfSecureRenderer
-     * @param ModuleInfoInterface|null $getModuleInfo
-     * @param \Magento\Widget\Model\Widget|null $widgetModel
      */
     public function __construct(
         ModuleListInterface $moduleList,
         Context $context,
-        array $data = [],
-        ?GetModuleVersionInterface $getModuleVersion = null,
-        ?SecureHtmlRendererInterface $mfSecureRenderer = null,
-        ?GetModuleInfoInterface $getModuleInfo = null,
-        ?\Magento\Widget\Model\Widget $widgetModel = null
+        GetModuleVersionInterface $getModuleVersion,
+        SecureHtmlRendererInterface $mfSecureRenderer,
+        GetModuleInfoInterface $getModuleInfo,
+        \Magento\Widget\Model\Widget $widgetModel,
+        array $data = []
     ) {
         parent::__construct($context, $data);
         $this->moduleList = $moduleList;
-        $this->widgetModel = $widgetModel ?: \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(\Magento\Widget\Model\Widget::class);
-        $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
-            \Magefan\Community\Api\GetModuleVersionInterface::class
-        );
-        $this->mfSecureRenderer = $mfSecureRenderer ?: \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(SecureHtmlRendererInterface::class);
-        $this->getModuleInfo = $getModuleInfo ?: \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(GetModuleInfoInterface::class);
+        $this->widgetModel = $widgetModel;
+        $this->getModuleVersion = $getModuleVersion;
+        $this->mfSecureRenderer = $mfSecureRenderer;
+        $this->getModuleInfo = $getModuleInfo;
     }
 
     /**
@@ -135,12 +130,12 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
             . 'box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.06);margin-bottom:30px;">'
             . '<div style="padding:24px 28px 22px;">'
             . '<div style="font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:5px;">'
-            .   'Widgets included in this extension'
+            .   $this->escapeHtml(__('Widgets included in this extension'))
             . '</div>'
             . '<p style="margin:0 0 18px;font-size:13.5px;line-height:1.55;color:#767676;">'
-            .   'Add these widgets to any CMS page or block via'
-            .   ' <strong style="color:#4a4a4a;">Content > Elements > Widgets</strong>.'
-            .   ' Click a widget to open it in Magento and preview its options.'
+            .   $this->escapeHtml(__('You can add these widgets to any content like CMS pages, blocks, products description or via'))
+            .   ' <strong style="color:#4a4a4a;">Content > Elements > Widgets</strong>'
+
             . '</p>'
             . '<div style="display:flex;flex-direction:column;gap:8px;">';
 
