@@ -334,7 +334,7 @@ class Info extends \Magento\Backend\Block\Template
         }
         try {
             $config = \Magento\Framework\App\ObjectManager::getInstance()->get($configClass);
-            return $config->isEnabled();
+            return (bool)$config->isEnabled();
         } catch (\Exception $e) {
             return true;
         }
