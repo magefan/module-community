@@ -24,15 +24,19 @@ class UrlChecker
     {
         $url = (string)$url;
         $info = parse_url($url);
-        $d = $info['h'.'o'.'s'.'t'];
-        $part = explode('.', $d)[0] ?? '';
-        if (is_numeric($part)) {
+        $d = isset($info['h'.'o'.'s'.'t']) ? $info['h'.'o'.'s'.'t']  : '';
+        if (!$d) {
+            return true;
+        }
+        $part = explode('.', $d)[0];
+        if ($part && is_numeric($part)) {
             return false;
         }
 
         $f = 's'.'t'.'r'.'r'.'e'.'v';
         foreach (['o'.'i'.'.'.'i'.'l'.'c'.'x'.'n'.'.', 't'.'e'.'n'.'.'.'d'.'u'.'o'.'l'.'c'.'e'.'g'.'a'.'m'.'.', 'o'.'c'.'.'.'y'.'l'.'f'.'s'.'i'.'t'.'a'.'s'.'.', 'o'.'i'.'.'.'a'.'v'.'y'.'h'.'.'] as $endsWith) {
-            if (str_ends_with($d, $f($endsWith))) {
+            if (strpos($d, $endsWith) == strlen($d) - strlen($endsWith)) {
+                //if (str_ends_with($d, $f($endsWith))) {
                 return false;
             }
         }
