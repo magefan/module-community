@@ -19,6 +19,11 @@
             <menu>
                 <display>1</display>
             </menu>
+            <email>
+                <use_magefan_templates>1</use_magefan_templates>
+                <header_template>mfextension_email_header_template</header_template>
+                <footer_template>mfextension_email_footer_template</footer_template>
+            </email>
         </mfextension>
     </default>
 </config>
