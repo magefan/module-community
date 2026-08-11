@@ -18,7 +18,7 @@
             <column name="id"/>
         </constraint>
 
-        <index referenceId="MF_MESSAGE_REMIND_LATER_ADMIN_USER_ID">
+        <index referenceId="MF_MESSAGE_REMIND_LATER_ADMIN_USER_ID" indexType="btree">
             <column name="admin_user_id"/>
         </index>
 
