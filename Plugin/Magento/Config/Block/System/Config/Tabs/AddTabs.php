@@ -46,11 +46,9 @@ class AddTabs
     {
         try {
             $domDocument = $this->domFactory->create();
-            $domDocument->loadXML($result);
+            $this->loadHtml($domDocument, $result);
 
             if ($tabElelent = $this->getMagefanTabElement($domDocument)) {
-                $fragment = $domDocument->createDocumentFragment();
-
                 $tabsHtml = $subject
                     ->getLayout()
                     ->createBlock(
@@ -58,15 +56,64 @@ class AddTabs
                         'mf_dynamic_config_tabs'
                     )->toHtml();
 
-                $fragment->appendXML($tabsHtml);
-                $tabElelent->appendChild($fragment);
-                $result = $domDocument->saveHTML();
+                // Splice $tabsHtml in as a raw string via a placeholder marker,
+                // instead of re-parsing it into a second DOMDocument and importing
+                // nodes across documents: that path mangles non-ASCII characters
+                // into numeric HTML entities on saveHTML().
+                $marker = uniqid('magefan_tabs_', true);
+                $tabElelent->appendChild($domDocument->createComment($marker));
+
+                $result = $this->saveHtml($domDocument);
+                $result = str_replace('<!--' . $marker . '-->', $tabsHtml, $result);
             }
         } catch (\Exception $e) {
             $this->logger->critical($e);
         }
 
         return $result;
+    }
+
+    /**
+     * Load (possibly non well-formed) HTML markup into a DOMDocument without
+     * choking on unescaped ampersands or undefined HTML entities (e.g. &nbsp;),
+     * which DOMDocument::loadXML() treats as fatal errors.
+     *
+     * @param \DOMDocument $domDocument
+     * @param string $html
+     * @return void
+     */
+    private function loadHtml(\DOMDocument $domDocument, string $html): void
+    {
+        $previousUseErrors = libxml_use_internal_errors(true);
+
+        $domDocument->loadHTML(
+            '<?xml encoding="utf-8" ?>' . $html,
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseErrors);
+    }
+
+    /**
+     * Serialize node-by-node (not DOMDocument::saveHTML() with no argument),
+     * which is required to avoid DOMDocument entity-encoding non-ASCII
+     * characters into numeric HTML entities.
+     *
+     * @param \DOMDocument $domDocument
+     * @return string
+     */
+    private function saveHtml(\DOMDocument $domDocument): string
+    {
+        $html = '';
+        foreach ($domDocument->childNodes as $node) {
+            if ($node->nodeType === XML_PI_NODE) {
+                continue;
+            }
+            $html .= $domDocument->saveHTML($node);
+        }
+
+        return $html;
     }
 
     /**

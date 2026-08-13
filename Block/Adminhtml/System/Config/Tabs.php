@@ -215,8 +215,7 @@ class Tabs extends Template
      */
     private function resolveLabel(Section $section): string
     {
-        $label = $section->getLabel() ? (string)__($section->getLabel()) : '';
-        return $this->_escaper->escapeHtml($label);
+        return $section->getLabel() ? (string)__($section->getLabel()) : '';
     }
 
     /**
