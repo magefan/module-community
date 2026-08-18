@@ -119,7 +119,7 @@ var MagefanMenuManager = {
             if (groupTitleParent && groupTitleParent.nodeName === 'STRONG') {
                 var link = document.createElement('a');
                 link.href = "#";
-                 link.className = 'mf-submenu-group-title';
+                link.className = 'mf-submenu-group-title';
                 link.innerHTML = groupTitleParent.innerHTML;
 
                 groupTitleParent.replaceWith(link);
@@ -182,7 +182,7 @@ var MagefanMenuManager = {
             }
 
             var titleEl = parent.querySelector('.mf-submenu-group-title span') ||
-                          parent.querySelector('.submenu-group-title span');
+                parent.querySelector('.submenu-group-title span');
             var titleText = titleEl ? titleEl.textContent.trim() : '';
 
             self.addSubmenuHeader(submenu, titleText);
@@ -355,7 +355,7 @@ var MagefanMenuManager = {
 
         var getItemText = function(item) {
             var span = item.querySelector('.mf-submenu-group-title span') ||
-                       item.querySelector('.submenu-group-title span');
+                item.querySelector('.submenu-group-title span');
             return (span ? span.textContent : '').trim();
         };
 
@@ -407,7 +407,7 @@ var MagefanMenuManager = {
 
             if (baseItem) {
                 var titleEl = baseItem.querySelector('.submenu-group-title span') ||
-                              baseItem.querySelector('.mf-submenu-group-title span');
+                    baseItem.querySelector('.mf-submenu-group-title span');
                 if (titleEl) {
                     titleEl.textContent = 'General';
                     titleEl.setAttribute('data-original-text', 'General');
@@ -733,10 +733,11 @@ var MagefanMenuManager = {
         });
     }
 
-    function addUserGuideLinks() {
-        document.querySelectorAll('a[href*="mf-ug-url-start"]').forEach(function(link) {
-            var match =  link.getAttribute('href')
-                .match(/mf-ug-url-start(.+?)mf-ug-url-end/);
+    function addEncodedMenuLinks(marker, endMarker, utmCampaign) {
+        var regex = new RegExp(marker + '(.+?)' + endMarker);
+
+        document.querySelectorAll('a[href*="' + marker + '"]').forEach(function(link) {
+            var match = link.getAttribute('href').match(regex);
             if (!match) return;
 
             var encoded = match[1];
@@ -753,7 +754,8 @@ var MagefanMenuManager = {
 
             if (!decoded) return;
 
-            link.href = decoded + '?utm_source=admin&utm_medium=menu&utm_campaign=sub-guide';
+            var separator = decoded.indexOf('?') !== -1 ? '&' : '?';
+            link.href = decoded + separator + 'utm_source=admin&utm_medium=menu&utm_campaign=' + utmCampaign;
             link.target = '_blank';
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -762,6 +764,15 @@ var MagefanMenuManager = {
         });
     }
 
+    function addUserGuideLinks() {
+        addEncodedMenuLinks('mf-ug-url-start', 'mf-ug-url-end', 'sub-guide');
+    }
+
+    function addUpgradePlanLinks() {
+        addEncodedMenuLinks('mf-upg-url-start', 'mf-upg-url-end', 'upgrade-plan');
+    }
+
     addMainUserGuideAndMarketplaceLinks();
     addUserGuideLinks();
+    addUpgradePlanLinks();
 })();
