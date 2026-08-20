@@ -26,6 +26,7 @@ class MagefanGroupsProvider
 
     /**
      * Returns groups config.
+     *
      * Each group: ['name' => string, 'extensions' => [ModuleName, ...]]
      *
      * @return array

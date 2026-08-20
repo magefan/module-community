@@ -90,6 +90,9 @@ class UseMagefanEmailTemplates extends Value
     /**
      * Reset header/footer template values back to their own defaults when "Use Default" is selected
      *
+     * Deletes the stored header/footer template config values and invalidates the config cache
+     * so the defaults configured via {@see afterSave()} take effect immediately.
+     *
      * @inheritDoc
      */
     public function afterDelete()

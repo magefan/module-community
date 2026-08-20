@@ -38,6 +38,8 @@ class AddTabs
     }
 
     /**
+     * Inject the Magefan dynamic config tabs block into the rendered tabs HTML.
+     *
      * @param Tabs $subject
      * @param string $result
      * @return string
@@ -117,6 +119,8 @@ class AddTabs
     }
 
     /**
+     * Find the Magefan tab container element and strip its existing tab list.
+     *
      * @param \DOMDocument $domDocument
      * @return \DOMElement|null
      */

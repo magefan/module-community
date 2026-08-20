@@ -16,6 +16,7 @@ use Magefan\Community\Model\Config;
 use Magento\Config\Model\Config\Structure;
 use Magento\Framework\Module\Manager;
 use Magento\Framework\Module\ModuleListInterface;
+use Psr\Log\LoggerInterface;
 
 class BuilderPlugin
 {
@@ -60,6 +61,11 @@ class BuilderPlugin
     private $getModuleInfo;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * BuilderPlugin constructor.
      * @param ItemFactory $menuItemFactory
      * @param Config $config
@@ -67,6 +73,7 @@ class BuilderPlugin
      * @param ModuleListInterface $moduleList
      * @param Manager $moduleManager
      * @param GetModuleInfoInterface $getModuleInfo
+     * @param LoggerInterface $logger
      */
     public function __construct(
         ItemFactory $menuItemFactory,
@@ -74,7 +81,8 @@ class BuilderPlugin
         Structure $structure,
         ModuleListInterface $moduleList,
         Manager $moduleManager,
-        GetModuleInfoInterface $getModuleInfo
+        GetModuleInfoInterface $getModuleInfo,
+        LoggerInterface $logger
     ) {
         $this->menuItemFactory = $menuItemFactory;
         $this->config = $config;
@@ -83,6 +91,7 @@ class BuilderPlugin
         $this->moduleManager = $moduleManager;
         $this->magefanModules = $this->getMagefanModules();
         $this->getModuleInfo = $getModuleInfo;
+        $this->logger = $logger;
     }
 
     /**
@@ -208,6 +217,8 @@ class BuilderPlugin
     }
 
     /**
+     * Add a "User Guides" menu item under each Magefan module's admin menu section.
+     *
      * @param Menu $menu
      * @return void
      */
@@ -246,7 +257,9 @@ class BuilderPlugin
                         }
 
                         try {
-                            $encodedUrl = 'mf-ug-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-ug-url-end';
+                            $encodedUrl = 'mf-ug-url-start'
+                                . rtrim(strtr(base64_encode($url), '+/', '-_'), '=')
+                                . 'mf-ug-url-end';
 
                             $userGuideItem = $this->menuItemFactory->create([
                                 'data' => [
@@ -259,14 +272,14 @@ class BuilderPlugin
                             ]);
 
                             $menu->add($userGuideItem, $id, 6000);
-
                         } catch (\Exception $e) {
+                            $this->logger->critical($e);
                         }
                     }
                 }
             }
-
         } catch (\Exception $e) {
+            $this->logger->critical($e);
         }
     }
 

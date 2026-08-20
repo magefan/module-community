@@ -43,6 +43,7 @@ class Menu extends Template
 
     /**
      * Get Groups Json
+     *
      * @return string
      */
     public function getGroupsJson(): string
@@ -65,7 +66,9 @@ class Menu extends Template
 
     /**
      * Convert Magento module name to data-ui-id prefix.
+     *
      * Magefan_Seo => menu-magefan-seo-
+     *
      * @param string $moduleName
      * @return string
      */
