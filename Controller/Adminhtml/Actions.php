@@ -384,9 +384,16 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected function _deleteAction()
     {
         $ids = $this->getRequest()->getParam($this->_idKey);
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
+        if ($ids) {
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+        } else {
+            $filter = $this->_objectManager->create(\Magento\Ui\Component\MassAction\Filter::class);
+            $collection = $filter->getCollection(
+                $this->_objectManager->create($this->_modelClass)->getCollection()
+            );
+            $ids = $collection->getAllIds();
         }
 
         $error = false;
@@ -426,9 +433,16 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected function _massStatusAction()
     {
         $ids = $this->getRequest()->getParam($this->_idKey);
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
+        if ($ids) {
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+        } else {
+            $filter = $this->_objectManager->create(\Magento\Ui\Component\MassAction\Filter::class);
+            $collection = $filter->getCollection(
+                $this->_objectManager->create($this->_modelClass)->getCollection()
+            );
+            $ids = $collection->getAllIds();
         }
 
         $model = $this->_getModel(false);
@@ -448,10 +462,10 @@ abstract class Actions extends \Magento\Backend\App\Action
             }
 
             foreach ($ids as $id) {
-                $this->_objectManager->create($this->_modelClass)
-                    ->load($id)
-                    ->setData($this->_statusField, $status)
-                    ->save();
+                $object = $this->_objectManager->create($this->_modelClass)->load($id);
+                if ($object->getId()) {
+                    $object->setData($this->_statusField, $status)->save();
+                }
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $error = true;
