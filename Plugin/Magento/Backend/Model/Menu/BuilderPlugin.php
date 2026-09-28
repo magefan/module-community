@@ -67,6 +67,7 @@ class BuilderPlugin
 
     /**
      * BuilderPlugin constructor.
+     *
      * @param ItemFactory $menuItemFactory
      * @param Config $config
      * @param Structure $structure
