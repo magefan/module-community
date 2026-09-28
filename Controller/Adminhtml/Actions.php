@@ -644,7 +644,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      * @param string $itemId current active menu item
      * @return $this
      */
-    protected function _setActiveMenu($itemId)
+    protected function _setActiveMenu($itemId) // phpcs:ignore -- legacy action API kept for child controllers compatibility
     {
         /** @var $menuBlock \Magento\Backend\Block\Menu */
         $menuBlock = $this->_view->getLayout()->getBlock('menu');
