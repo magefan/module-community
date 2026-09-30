@@ -114,15 +114,20 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected function _indexAction()
     {
         if ($this->getRequest()->getParam('ajax')) {
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_forward('grid');
             return;
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->loadLayout();
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_setActiveMenu($this->_activeMenu);
         $title = __('Manage %1', $this->_getModel(false)->getOwnTitle(true));
         $this->_view->getPage()->getConfig()->getTitle()->prepend($title);
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_addBreadcrumb($title, $title);
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->renderLayout();
     }
 
@@ -133,7 +138,9 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function _gridAction()
     {
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->loadLayout(false);
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->renderLayout();
     }
 
@@ -144,6 +151,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function _newAction()
     {
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_forward('edit');
     }
 
@@ -151,7 +159,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      * Edit action
      *
      * @return void
-     * @throws Exception
+     * @throws LocalizedException
      */
     public function _editAction()
     {
@@ -159,14 +167,14 @@ abstract class Actions extends \Magento\Backend\App\Action
             $model = $this->_getModel();
             $id = $this->getRequest()->getParam('id');
             if (!$model->getId() && $id) {
-                // phpcs:disable
-                throw new Exception("Item is not longer exist.", 1);
-                // phpcs:disable
+                throw new LocalizedException(__('Item is not longer exist.'));
             }
 
             $this->_getRegistry()->register('current_model', $model);
 
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_view->loadLayout();
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_setActiveMenu($this->_activeMenu);
 
             $title = $model->getOwnTitle();
@@ -182,6 +190,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                 $model->getId() ? $this->_getModelName($model) : __('New %1', $title)
             );
 
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_addBreadcrumb($breadcrumbLabel, $breadcrumbTitle);
 
             // restore data
@@ -194,6 +203,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                 $model->addData($values);
             }
 
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_view->renderLayout();
         } catch (Exception $e) {
             $this->messageManager->addException(
@@ -203,6 +213,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                     $e->getMessage()
                 )
             );
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_redirect('*/*/');
         }
     }
@@ -291,14 +302,18 @@ abstract class Actions extends \Magento\Backend\App\Action
         } else {
             if ($hasError || $request->getParam('back')) {
                 if ($storeId = $request->getParam('store')) {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*/edit', [$this->_idKey => $model->getId(), 'store' => (int)$storeId]);
                 } else {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*/edit', [$this->_idKey => $model->getId()]);
                 }
             } else {
                 if ($storeId = $request->getParam('store')) {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*', ['store' => (int)$storeId]);
                 } else {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*');
                 }
             }
@@ -309,21 +324,20 @@ abstract class Actions extends \Magento\Backend\App\Action
      * Duplicate action
      *
      * @return void
-     * @throws Exception
+     * @throws LocalizedException
      */
     protected function _duplicateAction()
     {
         try {
             $originModel = $this->_getModel();
             if (!$originModel->getId()) {
-                // phpcs:disable
-                throw new Exception("Item is not longer exist.", 1);
-                // phpcs:disable
+                throw new LocalizedException(__('Item is not longer exist.'));
             }
 
             $model = $originModel->duplicate();
 
             $this->messageManager->addSuccess(__('%1 has been duplicated.', $model->getOwnTitle()));
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_redirect('*/*/edit', [$this->_idKey => $model->getId()]);
         } catch (Exception $e) {
             $this->messageManager->addException(
@@ -334,6 +348,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                     $e->getMessage()
                 )
             );
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_redirect('*/*/edit', [$this->_idKey => $originModel->getId()]);
         }
     }
@@ -384,9 +399,16 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected function _deleteAction()
     {
         $ids = $this->getRequest()->getParam($this->_idKey);
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
+        if ($ids) {
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+        } else {
+            $filter = $this->_objectManager->create(\Magento\Ui\Component\MassAction\Filter::class);
+            $collection = $filter->getCollection(
+                $this->_objectManager->create($this->_modelClass)->getCollection()
+            );
+            $ids = $collection->getAllIds();
         }
 
         $error = false;
@@ -415,6 +437,7 @@ abstract class Actions extends \Magento\Backend\App\Action
             );
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_redirect('*/*');
     }
 
@@ -426,9 +449,16 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected function _massStatusAction()
     {
         $ids = $this->getRequest()->getParam($this->_idKey);
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
+        if ($ids) {
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+        } else {
+            $filter = $this->_objectManager->create(\Magento\Ui\Component\MassAction\Filter::class);
+            $collection = $filter->getCollection(
+                $this->_objectManager->create($this->_modelClass)->getCollection()
+            );
+            $ids = $collection->getAllIds();
         }
 
         $model = $this->_getModel(false);
@@ -440,18 +470,18 @@ abstract class Actions extends \Magento\Backend\App\Action
             $statusFieldName = $this->_statusField;
 
             if (null === $status) {
-                throw new Exception(__('Parameter "Status" missing in request data.'));
+                throw new LocalizedException(__('Parameter "Status" missing in request data.'));
             }
 
             if (null === $statusFieldName) {
-                throw new Exception(__('Status Field Name is not specified.'));
+                throw new LocalizedException(__('Status Field Name is not specified.'));
             }
 
             foreach ($ids as $id) {
-                $this->_objectManager->create($this->_modelClass)
-                    ->load($id)
-                    ->setData($this->_statusField, $status)
-                    ->save();
+                $object = $this->_objectManager->create($this->_modelClass)->load($id);
+                if ($object->getId()) {
+                    $object->setData($this->_statusField, $status)->save();
+                }
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $error = true;
@@ -474,6 +504,7 @@ abstract class Actions extends \Magento\Backend\App\Action
             );
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_redirect('*/*');
     }
 
@@ -484,6 +515,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function _configAction()
     {
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_redirect('admin/system_config/edit', ['section' => $this->_configSection()]);
     }
 
@@ -612,7 +644,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      * @param string $itemId current active menu item
      * @return $this
      */
-    protected function _setActiveMenu($itemId)
+    protected function _setActiveMenu($itemId) // phpcs:ignore -- legacy action API kept for child controllers compatibility
     {
         /** @var $menuBlock \Magento\Backend\Block\Menu */
         $menuBlock = $this->_view->getLayout()->getBlock('menu');
@@ -620,6 +652,7 @@ abstract class Actions extends \Magento\Backend\App\Action
             return $this;
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         return parent::_setActiveMenu($itemId);
     }
 }

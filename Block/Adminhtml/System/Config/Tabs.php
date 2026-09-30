@@ -66,6 +66,8 @@ class Tabs extends Template
     }
 
     /**
+     * Retrieve the config tabs data structure for the template.
+     *
      * @return array[]
      */
     public function getConfigData(): array
@@ -75,6 +77,7 @@ class Tabs extends Template
 
     /**
      * Build a flat A-Z sorted list of groups and standalone extensions.
+     *
      * @return array[]
      */
     private function buildConfigStructure(): array
@@ -85,7 +88,7 @@ class Tabs extends Template
 
         foreach ($this->groupsProvider->get() as $group) {
             list($groupItems, $baseItem, $assigned) = $this->buildGroupItems($allActive, $group);
-            $assignedModules = array_merge($assignedModules, $assigned);
+            array_push($assignedModules, ...$assigned);
 
             if (empty($groupItems) && $baseItem === null) {
                 continue;
@@ -118,7 +121,9 @@ class Tabs extends Template
 
     /**
      * Extract sub-items and base item for a single group config entry.
+     *
      * Returns [groupItems, baseItem|null, assignedModuleNames].
+     *
      * @param array $allActive
      * @param array $group
      * @return array
@@ -151,6 +156,7 @@ class Tabs extends Template
 
     /**
      * Filters out extensions already assigned to groups using hash map lookups
+     *
      * @param array $allExtensions
      * @param array $assignedModules
      * @return array
@@ -171,6 +177,7 @@ class Tabs extends Template
 
     /**
      * Map Magento sections to internal data array
+     *
      * @return array
      */
     private function fetchMagefanSections(): array
@@ -195,6 +202,7 @@ class Tabs extends Template
 
     /**
      * Extract attributes from Section element
+     *
      * @param Section $section
      * @return array
      */
@@ -210,6 +218,8 @@ class Tabs extends Template
     }
 
     /**
+     * Resolve the translated section label.
+     *
      * @param Section $section
      * @return string
      */
@@ -219,6 +229,8 @@ class Tabs extends Template
     }
 
     /**
+     * Build the admin URL for a config section.
+     *
      * @param Section $section
      * @return string
      */
@@ -231,6 +243,8 @@ class Tabs extends Template
     }
 
     /**
+     * Sort a list of items in place by their sort order value.
+     *
      * @param array $list
      * @return void
      */
@@ -248,7 +262,9 @@ class Tabs extends Template
     }
 
     /**
-     * @return null
+     * Retrieve the children of the "magefan" config tab node, if it exists.
+     *
+     * @return \Magento\Config\Model\Config\Structure\ElementInterface[]|null
      */
     public function getMagefanConfigChildrenNode()
     {

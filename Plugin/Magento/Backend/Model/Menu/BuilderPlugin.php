@@ -18,6 +18,7 @@ use Magefan\Community\Model\SectionFactory;
 use Magento\Config\Model\Config\Structure;
 use Magento\Framework\Module\Manager;
 use Magento\Framework\Module\ModuleListInterface;
+use Psr\Log\LoggerInterface;
 
 class BuilderPlugin
 {
@@ -76,8 +77,14 @@ class BuilderPlugin
      */
     private $sectionFactory;
 
+     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     /**
      * BuilderPlugin constructor.
+     *
      * @param ItemFactory $menuItemFactory
      * @param Config $config
      * @param Structure $structure
@@ -86,6 +93,7 @@ class BuilderPlugin
      * @param GetModuleInfoInterface $getModuleInfo
      * @param GetModuleVersionInterface|null $getModuleVersion
      * @param SectionFactory|null $sectionFactory
+     * @param LoggerInterface $logger
      */
     public function __construct(
         ItemFactory $menuItemFactory,
@@ -94,6 +102,7 @@ class BuilderPlugin
         ModuleListInterface $moduleList,
         Manager $moduleManager,
         GetModuleInfoInterface $getModuleInfo,
+        LoggerInterface $logger,
         ?GetModuleVersionInterface $getModuleVersion = null,
         ?SectionFactory $sectionFactory = null
     ) {
@@ -104,6 +113,7 @@ class BuilderPlugin
         $this->moduleManager = $moduleManager;
         $this->magefanModules = $this->getMagefanModules();
         $this->getModuleInfo = $getModuleInfo;
+        $this->logger = $logger;
         $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
             GetModuleVersionInterface::class
         );
@@ -235,6 +245,8 @@ class BuilderPlugin
     }
 
     /**
+     * Add a "User Guides" menu item under each Magefan module's admin menu section.
+     *
      * @param Menu $menu
      * @return void
      */
@@ -272,8 +284,8 @@ class BuilderPlugin
                     }
                 }
             }
-
         } catch (\Exception $e) {
+            $this->logger->critical($e);
         }
     }
 
@@ -307,6 +319,7 @@ class BuilderPlugin
 
             $menu->add($userGuideItem, $id, 6000);
         } catch (\Exception $e) {
+            $this->logger->critical($e);
         }
     }
 
@@ -358,6 +371,7 @@ class BuilderPlugin
 
             $menu->add($upgradePlanItem, $id, 6001);
         } catch (\Exception $e) {
+            $this->logger->critical($e);
         }
     }
 

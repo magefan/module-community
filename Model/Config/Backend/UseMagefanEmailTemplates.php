@@ -61,7 +61,9 @@ class UseMagefanEmailTemplates extends Value
     }
 
     /**
-     * @inheritDoc
+     * Switch header/footer email templates between Magefan and Magento ones after save
+     *
+     * @return $this
      */
     public function afterSave()
     {
@@ -90,7 +92,10 @@ class UseMagefanEmailTemplates extends Value
     /**
      * Reset header/footer template values back to their own defaults when "Use Default" is selected
      *
-     * @inheritDoc
+     * Deletes the stored header/footer template config values and invalidates the config cache
+     * so the defaults configured via {@see afterSave()} take effect immediately.
+     *
+     * @return $this
      */
     public function afterDelete()
     {

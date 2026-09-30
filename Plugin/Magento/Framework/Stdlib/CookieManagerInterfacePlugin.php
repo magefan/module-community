@@ -18,7 +18,7 @@ class CookieManagerInterfacePlugin
     /**
      * Request parameter that tells Magefan to skip setting the PHP session cookie in the response.
      */
-    const NO_PHP_COOKIE_PARAM = 'magefan_no_php_cookie_resp';
+    public const NO_PHP_COOKIE_PARAM = 'magefan_no_php_cookie_resp';
 
     /**
      * @var RequestInterface

@@ -133,9 +133,11 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
             .   $this->escapeHtml(__('Widgets included in this extension:'))
             . '</div>'
             . '<p style="margin:0 0 18px;font-size:13.5px;line-height:1.55;color:#767676;">'
-            .   $this->escapeHtml(__('You can add these widgets to any content like CMS pages, blocks, products description or via'))
-            .   ' <strong style="color:#4a4a4a;">' . $this->escapeHtml(__('Content > Elements > Widgets')) . '</strong>.'
-
+            .   $this->escapeHtml(
+                __('You can add these widgets to any content like CMS pages, blocks, products description or via')
+            )
+            .   ' <strong style="color:#4a4a4a;">'
+                . $this->escapeHtml(__('Content > Elements > Widgets')) . '</strong>.'
             . '</p>'
             . '<div style="display:flex;flex-direction:column;gap:8px;">';
 
@@ -166,5 +168,4 @@ class WidgetsInfo extends \Magento\Config\Block\System\Config\Form\Field
 
         return $html;
     }
-
 }

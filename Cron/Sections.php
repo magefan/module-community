@@ -37,6 +37,7 @@ class Sections
 
     /**
      * Sections constructor.
+     *
      * @param ResourceConnection $resource
      * @param SectionFactory $sectionFactory
      * @param Info $info
@@ -74,7 +75,7 @@ class Sections
 
         $sections = [];
         foreach ($connection->fetchAll($select) as $config) {
-            $matches = false;
+            $matches = [];
             preg_match("/(.*)\/" . str_replace('/', '\/', $path) . "/", $config['path'], $matches);
             if (empty($matches[1])) {
                 continue;

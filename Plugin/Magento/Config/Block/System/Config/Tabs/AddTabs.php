@@ -38,6 +38,8 @@ class AddTabs
     }
 
     /**
+     * Inject the Magefan dynamic config tabs block into the rendered tabs HTML.
+     *
      * @param Tabs $subject
      * @param string $result
      * @return string
@@ -74,8 +76,9 @@ class AddTabs
     }
 
     /**
-     * Load (possibly non well-formed) HTML markup into a DOMDocument without
-     * choking on unescaped ampersands or undefined HTML entities (e.g. &nbsp;),
+     * Load (possibly non well-formed) HTML markup into a DOMDocument.
+     *
+     * Does not choke on unescaped ampersands or undefined HTML entities (e.g. &nbsp;),
      * which DOMDocument::loadXML() treats as fatal errors.
      *
      * @param \DOMDocument $domDocument
@@ -96,9 +99,10 @@ class AddTabs
     }
 
     /**
-     * Serialize node-by-node (not DOMDocument::saveHTML() with no argument),
-     * which is required to avoid DOMDocument entity-encoding non-ASCII
-     * characters into numeric HTML entities.
+     * Serialize DOMDocument to HTML node-by-node.
+     *
+     * DOMDocument::saveHTML() with no argument is not used, as it entity-encodes
+     * non-ASCII characters into numeric HTML entities.
      *
      * @param \DOMDocument $domDocument
      * @return string
@@ -117,6 +121,8 @@ class AddTabs
     }
 
     /**
+     * Find the Magefan tab container element and strip its existing tab list.
+     *
      * @param \DOMDocument $domDocument
      * @return \DOMElement|null
      */
