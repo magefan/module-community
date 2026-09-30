@@ -11,6 +11,7 @@ namespace Magefan\Community\Block\Adminhtml\System\Config\Form;
 use Magefan\Community\Api\GetModuleVersionInterface;
 use Magefan\Community\Api\SecureHtmlRendererInterface;
 use Magefan\Community\Api\GetModuleInfoInterface;
+use Magefan\Community\Model\SectionFactory;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Module\ModuleListInterface;
@@ -41,12 +42,18 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     protected $getModuleInfo;
 
     /**
+     * @var SectionFactory
+     */
+    protected $sectionFactory;
+
+    /**
      * @param ModuleListInterface $moduleList
      * @param Context $context
      * @param array $data
      * @param GetModuleVersionInterface|null $getModuleVersion
      * @param SecureHtmlRendererInterface|null $mfSecureRenderer
      * @param ModuleInfoInterface|null $getModuleInfo
+     * @param SectionFactory|null $sectionFactory
      */
     public function __construct(
         ModuleListInterface $moduleList,
@@ -54,7 +61,8 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         array $data = [],
         ?GetModuleVersionInterface $getModuleVersion = null,
         ?SecureHtmlRendererInterface $mfSecureRenderer = null,
-        ?GetModuleInfoInterface $getModuleInfo = null
+        ?GetModuleInfoInterface $getModuleInfo = null,
+        ?SectionFactory $sectionFactory = null
     ) {
         parent::__construct($context, $data);
         $this->moduleList = $moduleList;
@@ -65,6 +73,8 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             ->get(SecureHtmlRendererInterface::class);
         $this->getModuleInfo = $getModuleInfo ?: \Magento\Framework\App\ObjectManager::getInstance()
             ->get(GetModuleInfoInterface::class);
+        $this->sectionFactory = $sectionFactory ?: \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(SectionFactory::class);
     }
 
     /**
@@ -206,12 +216,20 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         <div class="col-actions">
             <div class="actions">';
         if ($canUpgradeToMaxPlan) {
-            $escapedUrl = $this->escapeHtml($moduleUrl . '/pricing'  . $utmParam);
+            $productKey = $this->getProductKey($element);
+
+            if ($productKey) {
+                $upgradeUrl = 'https://magefan.com/mfplanupgrade/upgrade/index?product_key=' . urlencode($productKey);
+            } else {
+                $upgradeUrl = $moduleUrl . '/pricing' . $utmParam . '&utm_campaign=upgrade-plan';
+            }
+
+            $escapedUrl = $this->escapeHtml($upgradeUrl);
             $html .= '<button
             id="upgrade"
             title="Upgrade Plan"
             class="action-upgrade"
-            onclick="window.open(\'' . $escapedUrl . '&utm_campaign=upgrade-plan\', \'_blank\'); return false;"
+            onclick="window.open(\'' . $escapedUrl . '\', \'_blank\'); return false;"
             >
             <span>Upgrade Plan</span>
             </button>';
@@ -349,6 +367,26 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
         ';
 
         return $html;
+    }
+
+    /**
+     * Get configured product key for the current section, if any
+     *
+     * @param AbstractElement $element
+     * @return string|null
+     */
+    protected function getProductKey(AbstractElement $element)
+    {
+        $fieldConfig = $element->getFieldConfig();
+        $sectionName = !empty($fieldConfig['path']) ? explode('/', $fieldConfig['path'])[0] : '';
+
+        if (!$sectionName) {
+            return null;
+        }
+
+        $productKey = $this->sectionFactory->create(['name' => $sectionName])->getKey();
+
+        return $productKey ?: null;
     }
 
     /**

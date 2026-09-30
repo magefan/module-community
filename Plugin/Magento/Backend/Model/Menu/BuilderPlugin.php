@@ -9,10 +9,12 @@ declare(strict_types=1);
 namespace Magefan\Community\Plugin\Magento\Backend\Model\Menu;
 
 use Magefan\Community\Api\GetModuleInfoInterface;
+use Magefan\Community\Api\GetModuleVersionInterface;
 use Magento\Backend\Model\Menu\Builder;
 use Magento\Backend\Model\Menu;
 use Magento\Backend\Model\Menu\ItemFactory;
 use Magefan\Community\Model\Config;
+use Magefan\Community\Model\SectionFactory;
 use Magento\Config\Model\Config\Structure;
 use Magento\Framework\Module\Manager;
 use Magento\Framework\Module\ModuleListInterface;
@@ -53,12 +55,27 @@ class BuilderPlugin
     /**
      * @var array
      */
+    private $allConfigSections;
+
+    /**
+     * @var array
+     */
     private $magefanModules;
 
     /**
      * @var GetModuleInfoInterface
      */
     private $getModuleInfo;
+
+    /**
+     * @var GetModuleVersionInterface
+     */
+    private $getModuleVersion;
+
+    /**
+     * @var SectionFactory
+     */
+    private $sectionFactory;
 
     /**
      * @var LoggerInterface
@@ -74,6 +91,8 @@ class BuilderPlugin
      * @param ModuleListInterface $moduleList
      * @param Manager $moduleManager
      * @param GetModuleInfoInterface $getModuleInfo
+     * @param GetModuleVersionInterface|null $getModuleVersion
+     * @param SectionFactory|null $sectionFactory
      * @param LoggerInterface $logger
      */
     public function __construct(
@@ -83,7 +102,9 @@ class BuilderPlugin
         ModuleListInterface $moduleList,
         Manager $moduleManager,
         GetModuleInfoInterface $getModuleInfo,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ?GetModuleVersionInterface $getModuleVersion = null,
+        ?SectionFactory $sectionFactory = null
     ) {
         $this->menuItemFactory = $menuItemFactory;
         $this->config = $config;
@@ -93,6 +114,12 @@ class BuilderPlugin
         $this->magefanModules = $this->getMagefanModules();
         $this->getModuleInfo = $getModuleInfo;
         $this->logger = $logger;
+        $this->getModuleVersion = $getModuleVersion ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
+            GetModuleVersionInterface::class
+        );
+        $this->sectionFactory = $sectionFactory ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
+            SectionFactory::class
+        );
     }
 
     /**
@@ -248,37 +275,101 @@ class BuilderPlugin
                         $added[] = $id;
 
                         // extract module name from id e.g. Magefan_Blog::elements -> Magefan_Blog
-                        $module = explode('::', $id)[0];
-                        $module = explode('_', $module)[1];
-                        $url = !empty($modulesInfo[$module]) ? $modulesInfo[$module]->getDocumentationUrl() : '';
-                        // unique id per module to avoid conflicts
-                        $newItemId = $id . '_user_guides';
-                        if (!$url) {
-                            continue;
-                        }
+                        $moduleFullName = explode('::', $id)[0];
+                        $module = explode('_', $moduleFullName)[1];
+                        $moduleInfo = !empty($modulesInfo[$module]) ? $modulesInfo[$module] : null;
 
-                        try {
-                            $encodedUrl = 'mf-ug-url-start'
-                                . rtrim(strtr(base64_encode($url), '+/', '-_'), '=')
-                                . 'mf-ug-url-end';
-
-                            $userGuideItem = $this->menuItemFactory->create([
-                                'data' => [
-                                    'id'       => $newItemId,
-                                    'title'    => 'User Guides',
-                                    'module'   => 'Magefan_Community',
-                                    'resource' => 'Magefan_Community::elements',
-                                    'action'   => $encodedUrl,
-                                ]
-                            ]);
-
-                            $menu->add($userGuideItem, $id, 6000);
-                        } catch (\Exception $e) {
-                            $this->logger->critical($e);
-                        }
+                        $this->addUserGuideLink($menu, $id, $moduleInfo);
+                        $this->addUpgradePlanLink($menu, $id, $moduleFullName, $moduleInfo);
                     }
                 }
             }
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+        }
+    }
+
+    /**
+     * Add "User Guides" sub menu item for a module
+     *
+     * @param Menu $menu
+     * @param string $id
+     * @param \Magento\Framework\DataObject|null $moduleInfo
+     * @return void
+     */
+    private function addUserGuideLink(Menu $menu, string $id, $moduleInfo): void
+    {
+        $url = $moduleInfo ? $moduleInfo->getDocumentationUrl() : '';
+        if (!$url) {
+            return;
+        }
+
+        try {
+            $encodedUrl = 'mf-ug-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-ug-url-end';
+
+            $userGuideItem = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => $id . '_user_guides',
+                    'title'    => 'User Guides',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                    'action'   => $encodedUrl,
+                ]
+            ]);
+
+            $menu->add($userGuideItem, $id, 6000);
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
+        }
+    }
+
+    /**
+     * Add "Upgrade Plan" sub menu item for a module, if a higher paid plan is available for it
+     *
+     * @param Menu $menu
+     * @param string $id
+     * @param string $moduleFullName
+     * @param \Magento\Framework\DataObject|null $moduleInfo
+     * @return void
+     */
+    private function addUpgradePlanLink(Menu $menu, string $id, string $moduleFullName, $moduleInfo): void
+    {
+        if (!$moduleInfo || !$moduleInfo->getMaxPlan()) {
+            return;
+        }
+
+        $canUpgradeToMaxPlan = !$this->getModuleVersion->execute(
+            $moduleFullName . ucfirst($moduleInfo->getMaxPlan())
+        );
+
+        if (!$canUpgradeToMaxPlan) {
+            return;
+        }
+
+        $productKey = $this->getProductKeyForModule($moduleFullName);
+
+        if ($productKey) {
+            $url = 'https://magefan.com/mfplanupgrade/upgrade/index?product_key=' . urlencode($productKey);
+        } else {
+            $url = ($moduleInfo->getProductUrl())
+                ?  rtrim( $moduleInfo->getProductUrl(), '/') . '/pricing'
+                : 'https://magefan.com/';
+        }
+
+        try {
+            $encodedUrl = 'mf-upg-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-upg-url-end';
+
+            $upgradePlanItem = $this->menuItemFactory->create([
+                'data' => [
+                    'id'       => $id . '_upgrade_plan',
+                    'title'    => 'Upgrade Plan',
+                    'module'   => 'Magefan_Community',
+                    'resource' => 'Magefan_Community::elements',
+                    'action'   => $encodedUrl,
+                ]
+            ]);
+
+            $menu->add($upgradePlanItem, $id, 6001);
         } catch (\Exception $e) {
             $this->logger->critical($e);
         }
@@ -318,9 +409,32 @@ class BuilderPlugin
                 $mName =  $this->getModuleNameByResource($section['resource']);
                 $this->configSections[$mName] = $section;
             }
+
+            $this->allConfigSections = $this->configSections;
         }
 
         return isset($this->configSections[$moduleName]) ? $this->configSections[$moduleName] : null;
+    }
+
+    /**
+     * Get configured product key for a Magefan module, if any
+     *
+     * @param string $moduleFullName
+     * @return string|null
+     */
+    private function getProductKeyForModule(string $moduleFullName): ?string
+    {
+        // ensure sections are loaded, regardless of whether createMenuItem() already consumed them
+        $this->getConfigSections($moduleFullName);
+
+        $sectionKey = $this->allConfigSections[$moduleFullName]['key'] ?? null;
+        if (!$sectionKey) {
+            return null;
+        }
+
+        $productKey = $this->sectionFactory->create(['name' => $sectionKey])->getKey();
+
+        return $productKey ?: null;
     }
 
     /**
