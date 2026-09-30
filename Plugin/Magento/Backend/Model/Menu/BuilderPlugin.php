@@ -77,7 +77,7 @@ class BuilderPlugin
      */
     private $sectionFactory;
 
-     /**
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -351,11 +351,11 @@ class BuilderPlugin
         if ($productKey) {
             $url = 'https://magefan.com/mfplanupgrade/upgrade/index?product_key=' . urlencode($productKey);
         } else {
-            $moduleUrl = $moduleInfo->getProductUrl() ?: 'https://magefan.com/';
-            $url = rtrim($moduleUrl, '/') . '/pricing'
-                . '?utm_source=admin&utm_medium=menu&utm_campaign=upgrade-plan';
+            $url = ($moduleInfo->getProductUrl())
+                ?  rtrim( $moduleInfo->getProductUrl(), '/') . '/pricing'
+                : 'https://magefan.com/';
         }
-        
+
         try {
             $encodedUrl = 'mf-upg-url-start' . rtrim(strtr(base64_encode($url), '+/', '-_'), '=') . 'mf-upg-url-end';
 
