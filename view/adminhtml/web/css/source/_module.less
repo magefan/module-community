@@ -123,6 +123,29 @@
                         font-size: 1.6rem;
                     }
 
+                    // Search hints: matching children under a top item
+                    .mf-menu-search-hints {
+                        display: flex;
+                        flex-direction: column;
+                        padding: 0 0 8px 20px;
+                    }
+                    .mf-menu-search-hint {
+                        color: #aaa6a0;
+                        font-size: 1.2rem;
+                        line-height: 1.8;
+                        text-decoration: none;
+                        &:hover {
+                            color: #f7f3eb;
+                            text-decoration: underline;
+                        }
+                        mark {
+                            color: inherit;
+                        }
+                    }
+                    .mf-menu-search-hint-separator {
+                        padding: 0 4px;
+                    }
+
                     // Submenu 2
                     .submenu {
                         display: none;

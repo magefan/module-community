@@ -412,6 +412,7 @@ var MagefanMenuManager = {
                     titleEl.textContent = 'General';
                     titleEl.setAttribute('data-original-text', 'General');
                 }
+                baseItem.setAttribute('data-mf-group-base', '1');
                 groupItems.unshift(baseItem);
             }
 
@@ -532,46 +533,179 @@ var MagefanMenuManager = {
      * Handle search input
      */
     handleSearch: function(searchInput, searchClose, items) {
-        var searchText = searchInput.value.toLowerCase().trim();
+        var searchText = searchInput.value.trim();
+        var regex = this.buildSearchRegex(searchText);
 
         // Toggle close button visibility
         searchClose.classList.toggle('_show', searchText.length > 0);
 
         items.forEach(function(item) {
-            var titleSpan = item.querySelector('.mf-submenu-group-title span');
-            if (!titleSpan) return;
-
-            var titleText = titleSpan.textContent.toLowerCase();
-            var isMatch = searchText === '' || titleText.indexOf(searchText) !== -1;
-
-            // Show/hide item
-            item.style.display = isMatch ? '' : 'none';
-
-            // Highlight matching text
-            this.highlightText(titleSpan, searchText, isMatch);
+            var hints = [];
+            item.style.display = this.filterMenuItem(item, regex, hints, null) ? '' : 'none';
+            this.renderSearchHints(item, hints);
         }, this);
+    },
+
+    /**
+     * Build a case-insensitive regex that ignores spaces, dashes and underscores,
+     * so "crosslink" matches "Cross Links"; null for an empty search
+     */
+    buildSearchRegex: function(searchText) {
+        var self = this;
+        var chars = searchText.replace(/[\s\-_]+/g, '').split('');
+
+        if (!chars.length) {
+            return null;
+        }
+
+        return new RegExp(chars.map(function(char) {
+            return self.escapeRegex(char);
+        }).join('[\\s\\-_]*'), 'i');
+    },
+
+    /**
+     * Show/hide the children (group modules, menu links) of a menu item by the search and
+     * return whether the item or any child matches; matching children are added to hints
+     * with their title path (path is null for top items, which get no hint of their own)
+     */
+    filterMenuItem: function(item, regex, hints, path) {
+        var title = item.querySelector('.mf-submenu-group-title span, .submenu-group-title span, a span');
+        var isMatch = !regex || (!!title && regex.test(this.getOriginalText(title)));
+        var hasMatchingChild = false;
+
+        if (title) {
+            this.highlightText(title, regex, isMatch);
+        }
+
+        if (regex && isMatch && path) {
+            hints.push({item: item, parts: path.concat(title)});
+        }
+
+        // The group's base module is titled "General", so leave it out of hint paths
+        var childPath = !path ? [] : (item.hasAttribute('data-mf-group-base') ? path : path.concat(title));
+
+        this.getChildMenuItems(item).forEach(function(child) {
+            // A matching item keeps all its children visible
+            var childMatch = this.filterMenuItem(child, isMatch ? null : regex, hints, childPath);
+
+            child.style.display = childMatch ? '' : 'none';
+            hasMatchingChild = hasMatchingChild || childMatch;
+        }, this);
+
+        return isMatch || hasMatchingChild;
+    },
+
+    /**
+     * Get the direct child menu items of an item: group modules and menu links
+     */
+    getChildMenuItems: function(item) {
+        return Array.from(item.querySelectorAll('li.level-2, li[data-mf-level2]')).filter(function(li) {
+            return li.parentElement.closest('li.level-1') === item;
+        });
+    },
+
+    /**
+     * List the matching children under a top menu item, so it is clear what it contains;
+     * a menu link hint follows the link, a module hint opens its panel
+     */
+    renderSearchHints: function(item, hints) {
+        var self = this;
+        var maxHints = 5;
+
+        if (item.mfSearchHints) {
+            item.removeChild(item.mfSearchHints);
+            item.mfSearchHints = null;
+        }
+
+        if (!hints.length) {
+            return;
+        }
+
+        var container = document.createElement('div');
+        container.className = 'mf-menu-search-hints';
+
+        hints.slice(0, maxHints).forEach(function(hint) {
+            var link = hint.item.hasAttribute('data-mf-level2') ? null : hint.item.querySelector('a');
+            var hintLink = document.createElement('a');
+
+            hintLink.className = 'mf-menu-search-hint';
+            hintLink.href = link ? link.href : '#';
+            hintLink.target = link ? link.target : '';
+            hintLink.innerHTML = hint.parts.map(function(part) {
+                return part.innerHTML;
+            }).join(' <span class="mf-menu-search-hint-separator">&rsaquo;</span> ');
+
+            hintLink.addEventListener('click', function(e) {
+                // Don't let the click toggle the item's own panel
+                e.stopPropagation();
+                if (!link) {
+                    e.preventDefault();
+                    self.openMenuItem(item, hint.item);
+                }
+            });
+
+            container.appendChild(hintLink);
+        });
+
+        if (hints.length > maxHints) {
+            var moreLink = document.createElement('a');
+            moreLink.className = 'mf-menu-search-hint';
+            moreLink.href = '#';
+            moreLink.textContent = '+' + (hints.length - maxHints) + ' more';
+            moreLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.openMenuItem(item);
+            });
+            container.appendChild(moreLink);
+        }
+
+        var title = item.querySelector('.mf-submenu-group-title, .submenu-group-title');
+        item.insertBefore(container, title ? title.nextSibling : item.firstChild);
+        item.mfSearchHints = container;
+    },
+
+    /**
+     * Open a top menu item panel and, optionally, one of its module panels
+     */
+    openMenuItem: function(item, module) {
+        if (!item.classList.contains('active')) {
+            this.toggleSubmenu(item);
+        }
+
+        if (module && !module.classList.contains('active')) {
+            this.toggleLevel2Submenu(module);
+        }
+    },
+
+    /**
+     * Get element text before any highlighting
+     */
+    getOriginalText: function(element) {
+        if (!element.hasAttribute('data-original-text')) {
+            element.setAttribute('data-original-text', element.textContent);
+        }
+
+        return element.getAttribute('data-original-text');
     },
 
     /**
      * Highlight matching text
      */
-    highlightText: function(titleSpan, searchText, isMatch) {
-        var originalText = titleSpan.getAttribute('data-original-text') || titleSpan.textContent;
+    highlightText: function(titleSpan, regex, isMatch) {
+        var self = this;
+        var originalText = this.getOriginalText(titleSpan);
 
-        // Store original text on first search
-        if (!titleSpan.getAttribute('data-original-text')) {
-            titleSpan.setAttribute('data-original-text', originalText);
-        }
-
-        if (searchText !== '' && isMatch) {
-            var regex = new RegExp('(' + this.escapeRegex(searchText) + ')', 'gi');
-            titleSpan.innerHTML = originalText.replace(
-                regex,
-                '<mark style="background: #eb5202;">$1</mark>'
-            );
-        } else {
+        if (!regex || !isMatch) {
             titleSpan.textContent = originalText;
+            return;
         }
+
+        // With a capturing group, odd split parts are the matches
+        titleSpan.innerHTML = originalText.split(new RegExp('(' + regex.source + ')', 'gi')).map(function(part, i) {
+            part = self.escapeHtml(part);
+            return i % 2 ? '<mark style="background: #eb5202;">' + part + '</mark>' : part;
+        }).join('');
     },
 
     /**
@@ -582,24 +716,18 @@ var MagefanMenuManager = {
     },
 
     /**
+     * Escape HTML special characters
+     */
+    escapeHtml: function(text) {
+        return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    },
+
+    /**
      * Clear search and reset items
      */
     clearSearch: function(searchInput, searchClose, items) {
         searchInput.value = '';
-        searchClose.classList.remove('_show');
-
-        items.forEach(function(item) {
-            item.style.display = '';
-
-            var titleSpan = item.querySelector('.mf-submenu-group-title span');
-            if (titleSpan) {
-                var originalText = titleSpan.getAttribute('data-original-text');
-                if (originalText) {
-                    titleSpan.textContent = originalText;
-                }
-            }
-        });
-
+        this.handleSearch(searchInput, searchClose, items);
         searchInput.focus();
     },
 
