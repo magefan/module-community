@@ -1,0 +1,41 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+
+/**
+ * Promo page of Plus/Extra feature, content comes from layout arguments.
+ *
+ * @var \Magefan\Community\Block\Adminhtml\Promo $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$plan = (string)$block->getData('plan');
+$features = (array)$block->getData('features');
+?>
+<div class="mf-promo-page">
+    <?php if ($block->getData('badge')): ?>
+        <div class="mf-promo-badge mf-promo-badge--<?= $escaper->escapeHtmlAttr($plan) ?>">
+            <?= $escaper->escapeHtml($block->getData('badge')) ?>
+        </div>
+    <?php endif; ?>
+    <h2 class="mf-promo-title"><?= $escaper->escapeHtml($block->getData('title')) ?></h2>
+    <?php if ($block->getData('description')): ?>
+        <p class="mf-promo-description"><?= $escaper->escapeHtml($block->getData('description')) ?></p>
+    <?php endif; ?>
+
+    <?php if ($features): ?>
+        <ul class="mf-promo-features">
+            <?php foreach ($features as $feature): ?>
+                <li><?= $escaper->escapeHtml($feature) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+    <br>
+    <a class="action-primary mf-promo-btn"
+       href="<?= $escaper->escapeUrl($block->getUpgradePlanUrl()) ?>"
+       target="_blank">
+        <?= $escaper->escapeHtml($block->getData('button_label')) ?>
+    </a>
+</div>
