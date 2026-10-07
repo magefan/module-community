@@ -167,6 +167,11 @@ class Info extends \Magento\Backend\Block\Template
         $request = $this->getRequest();
         $frontName = $request->getRouteName();
 
+        // Community's own pages (e.g. promo pages) are not an extension page
+        if ($frontName === 'mfcommunity') {
+            return $this->moduleNameCache = '';
+        }
+
         if ($frontName) {
             $modules = $this->routeConfig->getModulesByFrontName($frontName, 'adminhtml');
             foreach ($modules as $module) {
@@ -334,9 +339,7 @@ class Info extends \Magento\Backend\Block\Template
         }
         try {
             $config = \Magento\Framework\App\ObjectManager::getInstance()->get($configClass);
-            if (!method_exists($config, 'isEnabled')) {
-                return true;
-            }
+
             return (bool)$config->isEnabled();
         } catch (\Exception $e) {
             return true;
