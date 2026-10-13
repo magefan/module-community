@@ -91,9 +91,9 @@ class BuilderPlugin
      * @param ModuleListInterface $moduleList
      * @param Manager $moduleManager
      * @param GetModuleInfoInterface $getModuleInfo
+     * @param LoggerInterface $logger
      * @param GetModuleVersionInterface|null $getModuleVersion
      * @param SectionFactory|null $sectionFactory
-     * @param LoggerInterface $logger
      */
     public function __construct(
         ItemFactory $menuItemFactory,
@@ -352,7 +352,7 @@ class BuilderPlugin
             $url = 'https://magefan.com/mfplanupgrade/upgrade/index?product_key=' . urlencode($productKey);
         } else {
             $url = ($moduleInfo->getProductUrl())
-                ?  rtrim( $moduleInfo->getProductUrl(), '/') . '/pricing'
+                ? rtrim($moduleInfo->getProductUrl(), '/') . '/pricing'
                 : 'https://magefan.com/';
         }
 
