@@ -21,6 +21,8 @@ class Config
     public const XML_PATH_RECEIVE_NEWS = 'mfextension/notification/news';
     public const XML_PATH_RECEIVE_TIPS_AND_TRICKS = 'mfextension/notification/tip_trick';
     public const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'mfextension/notification/general';
+    public const XML_PATH_RECEIVE_REVIEW = 'mfextension/notification/review';
+
 
     /**
      * Display Menu
@@ -109,6 +111,20 @@ class Config
     {
         return $this->getConfig(
             self::XML_PATH_RECEIVE_GENERAL_INFORMATION,
+            $storeId
+        );
+    }
+
+    /**
+     * Receive Review
+     *
+     * @param null $storeId
+     * @return bool
+     */
+    public function receiveReview($storeId = null): bool
+    {
+        return (bool)$this->getConfig(
+            self::XML_PATH_RECEIVE_REVIEW,
             $storeId
         );
     }
