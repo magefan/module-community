@@ -3,6 +3,9 @@
  * Copyright © Magefan (support@magefan.com). All rights reserved.
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
+
+declare(strict_types=1);
+
 namespace Magefan\Community\Setup\Patch\Data;
 
 use Magento\Framework\Setup\Patch\DataPatchInterface;
@@ -25,12 +28,13 @@ class UpdateWelcomeBlogPost implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Replace text
+     *
+     * @return void
      */
     public function apply()
     {
         $this->moduleDataSetup->getConnection()->startSetup();
-
 
         $connection = $this->moduleDataSetup->getConnection();
         $tableName = $this->moduleDataSetup->getTable('magefan_blog_post');
@@ -88,7 +92,9 @@ class UpdateWelcomeBlogPost implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Get patch dependency's
+     *
+     * @return array|string[]
      */
     public static function getDependencies()
     {
@@ -96,7 +102,9 @@ class UpdateWelcomeBlogPost implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Get patch alias
+     *
+     * @return array|string[]
      */
     public function getAliases()
     {

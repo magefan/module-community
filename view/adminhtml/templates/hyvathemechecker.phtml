@@ -9,25 +9,33 @@
 <?php
 /**
  * @var $block \Magefan\Community\Block\Adminhtml\HyvaThemeChecker
+ * @var $escaper \Magento\Framework\Escaper
  */
+?>
+<?php
+if (!isset($escaper)) {
+    /* Compatability fix for old Magento versions */
+    $escaper = $block;
+}
 ?>
 <?php if ($items = $block->getWitchModuleIsInstalled()) { ?>
     <div class="messages">
         <div class="message message-notice notice">
             <div data-ui-id="messages-message-notice" class="linv">
-                <?= $block->escapeHtml(__('It looks like you are using the Hyva theme, ' .
+                <?= $escaper->escapeHtml(__('It looks like you are using the Hyva theme, ' .
                     'but the Hyva Magefan extensions for Hyva compatibility are not installed. ' .
-                    'Please install these packages for the proper functioning of the modules on the Hyva theme. Run the CLI commands:')) ?>
+                    'Please install these packages for the proper functioning of the modules on the Hyva theme. ' .
+                    'Run the CLI commands:')) ?>
                 <div>
                     <?php
                         $commands = '';
-                        foreach ($items as $name => $packageName) {
-                            $commands .= 'composer require hyva-themes/magento2-compat-module-fallback' . PHP_EOL;
-                            $commands .= 'composer require ' . $block->escapeHtml($packageName) . PHP_EOL;
-                            $commands .= 'bin/magento setup:upgrade' . PHP_EOL;
-                            $commands .= 'bin/magento setup:di:compile' . PHP_EOL;
-                            $commands .= 'bin/magento setup:static-content:deploy' . PHP_EOL;
-                        }
+                    foreach ($items as $name => $packageName) {
+                        $commands .= 'composer require hyva-themes/magento2-compat-module-fallback' . PHP_EOL;
+                        $commands .= 'composer require ' . $escaper->escapeHtml($packageName) . PHP_EOL;
+                        $commands .= 'bin/magento setup:upgrade' . PHP_EOL;
+                        $commands .= 'bin/magento setup:di:compile' . PHP_EOL;
+                        $commands .= 'bin/magento setup:static-content:deploy' . PHP_EOL;
+                    }
                     ?>
                     <pre><?=  /* @noEscape */  $commands ?>
                 </div>

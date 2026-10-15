@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © Magefan (support@magefan.com). All rights reserved.
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
@@ -13,6 +12,8 @@ interface SecureHtmlRendererInterface
 {
 
     /**
+     * Secure html render
+     *
      * @param string $tagName
      * @param array $attributes
      * @param string|null $content

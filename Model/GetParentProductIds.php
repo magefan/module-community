@@ -10,6 +10,7 @@ namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\GetParentProductIdsInterface;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Adapter\AdapterInterface;
 
 class GetParentProductIds implements GetParentProductIdsInterface
 {
@@ -19,10 +20,9 @@ class GetParentProductIds implements GetParentProductIdsInterface
     protected $resourceConnection;
 
     /**
-     * @var \Magento\Framework\DB\Adapter\AdapterInterface
+     * @var AdapterInterface
      */
     private $connection;
-
 
     /**
      * GetParentProductIds constructor.
@@ -36,6 +36,8 @@ class GetParentProductIds implements GetParentProductIdsInterface
     }
 
     /**
+     * Get parent product ids
+     *
      * @param array $productIds
      * @return array
      */

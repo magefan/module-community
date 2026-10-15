@@ -2,9 +2,9 @@
     "name": "magefan/module-community",
     "description": "Magefan core module, required for other Magefan extensions",
     "require": {
-        "magefan/module-admin-user-guide" : ">=2.0.6"
+        "magefan/module-admin-user-guide" : ">=2.0.7"
     },
-    "version": "2.2.17",
+    "version": "2.4.9",
     "type": "magento2-module",
     "autoload": {
         "files": [

@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Cron;
 
 use Magefan\Community\Model\SectionFactory;
@@ -35,9 +37,11 @@ class Sections
 
     /**
      * Sections constructor.
+     *
      * @param ResourceConnection $resource
      * @param SectionFactory $sectionFactory
      * @param Info $info
+     * @param SetLinvFlag $setLinvFlag
      */
     public function __construct(
         ResourceConnection $resource,
@@ -53,6 +57,8 @@ class Sections
 
     /**
      * Execute cron job
+     *
+     * @return void
      */
     public function execute()
     {
@@ -69,7 +75,7 @@ class Sections
 
         $sections = [];
         foreach ($connection->fetchAll($select) as $config) {
-            $matches = false;
+            $matches = [];
             preg_match("/(.*)\/" . str_replace('/', '\/', $path) . "/", $config['path'], $matches);
             if (empty($matches[1])) {
                 continue;

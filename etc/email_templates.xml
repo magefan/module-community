@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="mfextension_email_header_template" label="Magefan Header" file="header.html" type="html" module="Magefan_Community" area="frontend"/>
+    <template id="mfextension_email_footer_template" label="Magefan Footer" file="footer.html" type="html" module="Magefan_Community" area="frontend"/>
+</config>

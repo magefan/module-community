@@ -44,9 +44,11 @@ class HyvaThemeChecker extends Template
         $this->hyvaThemeDetection =$hyvaThemeDetection;
     }
 
-        /**
-         * @return array
-         */
+    /**
+     * Get group modules
+     *
+     * @return array
+     */
     public function getWitchModuleIsInstalled(): array
     {
         $moduleGroups = [

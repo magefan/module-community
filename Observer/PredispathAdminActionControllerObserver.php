@@ -4,8 +4,13 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Observer;
 
+use Magefan\Community\Model\AdminNotificationFeedFactory;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
@@ -14,22 +19,22 @@ use Magento\Framework\Event\ObserverInterface;
 class PredispathAdminActionControllerObserver implements ObserverInterface
 {
     /**
-     * @var \Magefan\Community\Model\AdminNotificationFeedFactory
+     * @var AdminNotificationFeedFactory
      */
     protected $feedFactory;
 
     /**
-     * @var \Magento\Backend\Model\Auth\Session
+     * @var Session
      */
     protected $backendAuthSession;
 
     /**
-     * @param \Magefan\Community\Model\AdminNotificationFeedFactory $feedFactory
-     * @param \Magento\Backend\Model\Auth\Session $backendAuthSession
+     * @param AdminNotificationFeedFactory $feedFactory
+     * @param Session $backendAuthSession
      */
     public function __construct(
-        \Magefan\Community\Model\AdminNotificationFeedFactory $feedFactory,
-        \Magento\Backend\Model\Auth\Session $backendAuthSession
+        AdminNotificationFeedFactory $feedFactory,
+        Session $backendAuthSession
     ) {
         $this->feedFactory = $feedFactory;
         $this->backendAuthSession = $backendAuthSession;
@@ -38,11 +43,11 @@ class PredispathAdminActionControllerObserver implements ObserverInterface
     /**
      * Predispath admin action controller
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         if ($this->backendAuthSession->isLoggedIn()) {
             $feedModel = $this->feedFactory->create();

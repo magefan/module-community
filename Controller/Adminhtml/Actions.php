@@ -4,10 +4,17 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Controller\Adminhtml;
 
+use Exception;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Registry;
 
 /**
  * Abstract admin controller
@@ -15,66 +22,54 @@ use Magento\Backend\App\Action\Context;
 abstract class Actions extends \Magento\Backend\App\Action
 {
     /**
-     * Form session key
      * @var string
      */
     protected $_formSessionKey;
 
     /**
-     * Allowed Key
      * @var string
      */
     protected $_allowedKey;
 
     /**
-     * Model class name
      * @var string
      */
     protected $_modelClass;
 
     /**
-     * Active menu key
      * @var string
      */
     protected $_activeMenu;
 
     /**
-     * Store config section key
      * @var string
      */
     protected $_configSection;
 
     /**
-     * Request id key
      * @var string
      */
     protected $_idKey = 'id';
 
     /**
-     * Status field name
      * @var string
      */
     protected $_statusField     = 'status';
 
     /**
-     * Save request params key
      * @var string
      */
     protected $_paramsHolder;
 
     /**
-     * Model Object
-     * @var \Magento\Framework\Model\AbstractModel
+     * @var AbstractModel
      */
     protected $_model;
 
     /**
-     * Core registry
-     *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $_coreRegistry = null;
-
 
     /**
      * @var DataPersistorInterface
@@ -95,7 +90,8 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * Action execute
-     * @return \Magento\Framework\Controller\ResultInterface
+     *
+     * @return ResultInterface
      */
     public function execute()
     {
@@ -112,58 +108,73 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * Index action
+     *
      * @return void
      */
     protected function _indexAction()
     {
         if ($this->getRequest()->getParam('ajax')) {
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_forward('grid');
             return;
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->loadLayout();
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_setActiveMenu($this->_activeMenu);
         $title = __('Manage %1', $this->_getModel(false)->getOwnTitle(true));
         $this->_view->getPage()->getConfig()->getTitle()->prepend($title);
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_addBreadcrumb($title, $title);
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->renderLayout();
     }
 
     /**
      * Grid action
+     *
      * @return void
      */
     protected function _gridAction()
     {
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->loadLayout(false);
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_view->renderLayout();
     }
 
     /**
      * New action
+     *
      * @return void
      */
     protected function _newAction()
     {
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_forward('edit');
     }
 
     /**
      * Edit action
+     *
      * @return void
+     * @throws LocalizedException
      */
     public function _editAction()
     {
-
         try {
             $model = $this->_getModel();
             $id = $this->getRequest()->getParam('id');
             if (!$model->getId() && $id) {
-                throw new \Exception("Item is not longer exist.", 1);
+                throw new LocalizedException(__('Item is not longer exist.'));
             }
+
             $this->_getRegistry()->register('current_model', $model);
 
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_view->loadLayout();
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_setActiveMenu($this->_activeMenu);
 
             $title = $model->getOwnTitle();
@@ -179,6 +190,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                 $model->getId() ? $this->_getModelName($model) : __('New %1', $title)
             );
 
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_addBreadcrumb($breadcrumbLabel, $breadcrumbTitle);
 
             // restore data
@@ -191,8 +203,9 @@ abstract class Actions extends \Magento\Backend\App\Action
                 $model->addData($values);
             }
 
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_view->renderLayout();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->messageManager->addException(
                 $e,
                 __(
@@ -200,22 +213,25 @@ abstract class Actions extends \Magento\Backend\App\Action
                     $e->getMessage()
                 )
             );
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_redirect('*/*/');
         }
     }
 
     /**
      * Retrieve model name
-     * @param  boolean $plural
+     *
+     * @param AbstractModel $model
      * @return string
      */
-    protected function _getModelName(\Magento\Framework\Model\AbstractModel $model)
+    protected function _getModelName(AbstractModel $model)
     {
         return $model->getName() ?: $model->getTitle();
     }
 
     /**
      * Save action
+     *
      * @return void
      */
     public function _saveAction()
@@ -235,22 +251,28 @@ abstract class Actions extends \Magento\Backend\App\Action
                 unset($params[$idFieldName]);
             }
             $model->addData($params);
-
-            $this->_eventManager->dispatch('magefan_' . $this->getRequest()->getModuleName() . '_' . $this->getRequest()->getControllerName()  . '_form_before_save', ['model' => $model]);
+            $moduleName = $this->getRequest()->getModuleName();
+            $this->_eventManager->dispatch(
+                'magefan_' . $moduleName . '_' . $this->getRequest()->getControllerName()  . '_form_before_save',
+                ['model' => $model]
+            );
 
             $this->_beforeSave($model, $request);
             $model->save();
 
             $this->_afterSave($model, $request);
 
-            $this->_eventManager->dispatch('magefan_' . $this->getRequest()->getModuleName() . '_' . $this->getRequest()->getControllerName()  . '_form_after_save', ['model' => $model]);
+            $this->_eventManager->dispatch(
+                'magefan_' . $moduleName . '_' . $this->getRequest()->getControllerName()  . '_form_after_save',
+                ['model' => $model]
+            );
 
             $this->messageManager->addSuccess(__('%1 has been saved.', $model->getOwnTitle()));
             $this->_setFormData(false);
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->messageManager->addError(nl2br($e->getMessage()));
             $this->_setFormData($params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->messageManager->addException(
                 $e,
                 __(
@@ -280,14 +302,18 @@ abstract class Actions extends \Magento\Backend\App\Action
         } else {
             if ($hasError || $request->getParam('back')) {
                 if ($storeId = $request->getParam('store')) {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*/edit', [$this->_idKey => $model->getId(), 'store' => (int)$storeId]);
                 } else {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*/edit', [$this->_idKey => $model->getId()]);
                 }
             } else {
                 if ($storeId = $request->getParam('store')) {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*', ['store' => (int)$storeId]);
                 } else {
+                    // phpcs:ignore -- legacy action API kept for child controllers compatibility
                     $this->_redirect('*/*');
                 }
             }
@@ -295,22 +321,25 @@ abstract class Actions extends \Magento\Backend\App\Action
     }
 
     /**
-     * Duplicat action
+     * Duplicate action
+     *
      * @return void
+     * @throws LocalizedException
      */
     protected function _duplicateAction()
     {
         try {
             $originModel = $this->_getModel();
             if (!$originModel->getId()) {
-                throw new \Exception("Item is not longer exist.", 1);
+                throw new LocalizedException(__('Item is not longer exist.'));
             }
 
             $model = $originModel->duplicate();
 
             $this->messageManager->addSuccess(__('%1 has been duplicated.', $model->getOwnTitle()));
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_redirect('*/*/edit', [$this->_idKey => $model->getId()]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->messageManager->addException(
                 $e,
                 __(
@@ -319,12 +348,15 @@ abstract class Actions extends \Magento\Backend\App\Action
                     $e->getMessage()
                 )
             );
+            // phpcs:ignore -- legacy action API kept for child controllers compatibility
             $this->_redirect('*/*/edit', [$this->_idKey => $originModel->getId()]);
         }
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Before model Save action
+     *
      * @return void
      */
     protected function _beforeSave($model, $request)
@@ -333,6 +365,7 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * After model action
+     *
      * @return void
      */
     protected function _afterSave($model, $request)
@@ -341,6 +374,7 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * Before action
+     *
      * @return void
      */
     protected function _beforeAction()
@@ -349,22 +383,32 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * After action
+     *
      * @return void
      */
     protected function _afterAction()
     {
     }
+    // @codingStandardsIgnoreEnd
 
     /**
      * Delete action
+     *
      * @return void
      */
     protected function _deleteAction()
     {
         $ids = $this->getRequest()->getParam($this->_idKey);
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
+        if ($ids) {
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+        } else {
+            $filter = $this->_objectManager->create(\Magento\Ui\Component\MassAction\Filter::class);
+            $collection = $filter->getCollection(
+                $this->_objectManager->create($this->_modelClass)->getCollection()
+            );
+            $ids = $collection->getAllIds();
         }
 
         $error = false;
@@ -375,7 +419,7 @@ abstract class Actions extends \Magento\Backend\App\Action
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $error = true;
             $this->messageManager->addError($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error = true;
             $this->messageManager->addException(
                 $e,
@@ -393,19 +437,28 @@ abstract class Actions extends \Magento\Backend\App\Action
             );
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_redirect('*/*');
     }
 
     /**
      * Change status action
+     *
      * @return void
      */
     protected function _massStatusAction()
     {
         $ids = $this->getRequest()->getParam($this->_idKey);
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
+        if ($ids) {
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+        } else {
+            $filter = $this->_objectManager->create(\Magento\Ui\Component\MassAction\Filter::class);
+            $collection = $filter->getCollection(
+                $this->_objectManager->create($this->_modelClass)->getCollection()
+            );
+            $ids = $collection->getAllIds();
         }
 
         $model = $this->_getModel(false);
@@ -416,24 +469,24 @@ abstract class Actions extends \Magento\Backend\App\Action
             $status = $this->getRequest()->getParam('status');
             $statusFieldName = $this->_statusField;
 
-            if (is_null($status)) {
-                throw new \Exception(__('Parameter "Status" missing in request data.'));
+            if (null === $status) {
+                throw new LocalizedException(__('Parameter "Status" missing in request data.'));
             }
 
-            if (is_null($statusFieldName)) {
-                throw new \Exception(__('Status Field Name is not specified.'));
+            if (null === $statusFieldName) {
+                throw new LocalizedException(__('Status Field Name is not specified.'));
             }
 
             foreach ($ids as $id) {
-                $this->_objectManager->create($this->_modelClass)
-                    ->load($id)
-                    ->setData($this->_statusField, $status)
-                    ->save();
+                $object = $this->_objectManager->create($this->_modelClass)->load($id);
+                if ($object->getId()) {
+                    $object->setData($this->_statusField, $status)->save();
+                }
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $error = true;
             $this->messageManager->addError($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error = true;
             $this->messageManager->addException(
                 $e,
@@ -451,20 +504,25 @@ abstract class Actions extends \Magento\Backend\App\Action
             );
         }
 
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_redirect('*/*');
     }
 
     /**
      * Go to config section action
+     *
      * @return void
      */
     protected function _configAction()
     {
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
         $this->_redirect('admin/system_config/edit', ['section' => $this->_configSection()]);
     }
 
     /**
      * Set form data
+     *
+     * @param mixed $data
      * @return $this
      */
     protected function _setFormData($data = null)
@@ -487,6 +545,7 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * Filter request params
+     *
      * @param  array $data
      * @return array
      */
@@ -497,12 +556,13 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * Get core registry
+     *
      * @return void
      */
     protected function _getRegistry()
     {
-        if (is_null($this->_coreRegistry)) {
-            $this->_coreRegistry = $this->_objectManager->get(\Magento\Framework\Registry::class);
+        if (null === $this->_coreRegistry) {
+            $this->_coreRegistry = $this->_objectManager->get(Registry::class);
         }
         return $this->_coreRegistry;
     }
@@ -519,11 +579,14 @@ abstract class Actions extends \Magento\Backend\App\Action
 
     /**
      * Retrieve model object
-     * @return \Magento\Framework\Model\AbstractModel
+     *
+     * @param mixed $load
+     * @return AbstractModel
+     * @throws LocalizedException
      */
     protected function _getModel($load = true)
     {
-        if (is_null($this->_model)) {
+        if (null === $this->_model) {
             $this->_model = $this->_objectManager->create($this->_modelClass);
 
             $id = (int)$this->getRequest()->getParam($this->_idKey);
@@ -533,14 +596,21 @@ abstract class Actions extends \Magento\Backend\App\Action
             }
 
             if ($id && $load) {
+                $module = $this->getRequest()->getModuleName();
+                $controler = $this->getRequest()->getControllerName();
                 $this->_model->load($id);
-                $this->_eventManager->dispatch('magefan_' . $this->getRequest()->getModuleName() . '_' . $this->getRequest()->getControllerName()  . '_form_load_model_after', ['model' => $this->_model]);
+                $this->_eventManager->dispatch(
+                    'magefan_' . $module . '_' . $controler  . '_form_load_model_after',
+                    ['model' => $this->_model]
+                );
             }
         }
         return $this->_model;
     }
 
     /**
+     * Get filter input
+     *
      * @param array $filterRules
      * @param array $validatorRules
      * @param array|null $data
@@ -548,6 +618,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function getFilterInput($filterRules, $validatorRules, $data)
     {
+        // @codingStandardsIgnoreLine
         if (class_exists('\Magento\Framework\Filter\FilterInput')) {
             $inputFilter = new \Magento\Framework\Filter\FilterInput(
                 $filterRules,
@@ -555,13 +626,33 @@ abstract class Actions extends \Magento\Backend\App\Action
                 $data
             );
         } else {
+            // @codingStandardsIgnoreStart
             $inputFilter = new \Zend_Filter_Input(
                 $filterRules,
                 [],
                 $data
             );
+            // @codingStandardsIgnoreEnd
         }
 
         return $inputFilter;
+    }
+
+    /**
+     * Define active menu item in menu block
+     *
+     * @param string $itemId current active menu item
+     * @return $this
+     */
+    protected function _setActiveMenu($itemId) // phpcs:ignore -- legacy action API kept for child controllers compatibility
+    {
+        /** @var $menuBlock \Magento\Backend\Block\Menu */
+        $menuBlock = $this->_view->getLayout()->getBlock('menu');
+        if (!$menuBlock) {
+            return $this;
+        }
+
+        // phpcs:ignore -- legacy action API kept for child controllers compatibility
+        return parent::_setActiveMenu($itemId);
     }
 }

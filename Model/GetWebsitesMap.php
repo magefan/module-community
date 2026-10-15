@@ -19,12 +19,13 @@ class GetWebsitesMap implements GetWebsitesMapInterface
     private $storeManager;
 
     /**
-     * @var
+     * @var array
      */
     private $websitesMap;
 
     /**
      * GetWebsitesMap constructor.
+     *
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
@@ -34,16 +35,18 @@ class GetWebsitesMap implements GetWebsitesMapInterface
     }
 
     /**
+     * Get websites
+     *
      * @return array
      */
     public function execute(): array
     {
-        if ($this->websitesMap === null) {
+        if (null === $this->websitesMap) {
             $this->websitesMap = [];
             $websites = $this->storeManager->getWebsites();
             foreach ($websites as $website) {
                 // Continue if website has no store to be able to create catalog rule for website without store
-                if ($website->getDefaultStore() === null) {
+                if (null === $website->getDefaultStore()) {
                     continue;
                 }
                 $this->websitesMap[$website->getId()] = $website->getDefaultStore()->getId();

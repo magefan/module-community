@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -14,17 +16,18 @@ class Config
     /**
      * Receive Notifications
      */
-    const XML_PATH_RECEIVE_PRODUCT_UPDATES = 'mfextension/notification/update';
-    const XML_PATH_RECEIVE_SPECIAL_OFFERS = 'mfextension/notification/offer';
-    const XML_PATH_RECEIVE_NEWS = 'mfextension/notification/news';
-    const XML_PATH_RECEIVE_TIPS_AND_TRICKS = 'mfextension/notification/tip_trick';
-    const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'mfextension/notification/general';
-    const XML_PATH_RECEIVE_REVIEW = 'mfextension/notification/review';
+    public const XML_PATH_RECEIVE_PRODUCT_UPDATES = 'mfextension/notification/update';
+    public const XML_PATH_RECEIVE_SPECIAL_OFFERS = 'mfextension/notification/offer';
+    public const XML_PATH_RECEIVE_NEWS = 'mfextension/notification/news';
+    public const XML_PATH_RECEIVE_TIPS_AND_TRICKS = 'mfextension/notification/tip_trick';
+    public const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'mfextension/notification/general';
+    public const XML_PATH_RECEIVE_REVIEW = 'mfextension/notification/review';
+
 
     /**
      * Display Menu
      */
-    const XML_PATH_MENU_ENABLED = 'mfextension/menu/display';
+    public const XML_PATH_MENU_ENABLED = 'mfextension/menu/display';
 
     /**
      * @var ScopeConfigInterface
@@ -33,6 +36,7 @@ class Config
 
     /**
      * Config constructor.
+     *
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
@@ -44,7 +48,7 @@ class Config
     /**
      * Receive Product Updates
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return string
      */
     public function receiveProductUpdates($storeId = null)
@@ -58,7 +62,7 @@ class Config
     /**
      * Receive Special Offers
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return string
      */
     public function receiveSpecialOffers($storeId = null)
@@ -72,7 +76,7 @@ class Config
     /**
      * Receive News
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return string
      */
     public function receiveNews($storeId = null)
@@ -86,7 +90,7 @@ class Config
     /**
      * Receive Tips & Tricks
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return string
      */
     public function receiveTipsAndTricks($storeId = null)
@@ -100,7 +104,7 @@ class Config
     /**
      * Receive General Information
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return string
      */
     public function receiveGeneralInformation($storeId = null)
@@ -128,7 +132,7 @@ class Config
     /**
      * Receive Notifications
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return array
      */
     public function receiveNotifications($storeId = null)
@@ -145,7 +149,7 @@ class Config
     /**
      * Display Menu
      *
-     * @param null $storeId
+     * @param mixed $storeId
      * @return string
      */
     public function menuEnabled($storeId = null)
@@ -160,7 +164,7 @@ class Config
      * Retrieve store config value
      *
      * @param string $path
-     * @param null $storeId
+     * @param mixed $storeId
      * @return mixed
      */
     public function getConfig($path, $storeId = null)

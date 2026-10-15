@@ -61,17 +61,23 @@ abstract class AbstractThemeDetection
     }
 
     /**
+     * Get theme module name
+     *
      * @return string
      */
     abstract public function getThemeModuleName(): string;
 
     /**
+     * Get theme name
+     *
      * @return string
      */
     abstract public function getThemeName():string;
 
     /**
-     * @param $storeId
+     * Get theme
+     *
+     * @param mixed $storeId
      * @return bool
      * @throws NoSuchEntityException
      */
@@ -108,7 +114,9 @@ abstract class AbstractThemeDetection
     }
 
     /**
-     * @param $storeId
+     * Is used theme by store
+     *
+     * @param mixed $storeId
      * @return bool
      */
     private function isThemeInUse($storeId)

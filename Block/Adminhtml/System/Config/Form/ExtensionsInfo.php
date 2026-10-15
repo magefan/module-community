@@ -3,6 +3,9 @@
  * Copyright © Magefan (support@magefan.com). All rights reserved.
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
+
+declare(strict_types=1);
+
 namespace Magefan\Community\Block\Adminhtml\System\Config\Form;
 
 use Magento\Config\Block\System\Config\Form\Field;
@@ -34,6 +37,7 @@ class ExtensionsInfo extends Field
      * @param Context $context
      * @param ModuleListInterface $moduleList
      * @param GetModuleVersionInterface $getModuleVersion
+     * @param GetModuleInfoInterface $getModuleInfo
      * @param array $data
      */
     public function __construct(
@@ -50,6 +54,8 @@ class ExtensionsInfo extends Field
     }
 
     /**
+     * Render extension info
+     *
      * @param AbstractElement $element
      * @return string
      */
@@ -88,10 +94,14 @@ class ExtensionsInfo extends Field
                 if ((!$module && $listKey != 'new_extensions') || ($module && $listKey == 'new_extensions')) {
                     continue;
                 }
-                if ($listKey == 'up_to_date' && version_compare($this->getModuleVersion->execute($moduleName), $moduleInfo->getVersion()) < 0) {
+                if ($listKey == 'up_to_date' &&
+                    version_compare($this->getModuleVersion->execute($moduleName), $moduleInfo->getVersion()) < 0
+                ) {
                     continue;
                 }
-                if ($listKey == 'need_update' && version_compare($this->getModuleVersion->execute($moduleName), $moduleInfo->getVersion()) >= 0) {
+                if ($listKey == 'need_update' &&
+                    version_compare($this->getModuleVersion->execute($moduleName), $moduleInfo->getVersion()) >= 0
+                ) {
                     continue;
                 }
 
@@ -103,12 +113,15 @@ class ExtensionsInfo extends Field
                     $version = $this->getModuleVersion->execute($moduleName);
                 }
 
-
                 $html .= '<tr>';
-                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getProductUrl()) . '">' . $this->escapeHtml($moduleInfo->getProductName()) . '</a></td>';
+                $html .= '<td><a target="_blank" href="' .
+                    $this->escapeHtml($moduleInfo->getProductUrl()) . '">' .
+                    $this->escapeHtml($moduleInfo->getProductName()) . '</a></td>';
                 $html .= '<td>' . $this->escapeHtml($version) . '</td>';
-                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getChangeLogUrl()) . '">' . $this->escapeHtml(__('Change Log')) . '</a></td>';
-                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getDocumentationUrl()) . '">'. $this->escapeHtml(__('User Guide')). '</a></td>';
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getChangeLogUrl()) . '">'
+                    . $this->escapeHtml(__('Change Log')) . '</a></td>';
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getDocumentationUrl()) . '">'.
+                    $this->escapeHtml(__('User Guide')). '</a></td>';
                 $html .= '</tr>';
             }
 

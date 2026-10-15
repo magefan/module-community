@@ -31,63 +31,54 @@ use Magento\Framework\App\ProductMetadataInterface;
 class TransportBuilder
 {
     /**
-     * Template Identifier
      *
      * @var string
      */
     protected $templateIdentifier;
 
     /**
-     * Template Model
      *
      * @var string
      */
     protected $templateModel;
 
     /**
-     * Template Variables
      *
      * @var array
      */
     protected $templateVars;
 
     /**
-     * Template Options
      *
      * @var array
      */
     protected $templateOptions;
 
     /**
-     * Mail Transport
      *
      * @var TransportInterface
      */
     protected $transport;
 
     /**
-     * Template Factory
      *
      * @var FactoryInterface
      */
     protected $templateFactory;
 
     /**
-     * Object Manager
      *
      * @var ObjectManagerInterface
      */
     protected $objectManager;
 
     /**
-     * Message
      *
      * @var MessageInterface
      */
     protected $message;
 
     /**
-     * Sender resolver
      *
      * @var SenderResolverInterface
      */
@@ -347,11 +338,13 @@ class TransportBuilder
     }
 
     /**
+     * Add attachment
+     *
      * @param string $content
      * @param string $name
      * @param string $type
-     * @param $encoding
-     * @param $disposition
+     * @param mixed $encoding
+     * @param mixed $disposition
      * @return $this
      */
     public function addAttachment(string $content, string $name, string $type, $encoding = null, $disposition = null)
@@ -368,6 +361,8 @@ class TransportBuilder
     }
 
     /**
+     * Prepare attachment
+     *
      * @return array
      */
     private function getLaminasParts()
@@ -389,6 +384,8 @@ class TransportBuilder
     }
 
     /**
+     * Prepare symfony parts
+     *
      * @return array
      */
     private function getSymfonyParts()
@@ -396,7 +393,11 @@ class TransportBuilder
         $parts = [];
 
         foreach ($this->attachments as $attachmentData) {
-            $attachment = new \Symfony\Component\Mime\Part\DataPart($attachmentData['content'], $attachmentData['name'], $attachmentData['type']);
+            $attachment = new \Symfony\Component\Mime\Part\DataPart(
+                $attachmentData['content'],
+                $attachmentData['name'],
+                $attachmentData['type']
+            );
 
             $parts[] = $attachment;
         }
@@ -473,10 +474,12 @@ class TransportBuilder
             ['parts' => $parts]
         );
 
+        // phpcs:disable Magento2.Functions.DiscouragedFunction
         $this->messageData['subject'] = html_entity_decode(
             (string)$template->getSubject(),
             ENT_QUOTES
         );
+        // phpcs:enable Magento2.Functions.DiscouragedFunction
 
         $this->message = $this->emailMessageInterfaceFactory->create($this->messageData);
 
@@ -486,12 +489,16 @@ class TransportBuilder
     }
 
     /**
+     * Add symfony attachments
+     *
      * @param array $attachmentParts
      * @return void
      */
     private function addSymfonyAttachment(array $attachmentParts): void
     {
-        if ($this->message instanceof \Magento\Framework\Mail\EmailMessage && method_exists($this->message, 'getSymfonyMessage')) {
+        if ($this->message instanceof \Magento\Framework\Mail\EmailMessage &&
+            method_exists($this->message, 'getSymfonyMessage')
+        ) {
             $symfonyEmail = $this->message->getSymfonyMessage();
 
             // Decode the original HTML body (quoted-printable)
@@ -535,6 +542,8 @@ class TransportBuilder
     }
 
     /**
+     * Check if current magento is 2.4.8
+     *
      * @return bool
      */
     private function isMagentoVersionLte248(): bool

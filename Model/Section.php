@@ -4,6 +4,8 @@
  * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
  */
 
+declare(strict_types=1);
+
 namespace Magefan\Community\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -14,32 +16,32 @@ use Magento\Framework\App\ProductMetadataInterface;
  * Class Section
  * @package Magefan\Community\Model
  */
+// @codingStandardsIgnoreLine
 final class Section
 {
-    const MODULE = 'mfmodule';
+    public const MODULE = 'mfmodule';
 
-    const ENABLED = 'enabled';
+    public const ENABLED = 'enabled';
 
-    const KEY = 'key';
+    public const KEY = 'key';
 
-    const TYPE = 'mftype';
+    public const TYPE = 'mftype';
 
-    const ACTIVE = 'mfactive';
+    public const ACTIVE = 'mfactive';
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     private $scopeConfig;
 
     /**
-     * @var \Magefan\Community\Model\GetModuleVersion
+     * @var GetModuleVersion
      */
     private $getModuleVersion;
 
     /**
-     * @var \Magefan\Community\Model\HyvaThemeDetection
+     * @var HyvaThemeDetection
      */
-
     private $hyvaThemeDetection;
 
     /**
@@ -57,12 +59,12 @@ final class Section
      */
     protected $metadata;
 
-
+    // @codingStandardsIgnoreStart
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $metadata
-     * @param \Magefan\Community\Model\GetModuleVersion $getModuleVersion
-     * @param \Magefan\Community\Model\HyvaThemeDetection $hyvaThemeDetection
+     * @param GetModuleVersion $getModuleVersion
+     * @param HyvaThemeDetection $hyvaThemeDetection
      * @param $name
      * @param $key
      */
@@ -83,6 +85,8 @@ final class Section
     }
 
     /**
+     * Check if enabled
+     *
      * @return bool
      */
     final public function isEnabled()
@@ -91,6 +95,8 @@ final class Section
     }
 
     /**
+     * Get module name
+     *
      * @param false $e
      * @return false|string
      */
@@ -108,6 +114,8 @@ final class Section
     }
 
     /**
+     * Get module
+     *
      * @param false $e
      * @return false|string
      */
@@ -137,6 +145,8 @@ final class Section
     }
 
     /**
+     * Get type
+     *
      * @return bool
      */
     final public function getType()
@@ -147,6 +157,8 @@ final class Section
     }
 
     /**
+     * Get key
+     *
      * @return string
      */
     final public function getKey()
@@ -159,6 +171,8 @@ final class Section
     }
 
     /**
+     * Get name
+     *
      * @return string
      */
     final public function getName()
@@ -167,8 +181,9 @@ final class Section
     }
 
     /**
+     * Validate data
+     *
      * @param $data
-     * @param null $k
      * @return bool
      */
     final public function validate($data)
@@ -189,8 +204,11 @@ final class Section
 
         return false;
     }
+    // @codingStandardsIgnoreEnd
 
     /**
+     * Validate
+     *
      * @param string $id
      * @param string $k
      * @return bool
@@ -206,6 +224,8 @@ final class Section
     }
 
     /**
+     * Get config
+     *
      * @param string $field
      * @return mixed
      */
