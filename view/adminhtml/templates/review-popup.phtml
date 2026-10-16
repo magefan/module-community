@@ -19,6 +19,8 @@ if (!isset($escaper)) {
 
         var module = '<?= $escaper->escapeHtml($block->getModuleShortName()) ?>';
         var formKey = '<?= $escaper->escapeHtml($block->getFormKey()) ?>';
+        var requestUrl = '<?= $escaper->escapeUrl($block->getUrl('mfcommunity/review/index')) ?>';
+        var starIconUrl = '<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/star.svg')) ?>';
 
         setTimeout(function () {
             alert({
@@ -45,6 +47,10 @@ if (!isset($escaper)) {
             });
         }, 5000);
 
+        $(document).on('change', '#mf-review-form .review-control-vote input[type="radio"]', function () {
+            $('#validate_rating').val($(this).val());
+        });
+
         function showReviewPopup() {
             var formHtml = '<form id="mf-review-form" class="mf-review-form">' +
                 '<fieldset class="fieldset review-fieldset">' +
@@ -53,10 +59,10 @@ if (!isset($escaper)) {
                 '<div class="field choice review-field-rating">' +
                 '<label id="rating_label" class="label"></label>' +
                 '<div class="control review-control-vote">' +
-                <?php for ($i = 1; $i <= 5; $i++): ?>
+                <?php for ($i = 5; $i >= 1; $i--): ?>
                 '<input type="radio" name="ratings" id="rating_<?= (int)$i ?>" value="<?= (int)$i ?>" class="radio" required>' +
                 '<label for="rating_<?= (int)$i ?>" title="<?= $escaper->escapeHtml(__('%1 %2', $i, $i > 1 ? 'stars' : 'star')) ?>" class="rating-<?= (int)$i ?>" id="rating_<?= (int)$i ?>_label">' +
-                '<span class="star-icon"><svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37" fill="none"><path d="M17.0985 3.41607C17.4859 2.48464 18.8054 2.48464 19.1928 3.41607L22.6792 11.7984C22.8426 12.1911 23.2118 12.4594 23.6357 12.4934L32.6852 13.2189C33.6908 13.2995 34.0985 14.5544 33.3324 15.2107L26.4376 21.1168C26.1147 21.3934 25.9736 21.8275 26.0723 22.2412L28.1787 31.072C28.4128 32.0532 27.3453 32.8288 26.4844 32.3029L18.7368 27.5707C18.3739 27.3491 17.9174 27.3491 17.5545 27.5707L9.80689 32.3029C8.946 32.8288 7.87852 32.0532 8.11258 31.072L10.219 22.2412C10.3177 21.8275 10.1767 21.3934 9.85369 21.1168L2.95894 15.2107C2.19281 14.5544 2.60055 13.2995 3.60611 13.2189L12.6556 12.4934C13.0795 12.4594 13.4488 12.1911 13.6121 11.7984L17.0985 3.41607Z" fill="#E9E9E9"/></svg></span>' +
+                '<span class="star-icon"></span>' +
                 '</label>' +
                 <?php endfor; ?>
                 '</div>' +
@@ -107,12 +113,12 @@ if (!isset($escaper)) {
                 '.mf-review-form .review-control-vote{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:6px;margin:10px 0 15px;overflow:hidden;}' +
                 '.mf-review-form .review-control-vote input[type="radio"]{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);border:0;margin:-1px;overflow:hidden;padding:0;opacity:0;pointer-events:none;}' +
                 '.mf-review-form .review-control-vote label{display:inline-block;cursor:pointer;line-height:12px;padding-inline-start:0;user-select:none;}' +
-                '.mf-review-form .review-control-vote label svg{width:37px;height:37px;}' +
-                '.mf-review-form .review-control-vote label svg path{fill:#E9E9E9;transition:fill .2s ease;}' +
-                '.mf-review-form .review-control-vote label:hover svg path,' +
-                '.mf-review-form .review-control-vote label:hover ~ label svg path{fill:#FFC736;}' +
-                '.mf-review-form .review-control-vote input[type="radio"]:checked + label svg path,' +
-                '.mf-review-form .review-control-vote input[type="radio"]:checked ~ label svg path{fill:#FFC736;}' +
+                '.mf-review-form .review-control-vote .star-icon{display:block;width:37px;height:37px;background-color:#E9E9E9;transition:background-color .2s ease;' +
+                '-webkit-mask:url("' + starIconUrl + '") no-repeat center/contain;mask:url("' + starIconUrl + '") no-repeat center/contain;}' +
+                '.mf-review-form .review-control-vote label:hover .star-icon,' +
+                '.mf-review-form .review-control-vote label:hover ~ label .star-icon{background-color:#FFC736;}' +
+                '.mf-review-form .review-control-vote input[type="radio"]:checked + label .star-icon,' +
+                '.mf-review-form .review-control-vote input[type="radio"]:checked ~ label .star-icon{background-color:#FFC736;}' +
                 '</style>';
 
             alert({
@@ -123,6 +129,7 @@ if (!isset($escaper)) {
                         text: '<?= $escaper->escapeHtml(__('Submit')) ?>',
                         class: 'action primary',
                         click: function () {
+                            var modal = this;
                             var $form = $('#mf-review-form');
                             var fn = $('#firstname_field').val();
                             var ln = $('#lastname_field').val();
@@ -137,33 +144,54 @@ if (!isset($escaper)) {
                             $form.serializeArray().forEach(function (item) {
                                 data[item.name] = item.value;
                             });
-                            data.action = '<?= $escaper->escapeUrl($block->getModuleReviewUrl()) ?>';
+                            data.action = 'submit';
                             data.module = module;
                             data.form_key = formKey;
 
-                            sendRequest(data);
-                            this.closeModal(false);
+                            sendRequest(data, function () {
+                                modal.closeModal(false);
+                                alert({
+                                    title: '<?= $escaper->escapeHtml(__('Thank you!')) ?>',
+                                    content: '<?= $escaper->escapeHtml(__('Your review has been submitted successfully.')) ?>'
+                                });
+                            });
                         }
                     }
                 ]
             });
+        }
 
-            $(document).on('change', '#mf-review-form .review-control-vote input[type="radio"]', function () {
-                $('#validate_rating').val($(this).val());
+        function showError(message) {
+            alert({
+                title: $.mage.__('Error'),
+                content: $('<div>').text(
+                    message || $.mage.__('An error occurred while submitting your review. Please try again later.')
+                ).html()
             });
         }
 
-        function sendRequest(data) {
+        function sendRequest(data, onSuccess) {
             $.ajax({
-                url: '<?= $escaper->escapeUrl($block->getUrl('mfcommunity/review/index')) ?>',
+                url: requestUrl,
                 type: 'POST',
                 data: data,
+                dataType: 'json',
                 showLoader: true,
+                success: function (response) {
+                    if (response && response.success) {
+                        if (onSuccess) {
+                            onSuccess();
+                        }
+                        return;
+                    }
+                    if (onSuccess) {
+                        showError(response && response.message);
+                    }
+                },
                 error: function () {
-                    alert({
-                        title: $.mage.__('Error'),
-                        content: $.mage.__('An error occurred while submitting your review. Please try again later.')
-                    });
+                    if (onSuccess) {
+                        showError();
+                    }
                 }
             });
         }

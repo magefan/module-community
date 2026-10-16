@@ -192,44 +192,46 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      */
     private function canDisplay(): bool
     {
+        if (!$this->config->receiveReview()) {
+            return false;
+        }
+
         $moduleName = $this->getModuleShortName();
-        $display = true;
+        if (!$moduleName) {
+            return false;
+        }
 
-        if ($moduleName) {
-            $userId = $this->authSession->getUser()->getId();
-            $connection = $this->resourceConnection->getConnection();
-            $tableName = $this->resourceConnection->getTableName('mf_review');
-            $select = $connection->select()
-                ->from($tableName)
-                ->where('user_id = ?', $userId)
-                ->where('module_name = ?', $moduleName)
-                ->limit(1);
+        $user = $this->authSession->getUser();
+        if (!$user) {
+            return false;
+        }
 
-            $review = $connection->fetchRow($select);
+        $connection = $this->resourceConnection->getConnection();
+        $select = $connection->select()
+            ->from($this->resourceConnection->getTableName('mf_review'))
+            ->where('user_id = ?', (int)$user->getId())
+            ->where('module_name = ?', $moduleName)
+            ->limit(1);
 
-            if ($review) {
-                if ((int)$review['is_reviewed'] === 0) {
-                    $updatedAt = $review['updated_at'] ?? null;
-                    if ($updatedAt) {
-                        try {
-                            $given = new \DateTime($updatedAt);
-                            $threeDaysAgo = new \DateTime('-3 days');
-                            if ($given > $threeDaysAgo) {
-                                $display = false;
-                            }
-                        } catch (\Exception $e) {
-                            // ignore invalid date
-                        }
+        $review = $connection->fetchRow($select);
+        if ($review) {
+            if ((int)$review['is_reviewed'] !== 0) {
+                return false;
+            }
+            $updatedAt = $review['updated_at'] ?? null;
+            if ($updatedAt) {
+                try {
+                    if (new \DateTime($updatedAt) > new \DateTime('-3 days')) {
+                        return false;
                     }
-                } else {
-                    $display = false;
+                } catch (\Exception $e) {
+                    // ignore invalid date
                 }
             }
         }
-        return $this->config->receiveReview()
-            && $this->getModuleReviewUrl()
-            && $this->getProductName()
-            && $display;
+
+        return $this->getModuleReviewUrl()
+            && $this->getProductName();
     }
 
     /**

@@ -8,12 +8,20 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Controller\Adminhtml\Review;
 
+use Magefan\Community\Model\GetModuleInfo;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\HTTP\Client\Curl;
-class Index extends \Magento\Backend\App\Action
+use Psr\Log\LoggerInterface;
+
+class Index extends \Magento\Backend\App\Action implements HttpPostActionInterface
 {
+    private const ACTION_CANCEL = 'cancel';
+
+    private const ACTION_SUBMIT = 'submit';
+
     private const REQUIRED_FIELDS = [
         'ratings', 'nickname', 'firstname',
         'lastname', 'email', 'title',
@@ -44,21 +52,44 @@ class Index extends \Magento\Backend\App\Action
     private $curl;
 
     /**
+     * @var GetModuleInfo
+     */
+    private $getModuleInfo;
+
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param Context $context
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param JsonFactory $resultJsonFactory
      * @param Curl $curl
+     * @param GetModuleInfo $getModuleInfo
+     * @param ResourceConnection $resourceConnection
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
         \Magento\Backend\Model\Auth\Session $authSession,
         JsonFactory $resultJsonFactory,
-        Curl $curl
-    )
-    {
+        Curl $curl,
+        GetModuleInfo $getModuleInfo,
+        ResourceConnection $resourceConnection,
+        LoggerInterface $logger
+    ) {
         $this->_authSession = $authSession;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->curl = $curl;
+        $this->getModuleInfo = $getModuleInfo;
+        $this->resourceConnection = $resourceConnection;
+        $this->logger = $logger;
         parent::__construct($context);
     }
 
@@ -72,46 +103,77 @@ class Index extends \Magento\Backend\App\Action
         $reviewData = [];
         $result = $this->resultJsonFactory->create();
         $moduleName = $this->_request->getParam('module');
-        if (!$moduleName) {
+        if (!is_string($moduleName) || !preg_match('/^[A-Za-z0-9]+$/', $moduleName)) {
             return $result->setData(['success' => false, 'message' => __('Module name is not specified.')]);
         }
         $reviewAction = $this->_request->getParam('action');
         if (!$reviewAction) {
             return $result->setData(['success' => false, 'message' => __('Action is not specified.')]);
         }
-        if ($reviewAction == 'cancel') {
-          return $this->remindLater($moduleName);
+        if ($reviewAction === self::ACTION_CANCEL) {
+            return $this->remindLater($moduleName);
+        }
+        if ($reviewAction !== self::ACTION_SUBMIT) {
+            return $result->setData(['success' => false, 'message' => __('Invalid action.')]);
+        }
+
+        $reviewUrl = $this->getReviewUrl($moduleName);
+        if (!$reviewUrl) {
+            return $result->setData(['success' => false, 'message' => __('Review is not available for this module.')]);
         }
 
         foreach (self::REQUIRED_FIELDS as $field) {
-            if (!$this->_request->getParam($field)) {
-                return $result->setData(['success' => false,'message' => __('Please fill all required fields.')]);
+            $value = $this->_request->getParam($field);
+            $value = is_scalar($value) ? trim((string)$value) : '';
+            if ($value === '') {
+                return $result->setData(['success' => false, 'message' => __('Please fill all required fields.')]);
             }
-            $reviewData[$field] = $this->_request->getParam($field);
-
-            if ($field == 'ratings') {
-                $reviewData[$field] = self::RATINGS_OPTION[$this->_request->getParam($field)];
-            }
+            $reviewData[$field] = $value;
         }
+
+        $rating = (int)$reviewData['ratings'];
+        if (!isset(self::RATINGS_OPTION[$rating])) {
+            return $result->setData(['success' => false, 'message' => __('Please select a rating.')]);
+        }
+        $reviewData['ratings'] = self::RATINGS_OPTION[$rating];
+
+        if (!filter_var($reviewData['email'], FILTER_VALIDATE_EMAIL)) {
+            return $result->setData(['success' => false, 'message' => __('Please enter a valid email address.')]);
+        }
+
         try {
-            $url = $reviewAction;
-            $postData = $reviewData;
-
-            $this->curl->post($url, $postData);
-
-            $response = $this->curl->getBody();
-
+            $this->curl->post($reviewUrl, $reviewData);
             $this->setReviewStatus($moduleName);
-            return $result->setData([
-                'success' => true,
-                'response' => $response
-            ]);
+            return $result->setData(['success' => true]);
         } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
             return $result->setData([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => __('An error occurred while submitting your review. Please try again later.')
             ]);
         }
+    }
+
+    /**
+     * Resolve review submission URL on the server side, never trust the URL from request
+     *
+     * @param string $moduleName
+     * @return string|null
+     */
+    private function getReviewUrl(string $moduleName): ?string
+    {
+        $info = $this->getModuleInfo->execute('Magefan_' . $moduleName);
+        $url = $info ? (string)$info->getData('popup_review_url') : '';
+        if (!$url) {
+            return null;
+        }
+
+        $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return null;
+        }
+
+        return $url;
     }
 
     /**
@@ -127,6 +189,7 @@ class Index extends \Magento\Backend\App\Action
             $this->setReviewStatus($moduleName, false);
             return $result->setData(['success' => true]);
         } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
             return $result->setData(['success' => false]);
         }
     }
@@ -141,11 +204,9 @@ class Index extends \Magento\Backend\App\Action
      */
     private function setReviewStatus($moduleName, $status = true)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resourceConnection = $objectManager->get('Magento\Framework\App\ResourceConnection');
-        $connection = $resourceConnection->getConnection();
-        $tableName = $resourceConnection->getTableName('mf_review');
-        $userId = $this->_authSession->getUser()->getId();
+        $connection = $this->resourceConnection->getConnection();
+        $tableName = $this->resourceConnection->getTableName('mf_review');
+        $userId = (int)$this->_authSession->getUser()->getId();
 
         $select = $connection->select()
             ->from($tableName)
@@ -164,7 +225,7 @@ class Index extends \Magento\Backend\App\Action
             $connection->update(
                 $tableName,
                 $data,
-                ['id = ?' => $existing['id']]
+                ['id = ?' => (int)$existing['id']]
             );
         } else {
             $data['created_at'] = (new \DateTime())->format('Y-m-d H:i:s');
