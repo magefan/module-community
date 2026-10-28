@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Model;
 
 use Magento\Framework\DataObject;
-use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\HTTP\Client\CurlFactory;
 use Magento\Framework\App\CacheInterface;
 use Magefan\Community\Api\GetModuleInfoInterface;
 use Psr\Log\LoggerInterface;
@@ -20,9 +20,34 @@ class GetModuleInfo implements GetModuleInfoInterface
     public const CACHE_LIFETIME = 43200;
 
     /**
-     * @var Curl
+     * Cache key of the flag that prevents remote requests until it expires
      */
-    private $curl;
+    public const CHECK_CACHE_KEY = 'magefan_product_versions_extended_json_check';
+
+    /**
+     * Lifetime of the last valid response, used as fallback when magefan.com is unreachable
+     */
+    public const DATA_CACHE_LIFETIME = 2592000;
+
+    /**
+     * Delay before the next attempt after a failed request
+     */
+    public const RETRY_LIFETIME = 3600;
+
+    /**
+     * Max time in seconds to establish connection
+     */
+    public const CONNECT_TIMEOUT = 2;
+
+    /**
+     * Max time in seconds for the whole request
+     */
+    public const TIMEOUT = 3;
+
+    /**
+     * @var CurlFactory
+     */
+    private $curlFactory;
 
     /**
      * @var CacheInterface
@@ -40,16 +65,16 @@ class GetModuleInfo implements GetModuleInfoInterface
     private $logger;
 
     /**
-     * @param Curl $curl
+     * @param CurlFactory $curlFactory
      * @param CacheInterface $cache
      * @param LoggerInterface $logger
      */
     public function __construct(
-        Curl $curl,
+        CurlFactory $curlFactory,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
-        $this->curl = $curl;
+        $this->curlFactory = $curlFactory;
         $this->cache = $cache;
         $this->logger = $logger;
     }
@@ -106,23 +131,38 @@ class GetModuleInfo implements GetModuleInfoInterface
      */
     private function load(): array
     {
+        if ($this->cache->load(self::CHECK_CACHE_KEY)) {
+            /* Data was loaded recently or previous request failed, use cache */
+            return [];
+        }
+
         $data = [];
         try {
             $url = 'https://mage' . 'fan.com/media/product-versions-extended.json';
 
+            $curl = $this->curlFactory->create();
+            $curl->setTimeout(self::TIMEOUT);
+            $curl->setOption(CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+
             // Make the request
-            $this->curl->get($url);
+            $curl->get($url);
 
             // Get the response
-            $response = $this->curl->getBody();
+            $response = $curl->getBody();
 
-            if ($response) {
-                $this->cache->save($response, self::CACHE_KEY, [], self::CACHE_LIFETIME);
+            if ($response && 200 == $curl->getStatus()) {
                 $data = json_decode($response, true);
+                if (is_array($data) && $data) {
+                    $this->cache->save($response, self::CACHE_KEY, [], self::DATA_CACHE_LIFETIME);
+                } else {
+                    $data = [];
+                }
             }
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
         }
+
+        $this->cache->save('1', self::CHECK_CACHE_KEY, [], $data ? self::CACHE_LIFETIME : self::RETRY_LIFETIME);
 
         return $data;
     }
@@ -136,7 +176,10 @@ class GetModuleInfo implements GetModuleInfoInterface
     {
         $cachedData = $this->cache->load(self::CACHE_KEY);
         if ($cachedData) {
-            return json_decode($cachedData, true);
+            $data = json_decode($cachedData, true);
+            if (is_array($data)) {
+                return $data;
+            }
         }
 
         return [];

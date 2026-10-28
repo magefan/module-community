@@ -10,7 +10,7 @@ namespace Magefan\Community\Model\Section;
 
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\HTTP\Client\CurlFactory;
 use Magefan\Community\Model\GetModuleVersion;
 
 /**
@@ -20,6 +20,16 @@ use Magefan\Community\Model\GetModuleVersion;
 // @codingStandardsIgnoreLine
 final class Info
 {
+    /**
+     * Max time in seconds to establish connection
+     */
+    private const CONNECT_TIMEOUT = 3;
+
+    /**
+     * Max time in seconds for the whole request
+     */
+    private const TIMEOUT = 5;
+
     /**
      * @var ProductMetadataInterface
      */
@@ -31,9 +41,9 @@ final class Info
     private $storeManager;
 
     /**
-     * @var Curl $curl
+     * @var CurlFactory
      */
-    private $curl;
+    private $curlFactory;
 
     /**
      * @var GetModuleVersion
@@ -46,18 +56,18 @@ final class Info
      *
      * @param ProductMetadataInterface $metadata
      * @param StoreManagerInterface $storeManager
-     * @param Curl $curl
+     * @param CurlFactory $curlFactory
      * @param GetModuleVersion $modelModuleVersion
      */
     final public function __construct(
         ProductMetadataInterface $metadata,
         StoreManagerInterface $storeManager,
-        Curl $curl,
+        CurlFactory $curlFactory,
         GetModuleVersion $modelModuleVersion
     ) {
         $this->metadata = $metadata;
         $this->storeManager = $storeManager;
-        $this->curl = $curl;
+        $this->curlFactory = $curlFactory;
         $this->modelModuleVersion = $modelModuleVersion;
     }
     // @codingStandardsIgnoreEnd
@@ -71,9 +81,12 @@ final class Info
      */
     final public function load(array $sections)
     {
-        /*$this->curl->setOption(CURLOPT_SSL_VERIFYPEER, false);*/
         try {
-            $this->curl->post($u =
+            $curl = $this->curlFactory->create();
+            $curl->setTimeout(self::TIMEOUT);
+            $curl->setOption(CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+            /*$curl->setOption(CURLOPT_SSL_VERIFYPEER, false);*/
+            $curl->post($u =
                 implode('/', [
                     'htt' . 'ps' . ':',
                     '',
@@ -87,7 +100,7 @@ final class Info
                     'v' => $this->modelModuleVersion->execute($m = 'Mag' . 'e' . 'f' . 'an_Com' . 'munity'),
                     'sections' => $this->getSectionsParam($sections)
                 ]);
-            $body = $this->curl->getBody();
+            $body = $curl->getBody();
             return json_decode($body, true);
         } catch (\Exception $e) {
             return false;
