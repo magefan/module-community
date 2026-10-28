@@ -329,6 +329,7 @@ class AdminNotificationFeed extends \Magento\Framework\Model\AbstractModel
         $curl = $this->curlFactory->create();
         $curl->setOptions(
             [
+                CURLOPT_CONNECTTIMEOUT => 2,
                 CURLOPT_TIMEOUT => 2,
                 CURLOPT_USERAGENT => $this->productMetadata->getName()
                     . '/' . $this->productMetadata->getVersion()
