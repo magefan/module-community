@@ -37,12 +37,12 @@ class GetModuleInfo implements GetModuleInfoInterface
     /**
      * Max time in seconds to establish connection
      */
-    public const CONNECT_TIMEOUT = 2;
+    public const CONNECT_TIMEOUT = 3;
 
     /**
      * Max time in seconds for the whole request
      */
-    public const TIMEOUT = 3;
+    public const TIMEOUT = 5;
 
     /**
      * @var CurlFactory
