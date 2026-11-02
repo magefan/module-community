@@ -4,7 +4,7 @@
  */
 
 /**
- * Review popup: the Magefan analyst peeks from the bottom edge, says hello once and then waits for a hover.
+ * Review popup: the Magefan analyst peeks from the bottom edge and pops out only on hover.
  * Click on him or "Rate it" opens the review form, "Not now" (or closing the form) postpones the module.
  */
 define([
@@ -158,7 +158,7 @@ define([
         }
 
         function hideAnalyst() {
-            $analyst.removeClass('is-in is-hello');
+            $analyst.removeClass('is-in');
             setTimeout(function () {
                 $analyst.remove();
             }, 600);
@@ -178,10 +178,7 @@ define([
             $analyst.prop('hidden', false);
             // next frame, so the slide-in transition runs from the hidden position
             setTimeout(function () {
-                $analyst.addClass('is-in is-hello');
-                setTimeout(function () {
-                    $analyst.removeClass('is-hello');
-                }, 3600);
+                $analyst.addClass('is-in');
             }, 50);
         }, config.showDelay || 3000);
     };
