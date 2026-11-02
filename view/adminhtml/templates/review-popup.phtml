@@ -1,0 +1,199 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+
+/**
+ * @var $block \Magefan\Community\Block\Adminhtml\ReviewPopup
+ * @var $escaper \Magento\Framework\Escaper
+ */
+?>
+<?php
+if (!isset($escaper)) {
+    $escaper = $block;
+}
+?>
+<script>
+    require(['jquery', 'Magento_Ui/js/modal/alert'], function ($, alert) {
+
+        var module = '<?= $escaper->escapeHtml($block->getModuleShortName()) ?>';
+        var formKey = '<?= $escaper->escapeHtml($block->getFormKey()) ?>';
+        var requestUrl = '<?= $escaper->escapeUrl($block->getUrl('mfcommunity/review/index')) ?>';
+        var starIconUrl = '<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/star.svg')) ?>';
+
+        setTimeout(function () {
+            alert({
+                title: '<?= $escaper->escapeHtml(__('Do you like this Extension?')) ?>',
+                content: '',
+                buttons: [
+                    {
+                        text: '<?= $escaper->escapeHtml(__('No')) ?>',
+                        class: 'action secondary',
+                        click: function () {
+                            sendRequest({ action: 'cancel', module: module, form_key: formKey });
+                            this.closeModal(false);
+                        }
+                    },
+                    {
+                        text: '<?= $escaper->escapeHtml(__('Yes')) ?>',
+                        class: 'action primary',
+                        click: function () {
+                            this.closeModal(false);
+                            showReviewPopup();
+                        }
+                    }
+                ]
+            });
+        }, 5000);
+
+        $(document).on('change', '#mf-review-form .review-control-vote input[type="radio"]', function () {
+            $('#validate_rating').val($(this).val());
+        });
+
+        function showReviewPopup() {
+            var formHtml = '<form id="mf-review-form" class="mf-review-form">' +
+                '<fieldset class="fieldset review-fieldset">' +
+                '<legend class="legend review-legend"><p><?= $escaper->escapeHtml(__('How would you rate your experience?')) ?></p></legend>' +
+                '<div id="product-review-table">' +
+                '<div class="field choice review-field-rating">' +
+                '<label id="rating_label" class="label"></label>' +
+                '<div class="control review-control-vote">' +
+                <?php for ($i = 5; $i >= 1; $i--): ?>
+                '<input type="radio" name="ratings" id="rating_<?= (int)$i ?>" value="<?= (int)$i ?>" class="radio" required>' +
+                '<label for="rating_<?= (int)$i ?>" title="<?= $escaper->escapeHtml(__('%1 %2', $i, $i > 1 ? 'stars' : 'star')) ?>" class="rating-<?= (int)$i ?>" id="rating_<?= (int)$i ?>_label">' +
+                '<span class="star-icon"></span>' +
+                '</label>' +
+                <?php endfor; ?>
+                '</div>' +
+                '</div>' +
+                '<input type="hidden" name="validate_rating" id="validate_rating" class="validate-rating" value="" aria-required="true">' +
+                '<input type="hidden" name="nickname" id="nickname_field" value="">' +
+                '<div class="field review-field-firstname required">' +
+                '<label for="firstname_field" class="label"><span><?= $escaper->escapeHtml(__('Firstname')) ?></span></label>' +
+                '<div class="control"><input type="text" name="firstname" id="firstname_field" class="input-text" required></div>' +
+                '</div>' +
+                '<div class="field review-field-lastname required">' +
+                '<label for="lastname_field" class="label"><span><?= $escaper->escapeHtml(__('Lastname')) ?></span></label>' +
+                '<div class="control"><input type="text" name="lastname" id="lastname_field" class="input-text" required></div>' +
+                '</div>' +
+                '<div class="field review-field-email required">' +
+                '<label for="email_field" class="label"><span><?= $escaper->escapeHtml(__('Email')) ?></span></label>' +
+                '<div class="control"><input type="email" name="email" id="email_field" class="input-text" placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>" required></div>' +
+                '</div>' +
+                '<div class="field review-field-summary required">' +
+                '<label for="summary_field" class="label"><span><?= $escaper->escapeHtml(__('Summary')) ?></span></label>' +
+                '<div class="control"><input type="text" name="title" id="summary_field" class="input-text" placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>" required></div>' +
+                '</div>' +
+                '<div class="field review-field-text required">' +
+                '<label for="review_field" class="label"><span><?= $escaper->escapeHtml(__('Share detailed feedback?')) ?></span></label>' +
+                '<div class="control"><textarea name="detail" id="review_field" rows="5" placeholder="<?= $escaper->escapeHtmlAttr(__('Leave us a message...')) ?>" required></textarea></div>' +
+                '</div>' +
+                '<div class="field gdpr required">' +
+                '<input type="checkbox" name="gdpr-consent" id="gdpr-consent" class="input-checkbox" required>' +
+                '<label for="gdpr-consent" class="label">&nbsp;<span><?= $escaper->escapeHtml(__('I agree to the processing of my data in accordance with the ')) ?> <a href="https://magefan.com/privacy-policy" target="_blank">Privacy Policy</a></span></label>' +
+                '</div>' +
+                '</fieldset>' +
+                '</form>';
+
+            var style = '<style>' +
+                '.mf-review-form{width:100%;max-width:800px;padding:40px 10%;background:var(--bli-bgc,#fff);border-radius:16px;border:1px solid rgba(255,153,0,0.4);box-shadow:0px 75px 150px 0px rgba(52,64,84,0.14);margin:0 auto;box-sizing:border-box;}' +
+                '.mf-review-form .fieldset{border:none;padding:0;margin:0;}' +
+                '.mf-review-form .field{margin-bottom:18px;}' +
+                '.mf-review-form .label span,.mf-review-form .label{font-weight:600;margin-bottom:6px;display:block;font-size:14px;}' +
+                '.mf-review-form .control input.input-text,.mf-review-form .control textarea{width:100%;border:1px solid #d5d5d5;border-radius:6px;padding:10px 12px;font-size:14px;background:#fff;box-sizing:border-box;}' +
+                '.mf-review-form .control textarea{resize:vertical;min-height:100px;}' +
+                '.mf-review-form input.input-text:focus,.mf-review-form textarea:focus{border-color:#333;outline:none;}' +
+                '.mf-review-form .field.gdpr{display:flex;align-items:flex-start;gap:8px;margin-top:20px;}' +
+                '.mf-review-form .field.gdpr input[type="checkbox"]{flex-shrink:0;width:16px;height:16px;margin:2px 0 0;cursor:pointer;accent-color:#FF9900;}' +
+                '.mf-review-form .field.gdpr .label{font-weight:400;font-size:13px;color:#555;display:inline;margin:0;}' +
+                '.mf-review-form .field.gdpr .label span{display:inline;font-weight:400;}' +
+                '.mf-review-form .field.gdpr a{color:#FF9900;text-decoration:underline;}' +
+                '.mf-review-form .field.gdpr a:hover{color:#e68a00;}' +
+                '.mf-review-form .review-control-vote{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:6px;margin:10px 0 15px;overflow:hidden;}' +
+                '.mf-review-form .review-control-vote input[type="radio"]{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);border:0;margin:-1px;overflow:hidden;padding:0;opacity:0;pointer-events:none;}' +
+                '.mf-review-form .review-control-vote label{display:inline-block;cursor:pointer;line-height:12px;padding-inline-start:0;user-select:none;}' +
+                '.mf-review-form .review-control-vote .star-icon{display:block;width:37px;height:37px;background-color:#E9E9E9;transition:background-color .2s ease;' +
+                '-webkit-mask:url("' + starIconUrl + '") no-repeat center/contain;mask:url("' + starIconUrl + '") no-repeat center/contain;}' +
+                '.mf-review-form .review-control-vote label:hover .star-icon,' +
+                '.mf-review-form .review-control-vote label:hover ~ label .star-icon{background-color:#FFC736;}' +
+                '.mf-review-form .review-control-vote input[type="radio"]:checked + label .star-icon,' +
+                '.mf-review-form .review-control-vote input[type="radio"]:checked ~ label .star-icon{background-color:#FFC736;}' +
+                '</style>';
+
+            alert({
+                title: '<?= $escaper->escapeHtml(__('Leave a Review for %1', $block->getProductName())) ?>',
+                content: style + formHtml,
+                buttons: [
+                    {
+                        text: '<?= $escaper->escapeHtml(__('Submit')) ?>',
+                        class: 'action primary',
+                        click: function () {
+                            var modal = this;
+                            var $form = $('#mf-review-form');
+                            var fn = $('#firstname_field').val();
+                            var ln = $('#lastname_field').val();
+                            $('#nickname_field').val(fn + ' ' + ln);
+
+                            if (!$form[0].checkValidity() || !$('#validate_rating').val()) {
+                                $form[0].reportValidity();
+                                return;
+                            }
+
+                            var data = {};
+                            $form.serializeArray().forEach(function (item) {
+                                data[item.name] = item.value;
+                            });
+                            data.action = 'submit';
+                            data.module = module;
+                            data.form_key = formKey;
+
+                            sendRequest(data, function () {
+                                modal.closeModal(false);
+                                alert({
+                                    title: '<?= $escaper->escapeHtml(__('Thank you!')) ?>',
+                                    content: '<?= $escaper->escapeHtml(__('Your review has been submitted successfully.')) ?>'
+                                });
+                            });
+                        }
+                    }
+                ]
+            });
+        }
+
+        function showError(message) {
+            alert({
+                title: $.mage.__('Error'),
+                content: $('<div>').text(
+                    message || $.mage.__('An error occurred while submitting your review. Please try again later.')
+                ).html()
+            });
+        }
+
+        function sendRequest(data, onSuccess) {
+            $.ajax({
+                url: requestUrl,
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                showLoader: true,
+                success: function (response) {
+                    if (response && response.success) {
+                        if (onSuccess) {
+                            onSuccess();
+                        }
+                        return;
+                    }
+                    if (onSuccess) {
+                        showError(response && response.message);
+                    }
+                },
+                error: function () {
+                    if (onSuccess) {
+                        showError();
+                    }
+                }
+            });
+        }
+    });
+</script>
