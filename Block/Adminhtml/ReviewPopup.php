@@ -14,15 +14,12 @@ use Magento\Framework\App\Route\Config as RouteConfig;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Module\Manager as ModuleManager;
 use Magefan\Community\Model\Config;
+use Magefan\Community\Model\GetReviewUrls;
 use Magefan\Community\Model\ReviewStatus;
+use Magento\Framework\Serialize\Serializer\Json;
 
 class ReviewPopup extends \Magento\Backend\Block\Template
 {
-    /**
-     * @var string|null
-     */
-    private $reviewUrl = null;
-
     /**
      * @var array|null
      */
@@ -69,6 +66,16 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     private $mfModuleManager;
 
     /**
+     * @var GetReviewUrls
+     */
+    private $getReviewUrls;
+
+    /**
+     * @var Json
+     */
+    private $json;
+
+    /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magefan\Community\Model\GetModuleInfo $getModuleInfo
      * @param RouteConfig $routeConfig
@@ -77,6 +84,8 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      * @param ReviewStatus $reviewStatus
      * @param FormKey $formKey
      * @param ModuleManager $moduleManager
+     * @param GetReviewUrls $getReviewUrls
+     * @param Json $json
      * @param array $data
      * @param JsonHelper|null $jsonHelper
      * @param DirectoryHelper|null $directoryHelper
@@ -90,6 +99,8 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         ReviewStatus $reviewStatus,
         FormKey $formKey,
         ModuleManager $moduleManager,
+        GetReviewUrls $getReviewUrls,
+        Json $json,
         array $data = [],
         ?JsonHelper $jsonHelper = null,
         ?DirectoryHelper $directoryHelper = null
@@ -101,6 +112,8 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         $this->reviewStatus = $reviewStatus;
         $this->mfFormKey = $formKey;
         $this->mfModuleManager = $moduleManager;
+        $this->getReviewUrls = $getReviewUrls;
+        $this->json = $json;
         parent::__construct($context, $data, $jsonHelper, $directoryHelper);
     }
 
@@ -164,7 +177,7 @@ class ReviewPopup extends \Magento\Backend\Block\Template
             $shortName = explode('_', $module)[1] ?? '';
             if ($shortName
                 && $this->reviewStatus->canAsk($shortName, $this->getAdminUserId())
-                && $this->getModuleInfo->execute($module)->getData('popup_review_url')
+                && $this->getReviewUrls->execute($module)
             ) {
                 return $module;
             }
@@ -196,24 +209,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
             return explode('_', $moduleName)[1];
         }
         return (string)$moduleName;
-    }
-
-    /**
-     * Return the external review submission URL for the current module.
-     *
-     * @return string|null
-     */
-    public function getModuleReviewUrl()
-    {
-        if ($this->reviewUrl === null) {
-            $info = $this->getModuleInfo();
-
-            if (!empty($info['popup_review_url'])) {
-                $this->reviewUrl = $info['popup_review_url'];
-            }
-        }
-
-        return $this->reviewUrl;
     }
 
     /**
@@ -291,7 +286,7 @@ class ReviewPopup extends \Magento\Backend\Block\Template
             return false;
         }
 
-        return $this->getModuleReviewUrl()
+        return $this->getReviewUrls->execute($moduleName)
             && $this->getProductName();
     }
 
@@ -316,6 +311,36 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     {
         $user = $this->authSession->getUser();
         return $user ? (string)$user->getData($field) : '';
+    }
+
+    /**
+     * Config of the Magefan_Community/js/review-popup component for x-magento-init
+     *
+     * @return string JSON
+     */
+    public function getJsConfig(): string
+    {
+        $productName = $this->getProductName();
+
+        return $this->json->serialize([
+            'Magefan_Community/js/review-popup' => [
+                'requestUrl' => $this->getUrl('mfcommunity/review/index'),
+                'formKey' => $this->getFormKey(),
+                'module' => $this->getModuleShortName(),
+                'showDelay' => 3000,
+                'texts' => [
+                    'formTitle' => (string)__('Leave a Review for %1', $productName),
+                    'submit' => (string)__('Submit'),
+                    'thankYou' => (string)__('Thank you!'),
+                    'submitted' => (string)__('Your review has been submitted successfully.'),
+                    'alreadyReviewed' => (string)__('You have already left a review for this extension.'),
+                    'error' => (string)__('Error'),
+                    'errorMessage' => (string)__(
+                        'An error occurred while submitting your review. Please try again later.'
+                    ),
+                ],
+            ],
+        ]);
     }
 
     /**

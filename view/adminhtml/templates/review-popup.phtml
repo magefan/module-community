@@ -19,23 +19,6 @@ $starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 '
 $analystUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst.webp');
 $tabletUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp');
 $productImage = $block->getProductImage();
-$jsConfig = [
-    'Magefan_Community/js/review-popup' => [
-        'requestUrl' => $block->getUrl('mfcommunity/review/index'),
-        'formKey' => (string)$block->getFormKey(),
-        'module' => (string)$block->getModuleShortName(),
-        'showDelay' => 3000,
-        'texts' => [
-            'formTitle' => (string)__('Leave a Review for %1', $productName),
-            'submit' => (string)__('Submit'),
-            'thankYou' => (string)__('Thank you!'),
-            'submitted' => (string)__('Your review has been submitted successfully.'),
-            'alreadyReviewed' => (string)__('You have already left a review for this extension.'),
-            'error' => (string)__('Error'),
-            'errorMessage' => (string)__('An error occurred while submitting your review. Please try again later.'),
-        ],
-    ],
-];
 ?>
 <div class="mf-review-popup" id="mf-review-popup">
     <div class="mf-ra" hidden>
@@ -91,7 +74,7 @@ $jsConfig = [
                         <?php for ($i = 5; $i >= 1; $i--): ?>
                             <?php $starTitle = $i > 1 ? __('%1 stars', $i) : __('%1 star', $i); ?>
                             <input type="radio"
-                                   name="ratings"
+                                   name="rating"
                                    id="mf-review-rating-<?= (int)$i ?>"
                                    value="<?= (int)$i ?>"
                                    class="radio"
@@ -105,7 +88,6 @@ $jsConfig = [
                 </div>
             </div>
             <fieldset class="fieldset review-fieldset">
-                <input type="hidden" name="nickname" value="">
                 <div class="mf-review-grid">
                     <div class="field review-field-firstname required">
                         <label for="mf-review-firstname" class="label">
@@ -189,5 +171,5 @@ $jsConfig = [
     </template>
 </div>
 <script type="text/x-magento-init">
-    {"#mf-review-popup": <?= /* @noEscape */ $block->getData('jsonHelper')->jsonEncode($jsConfig) ?>}
+    {"#mf-review-popup": <?= /* @noEscape */ $block->getJsConfig() ?>}
 </script>

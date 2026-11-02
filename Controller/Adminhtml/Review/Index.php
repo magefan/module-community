@@ -10,7 +10,7 @@ namespace Magefan\Community\Controller\Adminhtml\Review;
 
 use Laminas\Uri\UriFactory;
 use Magefan\Community\Model\Config;
-use Magefan\Community\Model\GetModuleInfo;
+use Magefan\Community\Model\GetReviewUrls;
 use Magefan\Community\Model\ReviewStatus;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
@@ -29,9 +29,8 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private const ACTION_SUBMIT = 'submit';
 
     private const REQUIRED_FIELDS = [
-        'ratings', 'nickname', 'firstname',
-        'lastname', 'email', 'title',
-        'detail', 'token'
+        'rating', 'firstname', 'lastname',
+        'email', 'title', 'detail', 'token'
     ];
 
     /**
@@ -60,9 +59,9 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private $curlFactory;
 
     /**
-     * @var GetModuleInfo
+     * @var GetReviewUrls
      */
-    private $getModuleInfo;
+    private $getReviewUrls;
 
     /**
      * @var ReviewStatus
@@ -94,7 +93,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param JsonFactory $resultJsonFactory
      * @param CurlFactory $curlFactory
-     * @param GetModuleInfo $getModuleInfo
+     * @param GetReviewUrls $getReviewUrls
      * @param ReviewStatus $reviewStatus
      * @param StoreManagerInterface $storeManager
      * @param Json $json
@@ -106,7 +105,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         \Magento\Backend\Model\Auth\Session $authSession,
         JsonFactory $resultJsonFactory,
         CurlFactory $curlFactory,
-        GetModuleInfo $getModuleInfo,
+        GetReviewUrls $getReviewUrls,
         ReviewStatus $reviewStatus,
         StoreManagerInterface $storeManager,
         Json $json,
@@ -116,7 +115,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         $this->_authSession = $authSession;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->curlFactory = $curlFactory;
-        $this->getModuleInfo = $getModuleInfo;
+        $this->getReviewUrls = $getReviewUrls;
         $this->reviewStatus = $reviewStatus;
         $this->storeManager = $storeManager;
         $this->json = $json;
@@ -156,7 +155,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
             return $result->setData(['success' => false, 'message' => __('Invalid action.')]);
         }
 
-        $reviewUrl = $this->getReviewUrl($moduleName, 'popup_review_url');
+        $reviewUrl = $this->getReviewUrls->execute($moduleName)['review'] ?? '';
         if (!$reviewUrl) {
             return $result->setData(['success' => false, 'message' => __('Review is not available for this module.')]);
         }
@@ -170,12 +169,12 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
             $reviewData[$field] = $value;
         }
 
-        $rating = (int)$reviewData['ratings'];
-        if ($rating < 1 || $rating > 5) {
+        $reviewData['rating'] = (int)$reviewData['rating'];
+        if ($reviewData['rating'] < 1 || $reviewData['rating'] > 5) {
             return $result->setData(['success' => false, 'message' => __('Please select a rating.')]);
         }
-        unset($reviewData['ratings']);
-        $reviewData['rating'] = $rating;
+
+        $reviewData['nickname'] = $reviewData['firstname'] . ' ' . $reviewData['lastname'];
 
         if (!filter_var($reviewData['email'], FILTER_VALIDATE_EMAIL)) {
             return $result->setData(['success' => false, 'message' => __('Please enter a valid email address.')]);
@@ -246,7 +245,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     {
         $result = $this->resultJsonFactory->create();
 
-        $tokenUrl = $this->getReviewUrl($moduleName, 'popup_review_token_url');
+        $tokenUrl = $this->getReviewUrls->execute($moduleName)['token'] ?? '';
         if (!$tokenUrl) {
             return $result->setData(['success' => false, 'message' => __('Review is not available for this module.')]);
         }
@@ -294,21 +293,6 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         $response = $this->json->unserialize((string)$curl->getBody());
 
         return is_array($response) ? $response : [];
-    }
-
-    /**
-     * Resolve review URL on the server side, never trust the URL from request
-     *
-     * @param string $moduleName
-     * @param string $key
-     * @return string|null
-     */
-    private function getReviewUrl(string $moduleName, string $key): ?string
-    {
-        $info = $this->getModuleInfo->execute('Magefan_' . $moduleName);
-        $url = $info ? (string)$info->getData($key) : '';
-
-        return preg_match('#^https?://#i', $url) ? $url : null;
     }
 
     /**

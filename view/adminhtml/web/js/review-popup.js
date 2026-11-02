@@ -116,12 +116,7 @@ define([
                     click: function () {
                         var modal = this,
                             $form = modal.element.find('.mf-review-form'),
-                            data = {},
-                            nickname;
-
-                        nickname = $form.find('[name="firstname"]').val() + ' ' +
-                            $form.find('[name="lastname"]').val();
-                        $form.find('[name="nickname"]').val(nickname.trim());
+                            data = {};
 
                         if (!$form[0].checkValidity()) {
                             $form[0].reportValidity();
@@ -145,6 +140,10 @@ define([
             });
         }
 
+        /**
+         * A technical error (e.g. Magefan is not available) does not count as "not now":
+         * the analyst is just hidden until the next page load
+         */
         function requestToken() {
             sendRequest({action: 'token'}, function (response) {
                 if (response.reviewed) {
@@ -154,7 +153,7 @@ define([
                 }
 
                 showReviewForm(response.token);
-            }, remindLater);
+            });
         }
 
         function hideAnalyst() {
