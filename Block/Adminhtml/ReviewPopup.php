@@ -10,7 +10,6 @@ namespace Magefan\Community\Block\Adminhtml;
 
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Framework\App\Route\Config as RouteConfig;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Module\Manager as ModuleManager;
 use Magefan\Community\Model\Config;
@@ -34,11 +33,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      * @var \Magefan\Community\Model\GetModuleInfo
      */
     private $getModuleInfo;
-
-    /**
-     * @var RouteConfig
-     */
-    private $routeConfig;
 
     /**
      * @var Config
@@ -78,7 +72,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magefan\Community\Model\GetModuleInfo $getModuleInfo
-     * @param RouteConfig $routeConfig
      * @param Config $config
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param ReviewStatus $reviewStatus
@@ -93,7 +86,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magefan\Community\Model\GetModuleInfo $getModuleInfo,
-        RouteConfig $routeConfig,
         Config $config,
         \Magento\Backend\Model\Auth\Session $authSession,
         ReviewStatus $reviewStatus,
@@ -106,7 +98,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         ?DirectoryHelper $directoryHelper = null
     ) {
         $this->getModuleInfo = $getModuleInfo;
-        $this->routeConfig = $routeConfig;
         $this->config = $config;
         $this->authSession = $authSession;
         $this->reviewStatus = $reviewStatus;
@@ -120,11 +111,8 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     /**
      * Return the full Magefan module name to ask a review for on the current admin page.
      *
-     * Same sources as the Info block (Magefan\Community\Block\Adminhtml\Info::getModuleName):
-     * 1. module_name data argument (set explicitly via layout XML)
-     * 2. Route-based detection (extensions with their own admin route)
-     * 3. Full-action map of the Info block (extensions that enhance native Magento pages).
-     *    If several extensions enhance the page, the first one that can be asked about is used.
+     * Modules of the page come from the Info block (Magefan\Community\Block\Adminhtml\Info::getModuleNames).
+     * If several extensions enhance the page, the first one that can be asked about is used.
      *
      * @return string|null
      */
@@ -144,38 +132,15 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      */
     private function resolveModuleName(): ?string
     {
-        $explicit = $this->getData('module_name');
-        if ($explicit) {
-            return $this->mfModuleManager->isEnabled($explicit) ? $explicit : null;
-        }
-
-        $routeName = $this->getRequest()->getRouteName();
-        // Community's own pages (e.g. promo pages) are not an extension page
-        if ($routeName === 'mfcommunity') {
+        $infoBlock = $this->getLayout()->getBlock('magefan.module.info');
+        if (!$infoBlock instanceof Info) {
             return null;
         }
 
-        if ($routeName) {
-            foreach ($this->routeConfig->getModulesByFrontName($routeName, 'adminhtml') as $module) {
-                if (strpos($module, 'Magefan_') === 0) {
-                    return $module;
-                }
-            }
-        }
-
-        $fullAction = $this->getRequest()->getFullActionName();
-        $map = $this->getFullActionModuleMap();
-        if (!$fullAction || empty($map[$fullAction])) {
-            return null;
-        }
-
-        foreach ((array)$map[$fullAction] as $module) {
-            $module = (string)$module;
-            if (!$this->mfModuleManager->isEnabled($module)) {
-                continue;
-            }
+        foreach ($infoBlock->getModuleNames() as $module) {
             $shortName = explode('_', $module)[1] ?? '';
             if ($shortName
+                && $this->mfModuleManager->isEnabled($module)
                 && $this->reviewStatus->canAsk($shortName, $this->getAdminUserId())
                 && $this->getReviewUrls->execute($module)
             ) {
@@ -184,17 +149,6 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         }
 
         return null;
-    }
-
-    /**
-     * Full action => module(s) map configured for the Info block in etc/adminhtml/di.xml
-     *
-     * @return array
-     */
-    private function getFullActionModuleMap(): array
-    {
-        $infoBlock = $this->getLayout()->getBlock('magefan.module.info');
-        return $infoBlock instanceof Info ? $infoBlock->getFullActionModuleMap() : [];
     }
 
     /**
