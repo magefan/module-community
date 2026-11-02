@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Controller\Adminhtml\Review;
 
 use Laminas\Uri\UriFactory;
+use Magefan\Community\Model\Config;
 use Magefan\Community\Model\GetModuleInfo;
 use Magefan\Community\Model\ReviewStatus;
 use Magento\Backend\App\Action\Context;
@@ -79,6 +80,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private $json;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -93,6 +99,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
      * @param StoreManagerInterface $storeManager
      * @param Json $json
      * @param LoggerInterface $logger
+     * @param Config $config
      */
     public function __construct(
         Context $context,
@@ -103,7 +110,8 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         ReviewStatus $reviewStatus,
         StoreManagerInterface $storeManager,
         Json $json,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Config $config
     ) {
         $this->_authSession = $authSession;
         $this->resultJsonFactory = $resultJsonFactory;
@@ -113,6 +121,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         $this->storeManager = $storeManager;
         $this->json = $json;
         $this->logger = $logger;
+        $this->config = $config;
         parent::__construct($context);
     }
 
@@ -125,6 +134,10 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     {
         $reviewData = [];
         $result = $this->resultJsonFactory->create();
+        // "Extension Review Requests" is disabled in the Magefan Notifications config
+        if (!$this->config->isReviewRequestsEnabled()) {
+            return $result->setData(['success' => false, 'message' => __('Review requests are disabled.')]);
+        }
         $moduleName = $this->_request->getParam('module');
         if (!is_string($moduleName) || !preg_match('/^[A-Za-z0-9]+$/', $moduleName)) {
             return $result->setData(['success' => false, 'message' => __('Module name is not specified.')]);
@@ -294,20 +307,8 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     {
         $info = $this->getModuleInfo->execute('Magefan_' . $moduleName);
         $url = $info ? (string)$info->getData($key) : '';
-        if (!$url) {
-            return null;
-        }
 
-        try {
-            $scheme = strtolower((string)UriFactory::factory($url)->getScheme());
-        } catch (\Exception $e) {
-            return null;
-        }
-        if (!in_array($scheme, ['http', 'https'], true)) {
-            return null;
-        }
-
-        return $url;
+        return preg_match('#^https?://#i', $url) ? $url : null;
     }
 
     /**

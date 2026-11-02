@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Block\Adminhtml;
 
-use Laminas\Uri\UriFactory;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\App\Route\Config as RouteConfig;
@@ -226,17 +225,8 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     {
         $info = $this->getModuleInfo();
         $url = !empty($info['product_image']) ? (string)$info['product_image'] : '';
-        if (!$url) {
-            return '';
-        }
 
-        try {
-            $scheme = strtolower((string)UriFactory::factory($url)->getScheme());
-        } catch (\Exception $e) {
-            return '';
-        }
-
-        return 'https' === $scheme ? $url : '';
+        return preg_match('#^https://#i', $url) ? $url : '';
     }
 
     /**
@@ -283,7 +273,7 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      */
     private function canDisplay(): bool
     {
-        if (!$this->config->receiveReview()) {
+        if (!$this->config->isReviewRequestsEnabled()) {
             return false;
         }
 
