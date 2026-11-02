@@ -225,7 +225,7 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     {
         $info = $this->getModuleInfo();
         if (!empty($info['product_name'])) {
-           return str_replace('Magento 2', 'Magefan' , $info['product_name']);
+            return str_replace('Magento 2', 'Magefan', $info['product_name']);
         }
         return '';
     }

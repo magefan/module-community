@@ -14,288 +14,161 @@ if (!isset($escaper)) {
     $escaper = $block;
 }
 $productName = (string)$block->getProductName();
-$starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 L-4.7,6.47 L-3.42,1.11 L-7.61,-2.47 L-2.12,-2.91 Z';
+$starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 '
+    . 'L-4.7,6.47 L-3.42,1.11 L-7.61,-2.47 L-2.12,-2.91 Z';
+$analystUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst.webp');
+$tabletUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp');
+$jsConfig = [
+    'Magefan_Community/js/review-popup' => [
+        'requestUrl' => $block->getUrl('mfcommunity/review/index'),
+        'formKey' => (string)$block->getFormKey(),
+        'module' => (string)$block->getModuleShortName(),
+        'showDelay' => 3000,
+        'texts' => [
+            'formTitle' => (string)__('Leave a Review for %1', $productName),
+            'submit' => (string)__('Submit'),
+            'thankYou' => (string)__('Thank you!'),
+            'submitted' => (string)__('Your review has been submitted successfully.'),
+            'alreadyReviewed' => (string)__('You have already left a review for this extension.'),
+            'error' => (string)__('Error'),
+            'errorMessage' => (string)__('An error occurred while submitting your review. Please try again later.'),
+        ],
+    ],
+];
 ?>
-<style>
-    /* Magefan analyst: peeks from the bottom edge, pops out on hover and invites to rate the extension */
-    .mf-ra{position:fixed;left:104px;bottom:0;z-index:799;width:150px;height:132px;pointer-events:none;}
-    .mf-ra[hidden]{display:none;}
-    .mf-ra-move{position:absolute;left:0;right:0;bottom:0;transform:translateY(62%);transition:transform .45s cubic-bezier(.4,0,.2,1) .35s;}
-    .mf-ra.is-in .mf-ra-move{transform:translateY(62%);}
-    .mf-ra:not(.is-in) .mf-ra-move{transform:translateY(110%);}
-    .mf-ra.is-in:hover .mf-ra-move,.mf-ra.is-in:focus-within .mf-ra-move,.mf-ra.is-hello .mf-ra-move{transform:translateY(-2%);transition:transform .55s cubic-bezier(.34,1.56,.64,1) 0s;}
-    .mf-ra-btn{all:unset;display:block;width:100%;cursor:pointer;border-radius:16px;pointer-events:auto;}
-    .mf-ra-btn:focus-visible{outline:3px solid #2E6BD9;outline-offset:2px;}
-    .mf-ra-an{position:relative;display:block;aspect-ratio:480/421;}
-    .mf-ra-an img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none;}
-    .mf-ra-tab{position:absolute;inset:0;transform-origin:70.95% 67.65%;}
-    .mf-ra-lid{position:absolute;width:4.8%;height:7.6%;top:28.1%;background:#304F70;border-radius:50%;transform-origin:50% 0;transform:scaleY(0);animation:mf-ra-blink 4.6s infinite;}
-    .mf-ra-lid.l{left:38%;}.mf-ra-lid.r{left:56.4%;}
-    .mf-ra-star{position:absolute;width:5%;aspect-ratio:1;opacity:0;}
-    .mf-ra-star svg{width:100%;height:100%;display:block;}
-    .mf-ra-star.s1{left:76%;top:44%;}.mf-ra-star.s2{left:88%;top:41%;}.mf-ra-star.s3{left:82%;top:36%;width:6%;}
-    .mf-ra.is-in:hover .mf-ra-tab,.mf-ra.is-in:focus-within .mf-ra-tab,.mf-ra.is-hello .mf-ra-tab{animation:mf-ra-wave 1.9s ease-in-out .45s infinite;}
-    .mf-ra.is-in:hover .mf-ra-star,.mf-ra.is-in:focus-within .mf-ra-star,.mf-ra.is-hello .mf-ra-star{animation:mf-ra-sparkle 1.9s ease-out .45s infinite;}
-    .mf-ra.is-in:hover .mf-ra-star.s2,.mf-ra.is-in:focus-within .mf-ra-star.s2,.mf-ra.is-hello .mf-ra-star.s2{animation-delay:.6s;}
-    .mf-ra.is-in:hover .mf-ra-star.s3,.mf-ra.is-in:focus-within .mf-ra-star.s3,.mf-ra.is-hello .mf-ra-star.s3{animation-delay:.75s;}
-    .mf-ra-bubble{position:absolute;left:138px;bottom:118px;width:max-content;max-width:230px;background:#fff;color:#101828;border:1px solid #C9DFF5;border-radius:14px;padding:9px 13px;font-size:13.5px;font-weight:600;line-height:1.3;box-shadow:0 8px 22px rgba(16,24,40,.14);pointer-events:auto;transform-origin:0 100%;transform:scale(.5);opacity:0;visibility:hidden;transition:transform .15s ease-in,opacity .15s ease-in,visibility 0s .15s;}
-    .mf-ra-bubble::after{content:"";position:absolute;left:12px;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #C9DFF5;border-bottom:1px solid #C9DFF5;transform:rotate(45deg) skew(8deg,8deg);}
-    .mf-ra.is-in:hover .mf-ra-bubble,.mf-ra.is-in:focus-within .mf-ra-bubble,.mf-ra.is-hello .mf-ra-bubble{transform:scale(1);opacity:1;visibility:visible;transition:transform .35s cubic-bezier(.34,1.56,.64,1) .3s,opacity .2s ease-out .3s,visibility 0s .3s;}
-    .mf-ra-bubble button{all:unset;cursor:pointer;display:block;}
-    .mf-ra-bubble .mf-ra-rate{color:#1570CD;font-weight:700;margin-top:2px;}
-    .mf-ra-bubble .mf-ra-later{color:#6B7280;font-size:12px;font-weight:600;margin-top:6px;}
-    .mf-ra-bubble button:hover{text-decoration:underline;}
-    .mf-ra-bubble button:focus-visible{outline:2px solid #2E6BD9;outline-offset:2px;border-radius:4px;}
-    @keyframes mf-ra-blink{0%,91%,100%{transform:scaleY(0);}94%{transform:scaleY(1);}97%{transform:scaleY(0);}}
-    @keyframes mf-ra-wave{0%{transform:rotate(0);}12%{transform:rotate(-10deg);}26%{transform:rotate(2deg);}40%{transform:rotate(-10deg);}54%{transform:rotate(2deg);}66%{transform:rotate(-7deg);}80%,100%{transform:rotate(0);}}
-    @keyframes mf-ra-sparkle{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0);}14%{opacity:1;transform:translate(0,-4px) scale(1.15) rotate(25deg);}42%,100%{opacity:0;transform:translate(6px,-22px) scale(.6) rotate(60deg);}}
-    @media (prefers-reduced-motion:reduce){
-        .mf-ra-move,.mf-ra.is-in:hover .mf-ra-move{transition-duration:.01s;}
-        .mf-ra .mf-ra-lid,.mf-ra .mf-ra-tab,.mf-ra .mf-ra-star{animation:none!important;}
-    }
-</style>
-<div class="mf-ra" id="mf-review-analyst" hidden>
-    <div class="mf-ra-move">
-        <button type="button" class="mf-ra-btn mf-ra-open" aria-label="<?= $escaper->escapeHtmlAttr(__('Rate %1', $productName)) ?>">
-            <span class="mf-ra-an">
-                <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/review-analyst.webp')) ?>" alt="">
-                <span class="mf-ra-lid l"></span><span class="mf-ra-lid r"></span>
-                <span class="mf-ra-tab">
-                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp')) ?>" alt="">
-                    <?php foreach (['s1', 's2', 's3'] as $starClass): ?>
-                        <span class="mf-ra-star <?= /* @noEscape */ $starClass ?>"><svg viewBox="-9 -9 18 18" aria-hidden="true"><path fill="#FDB022" d="<?= /* @noEscape */ $starPath ?>"/></svg></span>
-                    <?php endforeach; ?>
+<div class="mf-review-popup" id="mf-review-popup">
+    <div class="mf-ra" hidden>
+        <div class="mf-ra-move">
+            <button type="button"
+                    class="mf-ra-btn mf-ra-open"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Rate %1', $productName)) ?>">
+                <span class="mf-ra-an">
+                    <img src="<?= $escaper->escapeUrl($analystUrl) ?>" alt="">
+                    <span class="mf-ra-lid l"></span><span class="mf-ra-lid r"></span>
+                    <span class="mf-ra-tab">
+                        <img src="<?= $escaper->escapeUrl($tabletUrl) ?>" alt="">
+                        <?php foreach (['s1', 's2', 's3'] as $starClass): ?>
+                            <span class="mf-ra-star <?= /* @noEscape */ $starClass ?>">
+                                <svg viewBox="-9 -9 18 18" aria-hidden="true">
+                                    <path d="<?= /* @noEscape */ $starPath ?>"/>
+                                </svg>
+                            </span>
+                        <?php endforeach; ?>
+                    </span>
                 </span>
-            </span>
-        </button>
+            </button>
+        </div>
+        <div class="mf-ra-bubble">
+            <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
+            <button type="button" class="mf-ra-rate mf-ra-open"><?= $escaper->escapeHtml(__('Rate it')) ?> ★</button>
+            <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Not now')) ?></button>
+        </div>
     </div>
-    <div class="mf-ra-bubble">
-        <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
-        <button type="button" class="mf-ra-rate mf-ra-open"><?= $escaper->escapeHtml(__('Rate it')) ?> ★</button>
-        <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Not now')) ?></button>
-    </div>
+
+    <template class="mf-review-form-template">
+        <form class="mf-review-form">
+            <fieldset class="fieldset review-fieldset">
+                <legend class="legend review-legend">
+                    <p><?= $escaper->escapeHtml(__('How would you rate your experience?')) ?></p>
+                </legend>
+                <div class="field choice review-field-rating">
+                    <div class="control review-control-vote">
+                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                            <?php $starTitle = $i > 1 ? __('%1 stars', $i) : __('%1 star', $i); ?>
+                            <input type="radio"
+                                   name="ratings"
+                                   id="mf-review-rating-<?= (int)$i ?>"
+                                   value="<?= (int)$i ?>"
+                                   class="radio"
+                                   required>
+                            <label for="mf-review-rating-<?= (int)$i ?>"
+                                   title="<?= $escaper->escapeHtmlAttr($starTitle) ?>">
+                                <span class="star-icon"></span>
+                            </label>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+                <input type="hidden" name="nickname" value="">
+                <div class="field review-field-firstname required">
+                    <label for="mf-review-firstname" class="label">
+                        <span><?= $escaper->escapeHtml(__('Firstname')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="text"
+                               name="firstname"
+                               id="mf-review-firstname"
+                               class="input-text"
+                               value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('firstname')) ?>"
+                               required>
+                    </div>
+                </div>
+                <div class="field review-field-lastname required">
+                    <label for="mf-review-lastname" class="label">
+                        <span><?= $escaper->escapeHtml(__('Lastname')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="text"
+                               name="lastname"
+                               id="mf-review-lastname"
+                               class="input-text"
+                               value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('lastname')) ?>"
+                               required>
+                    </div>
+                </div>
+                <div class="field review-field-email required">
+                    <label for="mf-review-email" class="label">
+                        <span><?= $escaper->escapeHtml(__('Email')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="email"
+                               name="email"
+                               id="mf-review-email"
+                               class="input-text"
+                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>"
+                               value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('email')) ?>"
+                               required>
+                    </div>
+                </div>
+                <div class="field review-field-summary required">
+                    <label for="mf-review-title" class="label">
+                        <span><?= $escaper->escapeHtml(__('Summary')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="text"
+                               name="title"
+                               id="mf-review-title"
+                               class="input-text"
+                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>"
+                               maxlength="255"
+                               required>
+                    </div>
+                </div>
+                <div class="field review-field-text required">
+                    <label for="mf-review-detail" class="label">
+                        <span><?= $escaper->escapeHtml(__('Share detailed feedback?')) ?></span>
+                    </label>
+                    <div class="control">
+                        <textarea name="detail"
+                                  id="mf-review-detail"
+                                  rows="5"
+                                  placeholder="<?= $escaper->escapeHtmlAttr(__('Leave us a message...')) ?>"
+                                  maxlength="10000"
+                                  required></textarea>
+                    </div>
+                </div>
+                <div class="field gdpr required">
+                    <input type="checkbox" name="gdpr-consent" id="mf-review-gdpr" class="input-checkbox" required>
+                    <label for="mf-review-gdpr" class="label">&nbsp;<span>
+                        <?= $escaper->escapeHtml(__('I agree to the processing of my data in accordance with the')) ?>
+                        <a href="https://magefan.com/privacy-policy" target="_blank" rel="noopener">
+                            <?= $escaper->escapeHtml(__('Privacy Policy')) ?>
+                        </a>
+                    </span></label>
+                </div>
+            </fieldset>
+        </form>
+    </template>
 </div>
-<script>
-    require(['jquery', 'Magento_Ui/js/modal/alert'], function ($, alert) {
-
-        var module = '<?= $escaper->escapeHtml($block->getModuleShortName()) ?>';
-        var formKey = '<?= $escaper->escapeHtml($block->getFormKey()) ?>';
-        var requestUrl = '<?= $escaper->escapeUrl($block->getUrl('mfcommunity/review/index')) ?>';
-        var starIconUrl = '<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/star.svg')) ?>';
-
-        // The analyst peeks from the bottom edge, says hello once and then waits for a hover.
-        // Click on him or "Rate it" opens the review form, "Not now" postpones the module.
-        var $analyst = $('#mf-review-analyst');
-
-        setTimeout(function () {
-            $analyst.prop('hidden', false);
-            setTimeout(function () {
-                $analyst.addClass('is-in is-hello');
-                setTimeout(function () {
-                    $analyst.removeClass('is-hello');
-                }, 3600);
-            }, 50);
-        }, 3000);
-
-        function hideAnalyst() {
-            $analyst.removeClass('is-in is-hello');
-            setTimeout(function () {
-                $analyst.remove();
-            }, 600);
-        }
-
-        $analyst.on('click', '.mf-ra-open', function () {
-            hideAnalyst();
-            requestToken();
-        });
-
-        $analyst.on('click', '.mf-ra-later', function () {
-            hideAnalyst();
-            remindLater();
-        });
-
-        function remindLater() {
-            sendRequest({ action: 'cancel', module: module, form_key: formKey });
-        }
-
-        function requestToken() {
-            sendRequest({ action: 'token', module: module, form_key: formKey }, function (response) {
-                if (response.reviewed) {
-                    alert({
-                        title: '<?= $escaper->escapeHtml(__('Thank you!')) ?>',
-                        content: '<?= $escaper->escapeHtml(__('You have already left a review for this extension.')) ?>'
-                    });
-                    return;
-                }
-                showReviewPopup(response.token);
-            }, remindLater);
-        }
-
-        $(document).on('change', '#mf-review-form .review-control-vote input[type="radio"]', function () {
-            $('#validate_rating').val($(this).val());
-        });
-
-        function showReviewPopup(token) {
-            var submitted = false;
-            var formHtml = '<form id="mf-review-form" class="mf-review-form">' +
-                '<fieldset class="fieldset review-fieldset">' +
-                '<legend class="legend review-legend"><p><?= $escaper->escapeHtml(__('How would you rate your experience?')) ?></p></legend>' +
-                '<div id="product-review-table">' +
-                '<div class="field choice review-field-rating">' +
-                '<label id="rating_label" class="label"></label>' +
-                '<div class="control review-control-vote">' +
-                <?php for ($i = 5; $i >= 1; $i--): ?>
-                '<input type="radio" name="ratings" id="rating_<?= (int)$i ?>" value="<?= (int)$i ?>" class="radio" required>' +
-                '<label for="rating_<?= (int)$i ?>" title="<?= $escaper->escapeHtml(__('%1 %2', $i, $i > 1 ? 'stars' : 'star')) ?>" class="rating-<?= (int)$i ?>" id="rating_<?= (int)$i ?>_label">' +
-                '<span class="star-icon"></span>' +
-                '</label>' +
-                <?php endfor; ?>
-                '</div>' +
-                '</div>' +
-                '<input type="hidden" name="validate_rating" id="validate_rating" class="validate-rating" value="" aria-required="true">' +
-                '<input type="hidden" name="nickname" id="nickname_field" value="">' +
-                '<div class="field review-field-firstname required">' +
-                '<label for="firstname_field" class="label"><span><?= $escaper->escapeHtml(__('Firstname')) ?></span></label>' +
-                '<div class="control"><input type="text" name="firstname" id="firstname_field" class="input-text" value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('firstname')) ?>" required></div>' +
-                '</div>' +
-                '<div class="field review-field-lastname required">' +
-                '<label for="lastname_field" class="label"><span><?= $escaper->escapeHtml(__('Lastname')) ?></span></label>' +
-                '<div class="control"><input type="text" name="lastname" id="lastname_field" class="input-text" value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('lastname')) ?>" required></div>' +
-                '</div>' +
-                '<div class="field review-field-email required">' +
-                '<label for="email_field" class="label"><span><?= $escaper->escapeHtml(__('Email')) ?></span></label>' +
-                '<div class="control"><input type="email" name="email" id="email_field" class="input-text" placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>" value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('email')) ?>" required></div>' +
-                '</div>' +
-                '<div class="field review-field-summary required">' +
-                '<label for="summary_field" class="label"><span><?= $escaper->escapeHtml(__('Summary')) ?></span></label>' +
-                '<div class="control"><input type="text" name="title" id="summary_field" class="input-text" placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>" required></div>' +
-                '</div>' +
-                '<div class="field review-field-text required">' +
-                '<label for="review_field" class="label"><span><?= $escaper->escapeHtml(__('Share detailed feedback?')) ?></span></label>' +
-                '<div class="control"><textarea name="detail" id="review_field" rows="5" placeholder="<?= $escaper->escapeHtmlAttr(__('Leave us a message...')) ?>" required></textarea></div>' +
-                '</div>' +
-                '<div class="field gdpr required">' +
-                '<input type="checkbox" name="gdpr-consent" id="gdpr-consent" class="input-checkbox" required>' +
-                '<label for="gdpr-consent" class="label">&nbsp;<span><?= $escaper->escapeHtml(__('I agree to the processing of my data in accordance with the ')) ?> <a href="https://magefan.com/privacy-policy" target="_blank">Privacy Policy</a></span></label>' +
-                '</div>' +
-                '</fieldset>' +
-                '</form>';
-
-            var style = '<style>' +
-                '.mf-review-form{width:100%;max-width:800px;padding:40px 10%;background:var(--bli-bgc,#fff);border-radius:16px;border:1px solid rgba(255,153,0,0.4);box-shadow:0px 75px 150px 0px rgba(52,64,84,0.14);margin:0 auto;box-sizing:border-box;}' +
-                '.mf-review-form .fieldset{border:none;padding:0;margin:0;}' +
-                '.mf-review-form .field{margin-bottom:18px;}' +
-                '.mf-review-form .label span,.mf-review-form .label{font-weight:600;margin-bottom:6px;display:block;font-size:14px;}' +
-                '.mf-review-form .control input.input-text,.mf-review-form .control textarea{width:100%;border:1px solid #d5d5d5;border-radius:6px;padding:10px 12px;font-size:14px;background:#fff;box-sizing:border-box;}' +
-                '.mf-review-form .control textarea{resize:vertical;min-height:100px;}' +
-                '.mf-review-form input.input-text:focus,.mf-review-form textarea:focus{border-color:#333;outline:none;}' +
-                '.mf-review-form .field.gdpr{display:flex;align-items:flex-start;gap:8px;margin-top:20px;}' +
-                '.mf-review-form .field.gdpr input[type="checkbox"]{flex-shrink:0;width:16px;height:16px;margin:2px 0 0;cursor:pointer;accent-color:#FF9900;}' +
-                '.mf-review-form .field.gdpr .label{font-weight:400;font-size:13px;color:#555;display:inline;margin:0;}' +
-                '.mf-review-form .field.gdpr .label span{display:inline;font-weight:400;}' +
-                '.mf-review-form .field.gdpr a{color:#FF9900;text-decoration:underline;}' +
-                '.mf-review-form .field.gdpr a:hover{color:#e68a00;}' +
-                '.mf-review-form .review-control-vote{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:6px;margin:10px 0 15px;overflow:hidden;}' +
-                '.mf-review-form .review-control-vote input[type="radio"]{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);border:0;margin:-1px;overflow:hidden;padding:0;opacity:0;pointer-events:none;}' +
-                '.mf-review-form .review-control-vote label{display:inline-block;cursor:pointer;line-height:12px;padding-inline-start:0;user-select:none;}' +
-                '.mf-review-form .review-control-vote .star-icon{display:block;width:37px;height:37px;background-color:#E9E9E9;transition:background-color .2s ease;' +
-                '-webkit-mask:url("' + starIconUrl + '") no-repeat center/contain;mask:url("' + starIconUrl + '") no-repeat center/contain;}' +
-                '.mf-review-form .review-control-vote label:hover .star-icon,' +
-                '.mf-review-form .review-control-vote label:hover ~ label .star-icon{background-color:#FFC736;}' +
-                '.mf-review-form .review-control-vote input[type="radio"]:checked + label .star-icon,' +
-                '.mf-review-form .review-control-vote input[type="radio"]:checked ~ label .star-icon{background-color:#FFC736;}' +
-                '</style>';
-
-            alert({
-                title: '<?= $escaper->escapeHtml(__('Leave a Review for %1', $block->getProductName())) ?>',
-                content: style + formHtml,
-                actions: {
-                    always: function () {
-                        // Closed without submitting counts as "not now"
-                        if (!submitted) {
-                            submitted = true;
-                            remindLater();
-                        }
-                    }
-                },
-                buttons: [
-                    {
-                        text: '<?= $escaper->escapeHtml(__('Submit')) ?>',
-                        class: 'action primary',
-                        click: function () {
-                            var modal = this;
-                            var $form = $('#mf-review-form');
-                            var fn = $('#firstname_field').val();
-                            var ln = $('#lastname_field').val();
-                            $('#nickname_field').val(fn + ' ' + ln);
-
-                            if (!$form[0].checkValidity() || !$('#validate_rating').val()) {
-                                $form[0].reportValidity();
-                                return;
-                            }
-
-                            var data = {};
-                            $form.serializeArray().forEach(function (item) {
-                                data[item.name] = item.value;
-                            });
-                            data.action = 'submit';
-                            data.module = module;
-                            data.form_key = formKey;
-                            data.token = token;
-
-                            sendRequest(data, function () {
-                                submitted = true;
-                                modal.closeModal(false);
-                                alert({
-                                    title: '<?= $escaper->escapeHtml(__('Thank you!')) ?>',
-                                    content: '<?= $escaper->escapeHtml(__('Your review has been submitted successfully.')) ?>'
-                                });
-                            });
-                        }
-                    }
-                ]
-            });
-        }
-
-        function showError(message) {
-            alert({
-                title: $.mage.__('Error'),
-                content: $('<div>').text(
-                    message || $.mage.__('An error occurred while submitting your review. Please try again later.')
-                ).html()
-            });
-        }
-
-        function sendRequest(data, onSuccess, onFail) {
-            $.ajax({
-                url: requestUrl,
-                type: 'POST',
-                data: data,
-                dataType: 'json',
-                showLoader: true,
-                success: function (response) {
-                    if (response && response.success) {
-                        if (onSuccess) {
-                            onSuccess(response);
-                        }
-                        return;
-                    }
-                    if (onSuccess) {
-                        showError(response && response.message);
-                    }
-                    if (onFail) {
-                        onFail();
-                    }
-                },
-                error: function () {
-                    if (onSuccess) {
-                        showError();
-                    }
-                    if (onFail) {
-                        onFail();
-                    }
-                }
-            });
-        }
-    });
+<script type="text/x-magento-init">
+    {"#mf-review-popup": <?= /* @noEscape */ $block->getData('jsonHelper')->jsonEncode($jsConfig) ?>}
 </script>

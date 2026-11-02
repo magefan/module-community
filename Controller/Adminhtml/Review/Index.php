@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Controller\Adminhtml\Review;
 
+use Laminas\Uri\UriFactory;
 use Magefan\Community\Model\GetModuleInfo;
 use Magefan\Community\Model\ReviewStatus;
 use Magento\Backend\App\Action\Context;
@@ -297,7 +298,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
             return null;
         }
 
-        $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+        try {
+            $scheme = strtolower((string)UriFactory::factory($url)->getScheme());
+        } catch (\Exception $e) {
+            return null;
+        }
         if (!in_array($scheme, ['http', 'https'], true)) {
             return null;
         }
@@ -314,11 +319,10 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     {
         try {
             $baseUrl = $this->storeManager->getDefaultStoreView()->getBaseUrl();
+            return (string)UriFactory::factory($baseUrl)->getHost();
         } catch (\Exception $e) {
             return '';
         }
-
-        return (string)parse_url($baseUrl, PHP_URL_HOST);
     }
 
     /**
