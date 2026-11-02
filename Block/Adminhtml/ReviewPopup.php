@@ -11,9 +11,10 @@ namespace Magefan\Community\Block\Adminhtml;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\App\Route\Config as RouteConfig;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Module\Manager as ModuleManager;
 use Magefan\Community\Model\Config;
+use Magefan\Community\Model\ReviewStatus;
 
 class ReviewPopup extends \Magento\Backend\Block\Template
 {
@@ -26,6 +27,11 @@ class ReviewPopup extends \Magento\Backend\Block\Template
      * @var array|null
      */
     private $moduleInfo = null;
+
+    /**
+     * @var string|null
+     */
+    private $resolvedModuleName = null;
 
     /**
      * @var \Magefan\Community\Model\GetModuleInfo
@@ -48,9 +54,9 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     private $authSession;
 
     /**
-     * @var ResourceConnection
+     * @var ReviewStatus
      */
-    private $resourceConnection;
+    private $reviewStatus;
 
     /**
      * @var FormKey
@@ -58,13 +64,19 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     private $mfFormKey;
 
     /**
+     * @var ModuleManager
+     */
+    private $mfModuleManager;
+
+    /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magefan\Community\Model\GetModuleInfo $getModuleInfo
      * @param RouteConfig $routeConfig
      * @param Config $config
      * @param \Magento\Backend\Model\Auth\Session $authSession
-     * @param ResourceConnection $resourceConnection
+     * @param ReviewStatus $reviewStatus
      * @param FormKey $formKey
+     * @param ModuleManager $moduleManager
      * @param array $data
      * @param JsonHelper|null $jsonHelper
      * @param DirectoryHelper|null $directoryHelper
@@ -75,8 +87,9 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         RouteConfig $routeConfig,
         Config $config,
         \Magento\Backend\Model\Auth\Session $authSession,
-        ResourceConnection $resourceConnection,
+        ReviewStatus $reviewStatus,
         FormKey $formKey,
+        ModuleManager $moduleManager,
         array $data = [],
         ?JsonHelper $jsonHelper = null,
         ?DirectoryHelper $directoryHelper = null
@@ -85,35 +98,90 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         $this->routeConfig = $routeConfig;
         $this->config = $config;
         $this->authSession = $authSession;
-        $this->resourceConnection = $resourceConnection;
+        $this->reviewStatus = $reviewStatus;
         $this->mfFormKey = $formKey;
+        $this->mfModuleManager = $moduleManager;
         parent::__construct($context, $data, $jsonHelper, $directoryHelper);
     }
 
     /**
-     * Return the full Magefan module name for the current admin route.
+     * Return the full Magefan module name to ask a review for on the current admin page.
      *
-     * Prefers an explicit `module_name` argument passed via layout XML.
-     * Falls back to resolving by the current route front name.
+     * Same sources as the Info block (Magefan\Community\Block\Adminhtml\Info::getModuleName):
+     * 1. module_name data argument (set explicitly via layout XML)
+     * 2. Route-based detection (extensions with their own admin route)
+     * 3. Full-action map of the Info block (extensions that enhance native Magento pages).
+     *    If several extensions enhance the page, the first one that can be asked about is used.
      *
      * @return string|null
      */
     public function getModuleName()
     {
+        if ($this->resolvedModuleName === null) {
+            $this->resolvedModuleName = $this->resolveModuleName() ?: '';
+        }
+
+        return $this->resolvedModuleName ?: null;
+    }
+
+    /**
+     * Resolve module name, see getModuleName()
+     *
+     * @return string|null
+     */
+    private function resolveModuleName(): ?string
+    {
         $explicit = $this->getData('module_name');
         if ($explicit) {
-            return $explicit;
+            return $this->mfModuleManager->isEnabled($explicit) ? $explicit : null;
         }
 
         $routeName = $this->getRequest()->getRouteName();
-        $modules = $this->routeConfig->getModulesByFrontName($routeName);
-        foreach ($modules as $module) {
-            if (strpos($module, 'Magefan_') === 0) {
+        // Community's own pages (e.g. promo pages) are not an extension page
+        if ($routeName === 'mfcommunity') {
+            return null;
+        }
+
+        if ($routeName) {
+            foreach ($this->routeConfig->getModulesByFrontName($routeName, 'adminhtml') as $module) {
+                if (strpos($module, 'Magefan_') === 0) {
+                    return $module;
+                }
+            }
+        }
+
+        $fullAction = $this->getRequest()->getFullActionName();
+        $map = $this->getFullActionModuleMap();
+        if (!$fullAction || empty($map[$fullAction])) {
+            return null;
+        }
+
+        foreach ((array)$map[$fullAction] as $module) {
+            $module = (string)$module;
+            if (!$this->mfModuleManager->isEnabled($module)) {
+                continue;
+            }
+            $shortName = explode('_', $module)[1] ?? '';
+            if ($shortName
+                && $this->reviewStatus->canAsk($shortName, $this->getAdminUserId())
+                && $this->getModuleInfo->execute($module)->getData('popup_review_url')
+            ) {
                 return $module;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Full action => module(s) map configured for the Info block in etc/adminhtml/di.xml
+     *
+     * @return array
+     */
+    private function getFullActionModuleMap(): array
+    {
+        $infoBlock = $this->getLayout()->getBlock('magefan.module.info');
+        return $infoBlock instanceof Info ? $infoBlock->getFullActionModuleMap() : [];
     }
 
     /**
@@ -206,32 +274,35 @@ class ReviewPopup extends \Magento\Backend\Block\Template
             return false;
         }
 
-        $connection = $this->resourceConnection->getConnection();
-        $select = $connection->select()
-            ->from($this->resourceConnection->getTableName('mf_review'))
-            ->where('user_id = ?', (int)$user->getId())
-            ->where('module_name = ?', $moduleName)
-            ->limit(1);
-
-        $review = $connection->fetchRow($select);
-        if ($review) {
-            if ((int)$review['is_reviewed'] !== 0) {
-                return false;
-            }
-            $updatedAt = $review['updated_at'] ?? null;
-            if ($updatedAt) {
-                try {
-                    if (new \DateTime($updatedAt) > new \DateTime('-3 days')) {
-                        return false;
-                    }
-                } catch (\Exception $e) {
-                    // ignore invalid date
-                }
-            }
+        if (!$this->reviewStatus->canAsk($moduleName, (int)$user->getId())) {
+            return false;
         }
 
         return $this->getModuleReviewUrl()
             && $this->getProductName();
+    }
+
+    /**
+     * Current admin user id
+     *
+     * @return int
+     */
+    private function getAdminUserId(): int
+    {
+        $user = $this->authSession->getUser();
+        return $user ? (int)$user->getId() : 0;
+    }
+
+    /**
+     * Get current admin user data to prefill the review form
+     *
+     * @param string $field
+     * @return string
+     */
+    public function getAdminUserData(string $field): string
+    {
+        $user = $this->authSession->getUser();
+        return $user ? (string)$user->getData($field) : '';
     }
 
     /**

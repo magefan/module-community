@@ -13,7 +13,68 @@
 if (!isset($escaper)) {
     $escaper = $block;
 }
+$productName = (string)$block->getProductName();
+$starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 L-4.7,6.47 L-3.42,1.11 L-7.61,-2.47 L-2.12,-2.91 Z';
 ?>
+<style>
+    /* Magefan analyst: peeks from the bottom edge, pops out on hover and invites to rate the extension */
+    .mf-ra{position:fixed;left:104px;bottom:0;z-index:799;width:150px;height:132px;pointer-events:none;}
+    .mf-ra[hidden]{display:none;}
+    .mf-ra-move{position:absolute;left:0;right:0;bottom:0;transform:translateY(62%);transition:transform .45s cubic-bezier(.4,0,.2,1) .35s;}
+    .mf-ra.is-in .mf-ra-move{transform:translateY(62%);}
+    .mf-ra:not(.is-in) .mf-ra-move{transform:translateY(110%);}
+    .mf-ra.is-in:hover .mf-ra-move,.mf-ra.is-in:focus-within .mf-ra-move,.mf-ra.is-hello .mf-ra-move{transform:translateY(-2%);transition:transform .55s cubic-bezier(.34,1.56,.64,1) 0s;}
+    .mf-ra-btn{all:unset;display:block;width:100%;cursor:pointer;border-radius:16px;pointer-events:auto;}
+    .mf-ra-btn:focus-visible{outline:3px solid #2E6BD9;outline-offset:2px;}
+    .mf-ra-an{position:relative;display:block;aspect-ratio:480/421;}
+    .mf-ra-an img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none;}
+    .mf-ra-tab{position:absolute;inset:0;transform-origin:70.95% 67.65%;}
+    .mf-ra-lid{position:absolute;width:4.8%;height:7.6%;top:28.1%;background:#304F70;border-radius:50%;transform-origin:50% 0;transform:scaleY(0);animation:mf-ra-blink 4.6s infinite;}
+    .mf-ra-lid.l{left:38%;}.mf-ra-lid.r{left:56.4%;}
+    .mf-ra-star{position:absolute;width:5%;aspect-ratio:1;opacity:0;}
+    .mf-ra-star svg{width:100%;height:100%;display:block;}
+    .mf-ra-star.s1{left:76%;top:44%;}.mf-ra-star.s2{left:88%;top:41%;}.mf-ra-star.s3{left:82%;top:36%;width:6%;}
+    .mf-ra.is-in:hover .mf-ra-tab,.mf-ra.is-in:focus-within .mf-ra-tab,.mf-ra.is-hello .mf-ra-tab{animation:mf-ra-wave 1.9s ease-in-out .45s infinite;}
+    .mf-ra.is-in:hover .mf-ra-star,.mf-ra.is-in:focus-within .mf-ra-star,.mf-ra.is-hello .mf-ra-star{animation:mf-ra-sparkle 1.9s ease-out .45s infinite;}
+    .mf-ra.is-in:hover .mf-ra-star.s2,.mf-ra.is-in:focus-within .mf-ra-star.s2,.mf-ra.is-hello .mf-ra-star.s2{animation-delay:.6s;}
+    .mf-ra.is-in:hover .mf-ra-star.s3,.mf-ra.is-in:focus-within .mf-ra-star.s3,.mf-ra.is-hello .mf-ra-star.s3{animation-delay:.75s;}
+    .mf-ra-bubble{position:absolute;left:138px;bottom:118px;width:max-content;max-width:230px;background:#fff;color:#101828;border:1px solid #C9DFF5;border-radius:14px;padding:9px 13px;font-size:13.5px;font-weight:600;line-height:1.3;box-shadow:0 8px 22px rgba(16,24,40,.14);pointer-events:auto;transform-origin:0 100%;transform:scale(.5);opacity:0;visibility:hidden;transition:transform .15s ease-in,opacity .15s ease-in,visibility 0s .15s;}
+    .mf-ra-bubble::after{content:"";position:absolute;left:12px;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #C9DFF5;border-bottom:1px solid #C9DFF5;transform:rotate(45deg) skew(8deg,8deg);}
+    .mf-ra.is-in:hover .mf-ra-bubble,.mf-ra.is-in:focus-within .mf-ra-bubble,.mf-ra.is-hello .mf-ra-bubble{transform:scale(1);opacity:1;visibility:visible;transition:transform .35s cubic-bezier(.34,1.56,.64,1) .3s,opacity .2s ease-out .3s,visibility 0s .3s;}
+    .mf-ra-bubble button{all:unset;cursor:pointer;display:block;}
+    .mf-ra-bubble .mf-ra-rate{color:#1570CD;font-weight:700;margin-top:2px;}
+    .mf-ra-bubble .mf-ra-later{color:#6B7280;font-size:12px;font-weight:600;margin-top:6px;}
+    .mf-ra-bubble button:hover{text-decoration:underline;}
+    .mf-ra-bubble button:focus-visible{outline:2px solid #2E6BD9;outline-offset:2px;border-radius:4px;}
+    @keyframes mf-ra-blink{0%,91%,100%{transform:scaleY(0);}94%{transform:scaleY(1);}97%{transform:scaleY(0);}}
+    @keyframes mf-ra-wave{0%{transform:rotate(0);}12%{transform:rotate(-10deg);}26%{transform:rotate(2deg);}40%{transform:rotate(-10deg);}54%{transform:rotate(2deg);}66%{transform:rotate(-7deg);}80%,100%{transform:rotate(0);}}
+    @keyframes mf-ra-sparkle{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0);}14%{opacity:1;transform:translate(0,-4px) scale(1.15) rotate(25deg);}42%,100%{opacity:0;transform:translate(6px,-22px) scale(.6) rotate(60deg);}}
+    @media (prefers-reduced-motion:reduce){
+        .mf-ra-move,.mf-ra.is-in:hover .mf-ra-move{transition-duration:.01s;}
+        .mf-ra .mf-ra-lid,.mf-ra .mf-ra-tab,.mf-ra .mf-ra-star{animation:none!important;}
+    }
+</style>
+<div class="mf-ra" id="mf-review-analyst" hidden>
+    <div class="mf-ra-move">
+        <button type="button" class="mf-ra-btn mf-ra-open" aria-label="<?= $escaper->escapeHtmlAttr(__('Rate %1', $productName)) ?>">
+            <span class="mf-ra-an">
+                <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/review-analyst.webp')) ?>" alt="">
+                <span class="mf-ra-lid l"></span><span class="mf-ra-lid r"></span>
+                <span class="mf-ra-tab">
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp')) ?>" alt="">
+                    <?php foreach (['s1', 's2', 's3'] as $starClass): ?>
+                        <span class="mf-ra-star <?= /* @noEscape */ $starClass ?>"><svg viewBox="-9 -9 18 18" aria-hidden="true"><path fill="#FDB022" d="<?= /* @noEscape */ $starPath ?>"/></svg></span>
+                    <?php endforeach; ?>
+                </span>
+            </span>
+        </button>
+    </div>
+    <div class="mf-ra-bubble">
+        <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
+        <button type="button" class="mf-ra-rate mf-ra-open"><?= $escaper->escapeHtml(__('Rate it')) ?> ★</button>
+        <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Not now')) ?></button>
+    </div>
+</div>
 <script>
     require(['jquery', 'Magento_Ui/js/modal/alert'], function ($, alert) {
 
@@ -22,36 +83,60 @@ if (!isset($escaper)) {
         var requestUrl = '<?= $escaper->escapeUrl($block->getUrl('mfcommunity/review/index')) ?>';
         var starIconUrl = '<?= $escaper->escapeUrl($block->getViewFileUrl('Magefan_Community::images/star.svg')) ?>';
 
+        // The analyst peeks from the bottom edge, says hello once and then waits for a hover.
+        // Click on him or "Rate it" opens the review form, "Not now" postpones the module.
+        var $analyst = $('#mf-review-analyst');
+
         setTimeout(function () {
-            alert({
-                title: '<?= $escaper->escapeHtml(__('Do you like this Extension?')) ?>',
-                content: '',
-                buttons: [
-                    {
-                        text: '<?= $escaper->escapeHtml(__('No')) ?>',
-                        class: 'action secondary',
-                        click: function () {
-                            sendRequest({ action: 'cancel', module: module, form_key: formKey });
-                            this.closeModal(false);
-                        }
-                    },
-                    {
-                        text: '<?= $escaper->escapeHtml(__('Yes')) ?>',
-                        class: 'action primary',
-                        click: function () {
-                            this.closeModal(false);
-                            showReviewPopup();
-                        }
-                    }
-                ]
-            });
-        }, 5000);
+            $analyst.prop('hidden', false);
+            setTimeout(function () {
+                $analyst.addClass('is-in is-hello');
+                setTimeout(function () {
+                    $analyst.removeClass('is-hello');
+                }, 3600);
+            }, 50);
+        }, 3000);
+
+        function hideAnalyst() {
+            $analyst.removeClass('is-in is-hello');
+            setTimeout(function () {
+                $analyst.remove();
+            }, 600);
+        }
+
+        $analyst.on('click', '.mf-ra-open', function () {
+            hideAnalyst();
+            requestToken();
+        });
+
+        $analyst.on('click', '.mf-ra-later', function () {
+            hideAnalyst();
+            remindLater();
+        });
+
+        function remindLater() {
+            sendRequest({ action: 'cancel', module: module, form_key: formKey });
+        }
+
+        function requestToken() {
+            sendRequest({ action: 'token', module: module, form_key: formKey }, function (response) {
+                if (response.reviewed) {
+                    alert({
+                        title: '<?= $escaper->escapeHtml(__('Thank you!')) ?>',
+                        content: '<?= $escaper->escapeHtml(__('You have already left a review for this extension.')) ?>'
+                    });
+                    return;
+                }
+                showReviewPopup(response.token);
+            }, remindLater);
+        }
 
         $(document).on('change', '#mf-review-form .review-control-vote input[type="radio"]', function () {
             $('#validate_rating').val($(this).val());
         });
 
-        function showReviewPopup() {
+        function showReviewPopup(token) {
+            var submitted = false;
             var formHtml = '<form id="mf-review-form" class="mf-review-form">' +
                 '<fieldset class="fieldset review-fieldset">' +
                 '<legend class="legend review-legend"><p><?= $escaper->escapeHtml(__('How would you rate your experience?')) ?></p></legend>' +
@@ -71,15 +156,15 @@ if (!isset($escaper)) {
                 '<input type="hidden" name="nickname" id="nickname_field" value="">' +
                 '<div class="field review-field-firstname required">' +
                 '<label for="firstname_field" class="label"><span><?= $escaper->escapeHtml(__('Firstname')) ?></span></label>' +
-                '<div class="control"><input type="text" name="firstname" id="firstname_field" class="input-text" required></div>' +
+                '<div class="control"><input type="text" name="firstname" id="firstname_field" class="input-text" value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('firstname')) ?>" required></div>' +
                 '</div>' +
                 '<div class="field review-field-lastname required">' +
                 '<label for="lastname_field" class="label"><span><?= $escaper->escapeHtml(__('Lastname')) ?></span></label>' +
-                '<div class="control"><input type="text" name="lastname" id="lastname_field" class="input-text" required></div>' +
+                '<div class="control"><input type="text" name="lastname" id="lastname_field" class="input-text" value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('lastname')) ?>" required></div>' +
                 '</div>' +
                 '<div class="field review-field-email required">' +
                 '<label for="email_field" class="label"><span><?= $escaper->escapeHtml(__('Email')) ?></span></label>' +
-                '<div class="control"><input type="email" name="email" id="email_field" class="input-text" placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>" required></div>' +
+                '<div class="control"><input type="email" name="email" id="email_field" class="input-text" placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>" value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('email')) ?>" required></div>' +
                 '</div>' +
                 '<div class="field review-field-summary required">' +
                 '<label for="summary_field" class="label"><span><?= $escaper->escapeHtml(__('Summary')) ?></span></label>' +
@@ -124,6 +209,15 @@ if (!isset($escaper)) {
             alert({
                 title: '<?= $escaper->escapeHtml(__('Leave a Review for %1', $block->getProductName())) ?>',
                 content: style + formHtml,
+                actions: {
+                    always: function () {
+                        // Closed without submitting counts as "not now"
+                        if (!submitted) {
+                            submitted = true;
+                            remindLater();
+                        }
+                    }
+                },
                 buttons: [
                     {
                         text: '<?= $escaper->escapeHtml(__('Submit')) ?>',
@@ -147,8 +241,10 @@ if (!isset($escaper)) {
                             data.action = 'submit';
                             data.module = module;
                             data.form_key = formKey;
+                            data.token = token;
 
                             sendRequest(data, function () {
+                                submitted = true;
                                 modal.closeModal(false);
                                 alert({
                                     title: '<?= $escaper->escapeHtml(__('Thank you!')) ?>',
@@ -170,7 +266,7 @@ if (!isset($escaper)) {
             });
         }
 
-        function sendRequest(data, onSuccess) {
+        function sendRequest(data, onSuccess, onFail) {
             $.ajax({
                 url: requestUrl,
                 type: 'POST',
@@ -180,17 +276,23 @@ if (!isset($escaper)) {
                 success: function (response) {
                     if (response && response.success) {
                         if (onSuccess) {
-                            onSuccess();
+                            onSuccess(response);
                         }
                         return;
                     }
                     if (onSuccess) {
                         showError(response && response.message);
                     }
+                    if (onFail) {
+                        onFail();
+                    }
                 },
                 error: function () {
                     if (onSuccess) {
                         showError();
+                    }
+                    if (onFail) {
+                        onFail();
                     }
                 }
             });

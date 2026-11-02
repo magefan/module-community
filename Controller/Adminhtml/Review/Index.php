@@ -9,15 +9,19 @@ declare(strict_types=1);
 namespace Magefan\Community\Controller\Adminhtml\Review;
 
 use Magefan\Community\Model\GetModuleInfo;
+use Magefan\Community\Model\ReviewStatus;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\HTTP\Client\CurlFactory;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class Index extends \Magento\Backend\App\Action implements HttpPostActionInterface
 {
+    private const ACTION_TOKEN = 'token';
+
     private const ACTION_CANCEL = 'cancel';
 
     private const ACTION_SUBMIT = 'submit';
@@ -25,16 +29,18 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private const REQUIRED_FIELDS = [
         'ratings', 'nickname', 'firstname',
         'lastname', 'email', 'title',
-        'detail'
+        'detail', 'token'
     ];
 
-    private const RATINGS_OPTION = [
-        5 => [0 => 16],
-        4 => [1 => 17],
-        3 => [2 => 18],
-        2 => [3 => 19],
-        1 => [4 => 20]
-    ];
+    /**
+     * Max time in seconds to establish connection
+     */
+    private const CONNECT_TIMEOUT = 3;
+
+    /**
+     * Max time in seconds for the whole request
+     */
+    private const TIMEOUT = 10;
 
     /**
      * @var \Magento\Backend\Model\Auth\Session
@@ -47,9 +53,9 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private $resultJsonFactory;
 
     /**
-     * @var Curl
+     * @var CurlFactory
      */
-    private $curl;
+    private $curlFactory;
 
     /**
      * @var GetModuleInfo
@@ -57,9 +63,19 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private $getModuleInfo;
 
     /**
-     * @var ResourceConnection
+     * @var ReviewStatus
      */
-    private $resourceConnection;
+    private $reviewStatus;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
+     * @var Json
+     */
+    private $json;
 
     /**
      * @var LoggerInterface
@@ -70,25 +86,31 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
      * @param Context $context
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param JsonFactory $resultJsonFactory
-     * @param Curl $curl
+     * @param CurlFactory $curlFactory
      * @param GetModuleInfo $getModuleInfo
-     * @param ResourceConnection $resourceConnection
+     * @param ReviewStatus $reviewStatus
+     * @param StoreManagerInterface $storeManager
+     * @param Json $json
      * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
         \Magento\Backend\Model\Auth\Session $authSession,
         JsonFactory $resultJsonFactory,
-        Curl $curl,
+        CurlFactory $curlFactory,
         GetModuleInfo $getModuleInfo,
-        ResourceConnection $resourceConnection,
+        ReviewStatus $reviewStatus,
+        StoreManagerInterface $storeManager,
+        Json $json,
         LoggerInterface $logger
     ) {
         $this->_authSession = $authSession;
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->curl = $curl;
+        $this->curlFactory = $curlFactory;
         $this->getModuleInfo = $getModuleInfo;
-        $this->resourceConnection = $resourceConnection;
+        $this->reviewStatus = $reviewStatus;
+        $this->storeManager = $storeManager;
+        $this->json = $json;
         $this->logger = $logger;
         parent::__construct($context);
     }
@@ -113,11 +135,14 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         if ($reviewAction === self::ACTION_CANCEL) {
             return $this->remindLater($moduleName);
         }
+        if ($reviewAction === self::ACTION_TOKEN) {
+            return $this->getToken($moduleName);
+        }
         if ($reviewAction !== self::ACTION_SUBMIT) {
             return $result->setData(['success' => false, 'message' => __('Invalid action.')]);
         }
 
-        $reviewUrl = $this->getReviewUrl($moduleName);
+        $reviewUrl = $this->getReviewUrl($moduleName, 'popup_review_url');
         if (!$reviewUrl) {
             return $result->setData(['success' => false, 'message' => __('Review is not available for this module.')]);
         }
@@ -132,18 +157,45 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         }
 
         $rating = (int)$reviewData['ratings'];
-        if (!isset(self::RATINGS_OPTION[$rating])) {
+        if ($rating < 1 || $rating > 5) {
             return $result->setData(['success' => false, 'message' => __('Please select a rating.')]);
         }
-        $reviewData['ratings'] = self::RATINGS_OPTION[$rating];
+        unset($reviewData['ratings']);
+        $reviewData['rating'] = $rating;
 
         if (!filter_var($reviewData['email'], FILTER_VALIDATE_EMAIL)) {
             return $result->setData(['success' => false, 'message' => __('Please enter a valid email address.')]);
         }
 
+        $country = $this->getDefaultCountry();
+        if ($country) {
+            $reviewData['country'] = $country;
+        }
+
+        $reviewData['domain'] = $this->getDomain();
+
         try {
-            $this->curl->post($reviewUrl, $reviewData);
-            $this->setReviewStatus($moduleName);
+            $response = $this->post($reviewUrl, $reviewData);
+
+            if (!empty($response['reviewed'])) {
+                // A review with this email already exists, so do not ask about this module again
+                $this->reviewStatus->markReviewed($moduleName, $this->getAdminUserId());
+                return $result->setData([
+                    'success' => false,
+                    'message' => __('You have already left a review for this extension. Thank you!')
+                ]);
+            }
+
+            if (empty($response['success'])) {
+                return $result->setData([
+                    'success' => false,
+                    'message' => !empty($response['message']) && is_string($response['message'])
+                        ? $response['message']
+                        : __('An error occurred while submitting your review. Please try again later.')
+                ]);
+            }
+
+            $this->reviewStatus->markReviewed($moduleName, $this->getAdminUserId());
             return $result->setData(['success' => true]);
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -155,15 +207,92 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     }
 
     /**
-     * Resolve review submission URL on the server side, never trust the URL from request
+     * Default country of the store (General > Country Options), e.g. UA
+     *
+     * @return string
+     */
+    private function getDefaultCountry(): string
+    {
+        try {
+            $country = (string)$this->storeManager->getDefaultStoreView()->getConfig('general/country/default');
+        } catch (\Exception $e) {
+            return '';
+        }
+
+        return preg_match('/^[A-Z]{2}$/', $country) ? $country : '';
+    }
+
+    /**
+     * Request a one-time review token from Magefan, or learn that the admin user already left a review
      *
      * @param string $moduleName
+     * @return \Magento\Framework\Controller\Result\Json
+     */
+    private function getToken(string $moduleName)
+    {
+        $result = $this->resultJsonFactory->create();
+
+        $tokenUrl = $this->getReviewUrl($moduleName, 'popup_review_token_url');
+        if (!$tokenUrl) {
+            return $result->setData(['success' => false, 'message' => __('Review is not available for this module.')]);
+        }
+
+        try {
+            $response = $this->post($tokenUrl, [
+                'email' => (string)$this->_authSession->getUser()->getEmail(),
+                'domain' => $this->getDomain()
+            ]);
+
+            if (!empty($response['reviewed'])) {
+                $this->reviewStatus->markReviewed($moduleName, $this->getAdminUserId());
+                return $result->setData(['success' => true, 'reviewed' => true]);
+            }
+
+            if (empty($response['success']) || empty($response['token']) || !is_string($response['token'])) {
+                return $result->setData(['success' => false]);
+            }
+
+            return $result->setData(['success' => true, 'token' => $response['token']]);
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return $result->setData(['success' => false]);
+        }
+    }
+
+    /**
+     * Send POST request to Magefan and return decoded JSON response
+     *
+     * @param string $url
+     * @param array $data
+     * @return array
+     */
+    private function post(string $url, array $data): array
+    {
+        $curl = $this->curlFactory->create();
+        $curl->setTimeout(self::TIMEOUT);
+        $curl->setOption(CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+        $curl->post($url, $data);
+
+        if (200 != $curl->getStatus()) {
+            throw new \RuntimeException('Magefan review request failed with status ' . $curl->getStatus());
+        }
+
+        $response = $this->json->unserialize((string)$curl->getBody());
+
+        return is_array($response) ? $response : [];
+    }
+
+    /**
+     * Resolve review URL on the server side, never trust the URL from request
+     *
+     * @param string $moduleName
+     * @param string $key
      * @return string|null
      */
-    private function getReviewUrl(string $moduleName): ?string
+    private function getReviewUrl(string $moduleName, string $key): ?string
     {
         $info = $this->getModuleInfo->execute('Magefan_' . $moduleName);
-        $url = $info ? (string)$info->getData('popup_review_url') : '';
+        $url = $info ? (string)$info->getData($key) : '';
         if (!$url) {
             return null;
         }
@@ -177,6 +306,22 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     }
 
     /**
+     * Get the store domain the review comes from
+     *
+     * @return string
+     */
+    private function getDomain(): string
+    {
+        try {
+            $baseUrl = $this->storeManager->getDefaultStoreView()->getBaseUrl();
+        } catch (\Exception $e) {
+            return '';
+        }
+
+        return (string)parse_url($baseUrl, PHP_URL_HOST);
+    }
+
+    /**
      * Handle a reminder to delay review prompt for a specific module.
      *
      * @param string $moduleName
@@ -186,7 +331,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     {
         $result = $this->resultJsonFactory->create();
         try {
-            $this->setReviewStatus($moduleName, false);
+            $this->reviewStatus->postpone($moduleName, $this->getAdminUserId());
             return $result->setData(['success' => true]);
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -195,41 +340,13 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     }
 
     /**
-     * Updates or inserts the review status for a given module and user.
+     * Current admin user id
      *
-     * @param string $moduleName
-     * @param bool $status
-     *
-     * @return void
+     * @return int
      */
-    private function setReviewStatus($moduleName, $status = true)
+    private function getAdminUserId(): int
     {
-        $connection = $this->resourceConnection->getConnection();
-        $tableName = $this->resourceConnection->getTableName('mf_review');
-        $userId = (int)$this->_authSession->getUser()->getId();
-
-        $select = $connection->select()
-            ->from($tableName)
-            ->where('user_id = ?', $userId)
-            ->where('module_name = ?', $moduleName);
-        $existing = $connection->fetchRow($select);
-
-        $data = [
-            'module_name' => $moduleName,
-            'user_id' => $userId,
-            'is_reviewed' => $status ? 1 : 0,
-            'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-        ];
-
-        if ($existing) {
-            $connection->update(
-                $tableName,
-                $data,
-                ['id = ?' => (int)$existing['id']]
-            );
-        } else {
-            $data['created_at'] = (new \DateTime())->format('Y-m-d H:i:s');
-            $connection->insert($tableName, $data);
-        }
+        $user = $this->_authSession->getUser();
+        return $user ? (int)$user->getId() : 0;
     }
 }

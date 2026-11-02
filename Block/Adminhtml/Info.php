@@ -191,6 +191,16 @@ class Info extends \Magento\Backend\Block\Template
     }
 
     /**
+     * Full action => module(s) map of native Magento pages enhanced by Magefan extensions
+     *
+     * @return array
+     */
+    public function getFullActionModuleMap(): array
+    {
+        return $this->fullActionModuleMap;
+    }
+
+    /**
      * Whether the module was resolved via the full-action map.
      *
      * @return bool
