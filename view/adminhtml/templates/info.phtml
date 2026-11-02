@@ -18,7 +18,7 @@ $needToUpdate    = $block->needToUpdate();
 $canUpgradePlan  = $block->canUpgradeToMaxPlan();
 $latestVersion   = $block->getLatestVersion();
 $moduleUrl       = $block->getModuleUrl();
-$utmParam        = '?utm_source=admin&utm_medium=grid';
+$utmParam        = '?utm_source=admin&utm_medium=mfnotification';
 $isDisable       = !$block->isExtensionEnabled() && !$block->isRemindedLater('enabled');
 $needToUpdate    = $needToUpdate && !$block->isRemindedLater('update');
 $canUpgradePlan  = $canUpgradePlan && !$block->isRemindedLater('upgrade');
@@ -117,12 +117,12 @@ if (!$isDisable && !$needToUpdate && !$canUpgradePlan) {
                     'Your %1 is out of date. Update to %2 to get the latest improvements, fixes, and new features. View what\'s new in our <a href="%3" target="_blank">change log.</a>',
                     $escaper->escapeHtml($moduleTitle),
                     '<strong>v' . $escaper->escapeHtml($latestVersion) . '</strong>',
-                    $escaper->escapeHtml($block->getModuleChangeLogUrl() . $utmParam . '&utm_campaign=update-to-new-version')
+                    $escaper->escapeHtml($block->getModuleChangeLogUrl() . $utmParam . '&utm_campaign=update')
                 ) ?></span>
             </div>
             <div class="actions">
                 <button id="mf-update" title="<?= $escaper->escapeHtmlAttr(__('Update Extension')) ?>" class="action-update"
-                        onclick="window.open('https://mage<?= /* @noEscape */ 'fan' ?>.com/downloadable/customer/products<?= $escaper->escapeHtmlAttr($utmParam) ?>&amp;utm_campaign=update-to-new-version', '_blank'); return false;">
+                        onclick="window.open('https://mage<?= /* @noEscape */ 'fan' ?>.com/downloadable/customer/products<?= $escaper->escapeHtmlAttr($utmParam) ?>&amp;utm_campaign=update', '_blank'); return false;">
                     <span><?= /* @noEscape */ __('Update Extension') ?></span>
                 </button>
                 <button id="mf-remind-later-update" title="<?= $escaper->escapeHtmlAttr(__('Remind Later')) ?>" class="action-remind-later"
