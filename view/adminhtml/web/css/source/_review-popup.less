@@ -241,6 +241,23 @@
         }
     }
 
+    //  Small extension icon to the left of the text
+    &.has-icon {
+        align-items: flex-start;
+        display: flex;
+        gap: 10px;
+        max-width: 270px;
+    }
+
+    .mf-ra-bubble-icon {
+        border-radius: 8px;
+        flex-shrink: 0;
+        height: 36px;
+        margin-top: 2px;
+        object-fit: cover;
+        width: 36px;
+    }
+
     .mf-ra-rate {
         color: @mf-ra__link;
         font-weight: 700;
@@ -337,8 +354,44 @@
     box-sizing: border-box;
     margin: 0 auto;
     max-width: 800px;
-    padding: 40px 10%;
+    padding: 24px 32px;
     width: 100%;
+
+    //  Extension icon next to the rating, so the form fits the screen without scrolling
+    .mf-review-head {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        margin-bottom: 18px;
+
+        .field {
+            margin-bottom: 0;
+        }
+    }
+
+    .mf-review-product-image {
+        border-radius: 12px;
+        display: block;
+        flex-shrink: 0;
+        height: 48px;
+        object-fit: cover;
+        width: 48px;
+    }
+
+    .mf-review-question {
+        font-size: 14px;
+        margin: 0 0 6px;
+    }
+
+    .mf-review-grid {
+        column-gap: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        @media (max-width: 640px) {
+            grid-template-columns: 1fr;
+        }
+    }
 
     .fieldset {
         border: none;
@@ -347,7 +400,7 @@
     }
 
     .field {
-        margin-bottom: 18px;
+        margin-bottom: 14px;
     }
 
     .label,
@@ -375,7 +428,7 @@
     }
 
     .control textarea {
-        min-height: 100px;
+        min-height: 90px;
         resize: vertical;
     }
 
@@ -383,7 +436,7 @@
         align-items: flex-start;
         display: flex;
         gap: 8px;
-        margin-top: 20px;
+        margin-top: 4px;
 
         input[type='checkbox'] {
             accent-color: @mf-review-form__accent;
@@ -423,7 +476,7 @@
         flex-direction: row-reverse;
         gap: 6px;
         justify-content: flex-end;
-        margin: 10px 0 15px;
+        margin: 0;
         overflow: hidden;
 
         input[type='radio'] {
@@ -451,10 +504,10 @@
             -webkit-mask: url('../Magefan_Community/images/star.svg') no-repeat center / contain;
             background-color: @mf-review-form__star;
             display: block;
-            height: 37px;
+            height: 32px;
             mask: url('../Magefan_Community/images/star.svg') no-repeat center / contain;
             transition: background-color .2s ease;
-            width: 37px;
+            width: 32px;
         }
 
         label:hover .star-icon,

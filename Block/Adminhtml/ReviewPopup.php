@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Block\Adminhtml;
 
+use Laminas\Uri\UriFactory;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\App\Route\Config as RouteConfig;
@@ -214,6 +215,28 @@ class ReviewPopup extends \Magento\Backend\Block\Template
         }
 
         return $this->reviewUrl;
+    }
+
+    /**
+     * Return the extension icon URL from Magefan, empty string if there is no valid https URL
+     *
+     * @return string
+     */
+    public function getProductImage(): string
+    {
+        $info = $this->getModuleInfo();
+        $url = !empty($info['product_image']) ? (string)$info['product_image'] : '';
+        if (!$url) {
+            return '';
+        }
+
+        try {
+            $scheme = strtolower((string)UriFactory::factory($url)->getScheme());
+        } catch (\Exception $e) {
+            return '';
+        }
+
+        return 'https' === $scheme ? $url : '';
     }
 
     /**

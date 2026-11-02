@@ -18,6 +18,7 @@ $starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 '
     . 'L-4.7,6.47 L-3.42,1.11 L-7.61,-2.47 L-2.12,-2.91 Z';
 $analystUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst.webp');
 $tabletUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp');
+$productImage = $block->getProductImage();
 $jsConfig = [
     'Magefan_Community/js/review-popup' => [
         'requestUrl' => $block->getUrl('mfcommunity/review/index'),
@@ -58,21 +59,35 @@ $jsConfig = [
                 </span>
             </button>
         </div>
-        <div class="mf-ra-bubble">
-            <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
-            <button type="button" class="mf-ra-rate mf-ra-open"><?= $escaper->escapeHtml(__('Rate it')) ?> ★</button>
-            <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Not now')) ?></button>
+        <div class="mf-ra-bubble<?= $productImage ? ' has-icon' : '' ?>">
+            <?php if ($productImage): ?>
+                <img class="mf-ra-bubble-icon" src="<?= $escaper->escapeUrl($productImage) ?>" alt="">
+            <?php endif; ?>
+            <div class="mf-ra-bubble-text">
+                <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
+                <button type="button" class="mf-ra-rate mf-ra-open">
+                    <?= $escaper->escapeHtml(__('Rate it')) ?> ★
+                </button>
+                <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Not now')) ?></button>
+            </div>
         </div>
     </div>
 
     <template class="mf-review-form-template">
         <form class="mf-review-form">
-            <fieldset class="fieldset review-fieldset">
-                <legend class="legend review-legend">
-                    <p><?= $escaper->escapeHtml(__('How would you rate your experience?')) ?></p>
-                </legend>
+            <div class="mf-review-head">
+                <?php if ($productImage): ?>
+                    <img class="mf-review-product-image"
+                         src="<?= $escaper->escapeUrl($productImage) ?>"
+                         width="48"
+                         height="48"
+                         alt="">
+                <?php endif; ?>
                 <div class="field choice review-field-rating">
-                    <div class="control review-control-vote">
+                    <p class="mf-review-question" id="mf-review-question">
+                        <?= $escaper->escapeHtml(__('How would you rate your experience?')) ?>
+                    </p>
+                    <div class="control review-control-vote" role="radiogroup" aria-labelledby="mf-review-question">
                         <?php for ($i = 5; $i >= 1; $i--): ?>
                             <?php $starTitle = $i > 1 ? __('%1 stars', $i) : __('%1 star', $i); ?>
                             <input type="radio"
@@ -88,59 +103,63 @@ $jsConfig = [
                         <?php endfor; ?>
                     </div>
                 </div>
+            </div>
+            <fieldset class="fieldset review-fieldset">
                 <input type="hidden" name="nickname" value="">
-                <div class="field review-field-firstname required">
-                    <label for="mf-review-firstname" class="label">
-                        <span><?= $escaper->escapeHtml(__('Firstname')) ?></span>
-                    </label>
-                    <div class="control">
-                        <input type="text"
-                               name="firstname"
-                               id="mf-review-firstname"
-                               class="input-text"
-                               value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('firstname')) ?>"
-                               required>
+                <div class="mf-review-grid">
+                    <div class="field review-field-firstname required">
+                        <label for="mf-review-firstname" class="label">
+                            <span><?= $escaper->escapeHtml(__('Firstname')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="text"
+                                   name="firstname"
+                                   id="mf-review-firstname"
+                                   class="input-text"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('firstname')) ?>"
+                                   required>
+                        </div>
                     </div>
-                </div>
-                <div class="field review-field-lastname required">
-                    <label for="mf-review-lastname" class="label">
-                        <span><?= $escaper->escapeHtml(__('Lastname')) ?></span>
-                    </label>
-                    <div class="control">
-                        <input type="text"
-                               name="lastname"
-                               id="mf-review-lastname"
-                               class="input-text"
-                               value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('lastname')) ?>"
-                               required>
+                    <div class="field review-field-lastname required">
+                        <label for="mf-review-lastname" class="label">
+                            <span><?= $escaper->escapeHtml(__('Lastname')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="text"
+                                   name="lastname"
+                                   id="mf-review-lastname"
+                                   class="input-text"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('lastname')) ?>"
+                                   required>
+                        </div>
                     </div>
-                </div>
-                <div class="field review-field-email required">
-                    <label for="mf-review-email" class="label">
-                        <span><?= $escaper->escapeHtml(__('Email')) ?></span>
-                    </label>
-                    <div class="control">
-                        <input type="email"
-                               name="email"
-                               id="mf-review-email"
-                               class="input-text"
-                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>"
-                               value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('email')) ?>"
-                               required>
+                    <div class="field review-field-email required">
+                        <label for="mf-review-email" class="label">
+                            <span><?= $escaper->escapeHtml(__('Email')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="email"
+                                   name="email"
+                                   id="mf-review-email"
+                                   class="input-text"
+                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('email')) ?>"
+                                   required>
+                        </div>
                     </div>
-                </div>
-                <div class="field review-field-summary required">
-                    <label for="mf-review-title" class="label">
-                        <span><?= $escaper->escapeHtml(__('Summary')) ?></span>
-                    </label>
-                    <div class="control">
-                        <input type="text"
-                               name="title"
-                               id="mf-review-title"
-                               class="input-text"
-                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>"
-                               maxlength="255"
-                               required>
+                    <div class="field review-field-summary required">
+                        <label for="mf-review-title" class="label">
+                            <span><?= $escaper->escapeHtml(__('Summary')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="text"
+                                   name="title"
+                                   id="mf-review-title"
+                                   class="input-text"
+                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>"
+                                   maxlength="255"
+                                   required>
+                        </div>
                     </div>
                 </div>
                 <div class="field review-field-text required">
@@ -150,7 +169,7 @@ $jsConfig = [
                     <div class="control">
                         <textarea name="detail"
                                   id="mf-review-detail"
-                                  rows="5"
+                                  rows="4"
                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Leave us a message...')) ?>"
                                   maxlength="10000"
                                   required></textarea>
