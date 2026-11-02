@@ -14,8 +14,8 @@ use Magento\Framework\App\Route\Config as RouteConfig;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Module\Manager as ModuleManager;
 use Magefan\Community\Model\Config;
-use Magefan\Community\Model\GetReviewUrls;
-use Magefan\Community\Model\ReviewStatus;
+use Magefan\Community\Model\ExtensionReview\GetReviewUrls;
+use Magefan\Community\Model\ExtensionReview\ReviewStatus;
 use Magento\Framework\Serialize\Serializer\Json;
 
 class ReviewPopup extends \Magento\Backend\Block\Template

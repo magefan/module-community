@@ -6,7 +6,9 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\Model;
+namespace Magefan\Community\Model\ExtensionReview;
+
+use Magefan\Community\Model\GetModuleInfo;
 
 /**
  * Magefan URLs to request a review token and to submit a review for an extension.

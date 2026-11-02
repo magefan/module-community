@@ -10,8 +10,8 @@ namespace Magefan\Community\Controller\Adminhtml\Review;
 
 use Laminas\Uri\UriFactory;
 use Magefan\Community\Model\Config;
-use Magefan\Community\Model\GetReviewUrls;
-use Magefan\Community\Model\ReviewStatus;
+use Magefan\Community\Model\ExtensionReview\GetReviewUrls;
+use Magefan\Community\Model\ExtensionReview\ReviewStatus;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;

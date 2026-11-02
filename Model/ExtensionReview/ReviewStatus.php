@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\Model;
+namespace Magefan\Community\Model\ExtensionReview;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
