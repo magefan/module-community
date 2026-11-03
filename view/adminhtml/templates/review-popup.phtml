@@ -19,6 +19,7 @@ $starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 '
 $analystUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst.webp');
 $tabletUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp');
 $productImage = $block->getProductImage();
+$productUrl = $block->getProductUrl();
 ?>
 <div class="mf-review-popup" id="mf-review-popup">
     <div class="mf-ra" hidden>
@@ -60,11 +61,21 @@ $productImage = $block->getProductImage();
         <form class="mf-review-form">
             <div class="mf-review-head">
                 <?php if ($productImage): ?>
+                    <?php if ($productUrl): ?>
+                        <a class="mf-review-product-link"
+                           href="<?= $escaper->escapeUrl($productUrl) ?>"
+                           target="_blank"
+                           rel="noopener"
+                           title="<?= $escaper->escapeHtmlAttr($productName) ?>">
+                    <?php endif; ?>
                     <img class="mf-review-product-image"
                          src="<?= $escaper->escapeUrl($productImage) ?>"
                          width="48"
                          height="48"
-                         alt="">
+                         alt="<?= $escaper->escapeHtmlAttr($productName) ?>">
+                    <?php if ($productUrl): ?>
+                        </a>
+                    <?php endif; ?>
                 <?php endif; ?>
                 <div class="field choice review-field-rating">
                     <p class="mf-review-question" id="mf-review-question">

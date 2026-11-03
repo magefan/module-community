@@ -113,7 +113,7 @@
 }
 
 .mf-ra-lid {
-    animation: mf-ra-blink 4.6s infinite;
+    animation: mf-ra-blink 3s infinite;
     background: @mf-ra__lid;
     border-radius: 50%;
     height: 7.6%;
@@ -272,15 +272,13 @@
 
 @keyframes mf-ra-blink {
     0%,
-    91%,
+    90.5%,
+    99.5%,
     100% {
         transform: scaleY(0);
     }
-    94% {
+    95% {
         transform: scaleY(1);
-    }
-    97% {
-        transform: scaleY(0);
     }
 }
 
@@ -365,6 +363,11 @@
         .field {
             margin-bottom: 0;
         }
+    }
+
+    .mf-review-product-link {
+        display: block;
+        flex-shrink: 0;
     }
 
     .mf-review-product-image {

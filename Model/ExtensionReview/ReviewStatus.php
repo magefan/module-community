@@ -16,10 +16,13 @@ use Magento\Framework\Serialize\Serializer\Json;
 /**
  * Store review popup answers in core_config_data, in one row mfextension/review/data:
  * {
+ *   "first_seen": {"<Module>": int},
  *   "reviewed": {"<Module>": int},
  *   "users": {"<admin user id>": {"last_prompt": int, "modules": {"<Module>": {"postponed": int, "updated_at": int}}}}
  * }
  *
+ * - first_seen: time the module page was opened in admin for the first time. Nobody is asked about the module
+ *   until it has been used for USAGE_DAYS.
  * - reviewed: shared by all admin users. A review of any admin user stops asking anybody about the module forever.
  * - users: answers of each admin user. "Not now" postpones the module only for the admin user who answered,
  *   and any answer pauses only this admin user before being asked about any next module.
@@ -27,6 +30,11 @@ use Magento\Framework\Serialize\Serializer\Json;
 class ReviewStatus
 {
     public const XML_PATH = 'mfextension/review/data';
+
+    /**
+     * Days the module has to be used before anybody is asked to review it
+     */
+    public const USAGE_DAYS = 14;
 
     /**
      * Days to wait before asking the same admin user about any next module after their review or "not now"
@@ -93,6 +101,15 @@ class ReviewStatus
         }
 
         $now = time();
+        $firstSeen = (int)($data['first_seen'][$moduleName] ?? 0);
+        if (!$firstSeen) {
+            $this->markFirstSeen($moduleName);
+            return false;
+        }
+        if ($firstSeen > $now - self::USAGE_DAYS * 86400) {
+            return false;
+        }
+
         $user = $this->getUserData($userId);
 
         if ($user['last_prompt'] && $user['last_prompt'] > $now - self::NEXT_MODULE_DAYS * 86400) {
@@ -141,6 +158,25 @@ class ReviewStatus
             $user['modules'][$moduleName] = ['postponed' => $postponed + 1, 'updated_at' => $now];
             return [$data, $user];
         });
+    }
+
+    /**
+     * Remember when the module started to be used, to ask about it only after USAGE_DAYS
+     *
+     * @param string $moduleName
+     * @return void
+     */
+    private function markFirstSeen(string $moduleName): void
+    {
+        $this->data = null;
+        $data = $this->getData();
+        if (!empty($data['first_seen'][$moduleName])) {
+            return;
+        }
+
+        $data['first_seen'][$moduleName] = time();
+        $this->configWriter->save(self::XML_PATH, $this->json->serialize($data));
+        $this->data = $data;
     }
 
     /**
@@ -211,7 +247,7 @@ class ReviewStatus
             if (!is_array($data)) {
                 $data = [];
             }
-            foreach (['reviewed', 'users'] as $key) {
+            foreach (['first_seen', 'reviewed', 'users'] as $key) {
                 if (!isset($data[$key]) || !is_array($data[$key])) {
                     $data[$key] = [];
                 }

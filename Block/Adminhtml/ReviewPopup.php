@@ -179,6 +179,23 @@ class ReviewPopup extends \Magento\Backend\Block\Template
     }
 
     /**
+     * Return the extension page URL on Magefan, empty string if there is no valid https URL
+     *
+     * @return string
+     */
+    public function getProductUrl(): string
+    {
+        $info = $this->getModuleInfo();
+        $url = !empty($info['product_url']) ? (string)$info['product_url'] : '';
+        if (!preg_match('#^https://#i', $url)) {
+            return '';
+        }
+
+        return $url . (strpos($url, '?') === false ? '?' : '&')
+            . 'utm_source=admin&utm_medium=popup&utm_campaign=review-form';
+    }
+
+    /**
      * Return the product display name for the current module.
      *
      * @return string

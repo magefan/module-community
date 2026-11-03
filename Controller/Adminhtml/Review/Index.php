@@ -15,6 +15,7 @@ use Magefan\Community\Model\ExtensionReview\ReviewStatus;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Store\Model\StoreManagerInterface;
@@ -89,6 +90,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private $logger;
 
     /**
+     * @var RemoteAddress
+     */
+    private $remoteAddress;
+
+    /**
      * @param Context $context
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param JsonFactory $resultJsonFactory
@@ -99,6 +105,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
      * @param Json $json
      * @param LoggerInterface $logger
      * @param Config $config
+     * @param RemoteAddress $remoteAddress
      */
     public function __construct(
         Context $context,
@@ -110,7 +117,8 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         StoreManagerInterface $storeManager,
         Json $json,
         LoggerInterface $logger,
-        Config $config
+        Config $config,
+        RemoteAddress $remoteAddress
     ) {
         $this->_authSession = $authSession;
         $this->resultJsonFactory = $resultJsonFactory;
@@ -121,6 +129,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         $this->json = $json;
         $this->logger = $logger;
         $this->config = $config;
+        $this->remoteAddress = $remoteAddress;
         parent::__construct($context);
     }
 
@@ -187,6 +196,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
 
         $reviewData['domain'] = $this->getDomain();
 
+        $ip = $this->getAnonymizedIp();
+        if ($ip) {
+            $reviewData['ip'] = $ip;
+        }
+
         try {
             $response = $this->post($reviewUrl, $reviewData);
 
@@ -233,6 +247,30 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         }
 
         return preg_match('/^[A-Z]{2}$/', $country) ? $country : '';
+    }
+
+    /**
+     * Admin user IP without the last part, only to detect the country of the review:
+     * IPv4 keeps the first two octets (203.0.113.45 => 203.0.0.0),
+     * IPv6 keeps the first four groups (2001:db8:1:2:3:4:5:6 => 2001:db8:1:2::)
+     *
+     * @return string
+     */
+    private function getAnonymizedIp(): string
+    {
+        $ip = (string)$this->remoteAddress->getRemoteAddress();
+        $packed = $ip !== '' ? @inet_pton($ip) : false;
+        if ($packed === false) {
+            return '';
+        }
+
+        if (strlen($packed) === 4) {
+            $packed = substr($packed, 0, 2) . str_repeat("\0", 2);
+        } else {
+            $packed = substr($packed, 0, 8) . str_repeat("\0", 8);
+        }
+
+        return (string)inet_ntop($packed);
     }
 
     /**
