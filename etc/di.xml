@@ -17,6 +17,7 @@
     <preference for="Magefan\Community\Api\HyvaThemeDetectionInterface" type="Magefan\Community\Model\HyvaThemeDetection"/>
     <preference for="Magefan\Community\Api\BreezeThemeDetectionInterface" type="Magefan\Community\Model\BreezeThemeDetection"/>
     <preference for="Magefan\Community\Api\SecureHtmlRendererInterface" type="Magefan\Community\Model\View\Helper\SecureHtmlRenderer"/>
+    <preference for="Magefan\Community\Api\TailwindInterface" type="Magefan\Community\Model\Tailwind"/>
     <type name="Magento\Framework\View\TemplateEngine\Php">
         <plugin name="Magefan_Community_Plugin_Magento_Framework_View_TemplateEngine_Php" type="Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine\Php" sortOrder="10" disabled="false"/>
     </type>
@@ -31,6 +32,7 @@
                 <item name="mfSecureRenderer" xsi:type="object">Magefan\Community\Model\View\Helper\SecureHtmlRenderer\Proxy</item>
                 <item name="mfHyvaThemeDetection" xsi:type="object">Magefan\Community\Model\HyvaThemeDetection\Proxy</item>
                 <item name="mfBreezeThemeDetection" xsi:type="object">Magefan\Community\Model\HyvaThemeDetection\Proxy</item>
+                <item name="mfTailwind" xsi:type="object">Magefan\Community\Model\Tailwind\Proxy</item>
             </argument>
         </arguments>
     </type>
