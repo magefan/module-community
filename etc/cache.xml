@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
+    <type name="mf_tailwind" translate="label,description" instance="Magefan\Community\Model\Cache\Type\Tailwind">
+        <label>Magefan Tailwind Classes</label>
+        <description>Tailwind classes collected from tailwind.classes files of modules and themes.</description>
+    </type>
+</config>
