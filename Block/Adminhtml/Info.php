@@ -155,13 +155,25 @@ class Info extends \Magento\Backend\Block\Template
      */
     public function getModuleName(): string
     {
-        if ($this->moduleNameCache !== null) {
-            return $this->moduleNameCache;
+        if ($this->moduleNameCache === null) {
+            $this->moduleNameCache = (string)(current($this->getModuleNames()) ?: '');
         }
 
+        return $this->moduleNameCache;
+    }
+
+    /**
+     * All Magefan modules the current admin page belongs to, in the priority of getModuleName()
+     *
+     * A native Magento page can be enhanced by several extensions, see the full-action map.
+     *
+     * @return string[] e.g. ["Magefan_Blog"], or empty array if not a Magefan page
+     */
+    public function getModuleNames(): array
+    {
         $moduleName = $this->getData('module_name');
         if ($moduleName) {
-            return $this->moduleNameCache = (string)$moduleName;
+            return [(string)$moduleName];
         }
 
         $request = $this->getRequest();
@@ -169,25 +181,24 @@ class Info extends \Magento\Backend\Block\Template
 
         // Community's own pages (e.g. promo pages) are not an extension page
         if ($frontName === 'mfcommunity') {
-            return $this->moduleNameCache = '';
+            return [];
         }
 
         if ($frontName) {
             $modules = $this->routeConfig->getModulesByFrontName($frontName, 'adminhtml');
             foreach ($modules as $module) {
                 if (strpos($module, 'Magefan_') === 0) {
-                    return $this->moduleNameCache = $module;
+                    return [$module];
                 }
             }
         }
 
         $fullAction = $request->getFullActionName();
         if ($fullAction && isset($this->fullActionModuleMap[$fullAction])) {
-            $value = $this->fullActionModuleMap[$fullAction];
-            return $this->moduleNameCache = is_array($value) ? (string)reset($value) : (string)$value;
+            return array_values(array_map('strval', (array)$this->fullActionModuleMap[$fullAction]));
         }
 
-        return $this->moduleNameCache = '';
+        return [];
     }
 
     /**

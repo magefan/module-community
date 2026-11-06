@@ -21,6 +21,8 @@ class Config
     public const XML_PATH_RECEIVE_NEWS = 'mfextension/notification/news';
     public const XML_PATH_RECEIVE_TIPS_AND_TRICKS = 'mfextension/notification/tip_trick';
     public const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'mfextension/notification/general';
+    public const XML_PATH_REVIEW_REQUESTS_ENABLED = 'mfextension/notification/review';
+
 
     /**
      * Display Menu
@@ -109,6 +111,20 @@ class Config
     {
         return $this->getConfig(
             self::XML_PATH_RECEIVE_GENERAL_INFORMATION,
+            $storeId
+        );
+    }
+
+    /**
+     * Whether to ask admin users to rate the Magefan extensions they use ("Extension Review Requests")
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isReviewRequestsEnabled($storeId = null): bool
+    {
+        return (bool)$this->getConfig(
+            self::XML_PATH_REVIEW_REQUESTS_ENABLED,
             $storeId
         );
     }
