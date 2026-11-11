@@ -18,7 +18,7 @@ use Magento\Framework\Serialize\Serializer\Json;
  * {
  *   "first_seen": {"<Module>": int},
  *   "reviewed": {"<Module>": int},
- *   "users": {"<admin user id>": {"last_prompt": int, "stopped": int, "paused_until": int,
+ *   "users": {"<admin user id>": {"last_prompt": int, "paused_until": int,
  *       "modules": {"<Module>": {"postponed": int, "updated_at": int}}}}
  * }
  *
@@ -27,8 +27,7 @@ use Magento\Framework\Serialize\Serializer\Json;
  * - reviewed: shared by all admin users. A review of any admin user stops asking anybody about the module forever.
  * - users: answers of each admin user. "Not now" postpones the module only for the admin user who answered,
  *   and any answer pauses only this admin user before being asked about any next module.
- *   A low rating (STOP_RATING_MAX or less) stops asking this admin user about any module forever,
- *   a neutral rating (PAUSE_RATING) pauses asking this admin user for PAUSE_DAYS.
+ *   A low rating (PAUSE_RATING_MAX or less) pauses asking this admin user about any module for PAUSE_DAYS.
  */
 class ReviewStatus
 {
@@ -55,19 +54,14 @@ class ReviewStatus
     public const REMIND_LATER_DAYS_MAX = 180;
 
     /**
-     * Rating this or lower stops asking the admin user about any module
+     * Rating this or lower pauses asking the admin user about any module for PAUSE_DAYS
      */
-    public const STOP_RATING_MAX = 2;
+    public const PAUSE_RATING_MAX = 3;
 
     /**
-     * Neutral rating, after which the admin user is not asked about any module for PAUSE_DAYS
+     * Days to wait before asking the admin user about any next module after a low rating
      */
-    public const PAUSE_RATING = 3;
-
-    /**
-     * Days to wait before asking the admin user about any next module after a neutral rating
-     */
-    public const PAUSE_DAYS = 180;
+    public const PAUSE_DAYS = 120;
 
     /**
      * @var ResourceConnection
@@ -130,7 +124,7 @@ class ReviewStatus
 
         $user = $this->getUserData($userId);
 
-        if ($user['stopped'] || $user['paused_until'] > $now) {
+        if ($user['paused_until'] > $now) {
             return false;
         }
 
@@ -153,7 +147,7 @@ class ReviewStatus
     /**
      * Module was reviewed by any admin user: never ask anybody about it again
      *
-     * A low rating also stops asking this admin user about other modules, a neutral one pauses it for PAUSE_DAYS.
+     * A low rating also pauses asking this admin user about other modules for PAUSE_DAYS.
      *
      * @param string $moduleName
      * @param int $userId admin user who answered
@@ -165,9 +159,7 @@ class ReviewStatus
         $this->update($userId, function (array $data, array $user, int $now) use ($moduleName, $rating): array {
             $data['reviewed'][$moduleName] = $now;
             unset($user['modules'][$moduleName]);
-            if ($rating > 0 && $rating <= self::STOP_RATING_MAX) {
-                $user['stopped'] = $now;
-            } elseif ($rating === self::PAUSE_RATING) {
+            if ($rating > 0 && $rating <= self::PAUSE_RATING_MAX) {
                 $user['paused_until'] = max($user['paused_until'], $now + self::PAUSE_DAYS * 86400);
             }
             return [$data, $user];
@@ -224,7 +216,6 @@ class ReviewStatus
 
         return [
             'last_prompt' => (int)($user['last_prompt'] ?? 0),
-            'stopped' => (int)($user['stopped'] ?? 0),
             'paused_until' => (int)($user['paused_until'] ?? 0),
             'modules' => isset($user['modules']) && is_array($user['modules']) ? $user['modules'] : [],
         ];
