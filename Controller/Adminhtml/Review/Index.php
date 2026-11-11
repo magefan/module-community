@@ -222,7 +222,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
                 ]);
             }
 
-            $this->reviewStatus->markReviewed($moduleName, $this->getAdminUserId());
+            $this->reviewStatus->markReviewed($moduleName, $this->getAdminUserId(), $reviewData['rating']);
             return $result->setData(['success' => true]);
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
