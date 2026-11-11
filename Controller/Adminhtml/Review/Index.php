@@ -259,7 +259,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private function getAnonymizedIp(): string
     {
         $ip = (string)$this->remoteAddress->getRemoteAddress();
-        $packed = $ip !== '' ? @inet_pton($ip) : false;
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return '';
+        }
+
+        $packed = inet_pton($ip);
         if ($packed === false) {
             return '';
         }

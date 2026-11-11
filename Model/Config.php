@@ -23,7 +23,6 @@ class Config
     public const XML_PATH_RECEIVE_GENERAL_INFORMATION = 'mfextension/notification/general';
     public const XML_PATH_REVIEW_REQUESTS_ENABLED = 'mfextension/notification/review';
 
-
     /**
      * Display Menu
      */
