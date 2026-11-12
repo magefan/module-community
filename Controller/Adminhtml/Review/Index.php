@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magefan\Community\Controller\Adminhtml\Review;
 
 use Laminas\Uri\UriFactory;
+use Magefan\Community\Api\GetModuleVersionInterface;
 use Magefan\Community\Model\Config;
 use Magefan\Community\Model\ExtensionReview\GetReviewUrls;
 use Magefan\Community\Model\ExtensionReview\ReviewStatus;
@@ -95,6 +96,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
     private $remoteAddress;
 
     /**
+     * @var GetModuleVersionInterface
+     */
+    private $getModuleVersion;
+
+    /**
      * @param Context $context
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param JsonFactory $resultJsonFactory
@@ -106,6 +112,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
      * @param LoggerInterface $logger
      * @param Config $config
      * @param RemoteAddress $remoteAddress
+     * @param GetModuleVersionInterface $getModuleVersion
      */
     public function __construct(
         Context $context,
@@ -118,7 +125,8 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         Json $json,
         LoggerInterface $logger,
         Config $config,
-        RemoteAddress $remoteAddress
+        RemoteAddress $remoteAddress,
+        GetModuleVersionInterface $getModuleVersion
     ) {
         $this->_authSession = $authSession;
         $this->resultJsonFactory = $resultJsonFactory;
@@ -130,6 +138,7 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         $this->logger = $logger;
         $this->config = $config;
         $this->remoteAddress = $remoteAddress;
+        $this->getModuleVersion = $getModuleVersion;
         parent::__construct($context);
     }
 
@@ -326,6 +335,11 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
         $curl = $this->curlFactory->create();
         $curl->setTimeout(self::TIMEOUT);
         $curl->setOption(CURLOPT_CONNECTTIMEOUT, self::CONNECT_TIMEOUT);
+        $curl->addHeader('User-Agent', 'Magefan_Community/' . $this->getModuleVersion->execute('Magefan_Community'));
+        $referer = $this->getBaseUrl();
+        if ($referer) {
+            $curl->addHeader('Referer', $referer);
+        }
         $curl->post($url, $data);
 
         if (200 != $curl->getStatus()) {
@@ -344,9 +358,27 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
      */
     private function getDomain(): string
     {
+        $baseUrl = $this->getBaseUrl();
+        if (!$baseUrl) {
+            return '';
+        }
+
         try {
-            $baseUrl = $this->storeManager->getDefaultStoreView()->getBaseUrl();
             return (string)UriFactory::factory($baseUrl)->getHost();
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Get the default store view base URL
+     *
+     * @return string
+     */
+    private function getBaseUrl(): string
+    {
+        try {
+            return (string)$this->storeManager->getDefaultStoreView()->getBaseUrl();
         } catch (\Exception $e) {
             return '';
         }
