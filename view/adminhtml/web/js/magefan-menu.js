@@ -36,7 +36,7 @@ var MagefanMenuManager = {
     config: {
         menuSelector: '#menu-magefan-community-elements',
         defaultBgColor: '#4a4542',
-        searchThreshold: 16,
+        searchThreshold: 0,
         menuOffsetHeight: 147,
         menuLeftPosition: '88px',
         groups: []
