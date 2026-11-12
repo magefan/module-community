@@ -1,0 +1,546 @@
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+
+//
+//  Review popup - Magefan analyst in the bottom-left corner and the review form modal
+//  _____________________________________________
+
+@mf-ra__star: #fdb022;
+@mf-ra__link: #1570cd;
+@mf-ra__focus: #2e6bd9;
+@mf-ra__bubble-border: #c9dff5;
+@mf-ra__bubble-background: #fff;
+@mf-ra__bubble-text: #101828;
+@mf-ra__muted: #6b7280;
+@mf-ra__lid: #304f70;
+@mf-ra__shadow: rgba(16, 24, 40, .14);
+@mf-ra__transparent: rgba(0, 0, 0, 0);
+@mf-review-form__background: #fff;
+@mf-review-form__border: rgba(255, 153, 0, .4);
+@mf-review-form__shadow: rgba(52, 64, 84, .14);
+@mf-review-form__input-border: #d5d5d5;
+@mf-review-form__input-border-focus: #333;
+@mf-review-form__muted: #555;
+@mf-review-form__accent: #f90;
+@mf-review-form__accent-hover: #e68a00;
+@mf-review-form__star: #e9e9e9;
+@mf-review-form__star-active: #ffc736;
+
+//  Analyst: peeks from the bottom edge, pops out on hover and invites to rate the extension
+.mf-ra {
+    bottom: 0;
+    height: 132px;
+    left: 104px;
+    position: fixed;
+    width: 150px;
+    z-index: 799;
+    //  Only the analyst and the bubble catch the mouse, not the empty box above the analyst
+    pointer-events: none;
+
+    &[hidden] {
+        display: none;
+    }
+
+    //  Admin styles of button hover, focus and active states (background, border, shadow) win over all unset
+    button,
+    button:hover,
+    button:focus,
+    button:active,
+    button:active:focus {
+        background: @mf-ra__transparent;
+        border: 0;
+        box-shadow: none;
+    }
+}
+
+.mf-ra-move {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    transform: translateY(110%);
+    transition: transform .45s cubic-bezier(.4, 0, .2, 1) .35s;
+
+    .mf-ra.is-in & {
+        transform: translateY(62%);
+    }
+
+    .mf-ra.is-in:hover &,
+    .mf-ra.is-in:focus-within & {
+        transform: translateY(-2%);
+        transition: transform .55s cubic-bezier(.34, 1.56, .64, 1) 0s;
+    }
+}
+
+.mf-ra-btn {
+    all: unset;
+    border-radius: 16px;
+    cursor: pointer;
+    display: block;
+    pointer-events: auto;
+    position: relative;
+    width: 100%;
+
+    &:focus-visible {
+        outline: 3px solid @mf-ra__focus;
+        outline-offset: 2px;
+    }
+
+    //  Invisible bridge from the tablet to the bubble, so the mouse does not leave the analyst on its way
+    //  to "Leave a review". Only while hovered, so it does not make the peeking analyst catch the mouse earlier.
+    &::after {
+        content: '';
+        display: none;
+        height: 88%;
+        left: calc(100% - 16px);
+        position: absolute;
+        top: 0;
+        width: 86px;
+    }
+
+    .mf-ra.is-in:hover &::after {
+        display: block;
+    }
+}
+
+.mf-ra-an {
+    aspect-ratio: ~'480 / 421';
+    display: block;
+    position: relative;
+
+    img {
+        -webkit-user-drag: none;
+        display: block;
+        height: 100%;
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        user-select: none;
+        width: 100%;
+    }
+}
+
+//  Tablet waves in the hand, around the point where the hand holds it
+.mf-ra-tab {
+    inset: 0;
+    position: absolute;
+    transform-origin: 70.95% 67.65%;
+}
+
+.mf-ra-lid {
+    animation: mf-ra-blink 2s infinite;
+    background: @mf-ra__lid;
+    border-radius: 50%;
+    height: 7.6%;
+    position: absolute;
+    top: 28.1%;
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+    width: 4.8%;
+
+    &.l {
+        left: 38%;
+    }
+
+    &.r {
+        left: 56.4%;
+    }
+}
+
+.mf-ra-star {
+    aspect-ratio: 1;
+    opacity: 0;
+    position: absolute;
+    width: 5%;
+
+    svg {
+        display: block;
+        fill: @mf-ra__star;
+        height: 100%;
+        width: 100%;
+    }
+
+    &.s1 {
+        left: 76%;
+        top: 44%;
+    }
+
+    &.s2 {
+        left: 88%;
+        top: 41%;
+    }
+
+    &.s3 {
+        left: 82%;
+        top: 36%;
+        width: 6%;
+    }
+}
+
+.mf-ra.is-in:hover,
+.mf-ra.is-in:focus-within {
+    .mf-ra-tab {
+        animation: mf-ra-wave 1.9s ease-in-out .45s infinite;
+    }
+
+    .mf-ra-star {
+        animation: mf-ra-sparkle 1.9s ease-out .45s infinite;
+
+        &.s2 {
+            animation-delay: .6s;
+        }
+
+        &.s3 {
+            animation-delay: .75s;
+        }
+    }
+
+    .mf-ra-bubble {
+        opacity: 1;
+        transform: scale(1);
+        transition: transform .35s cubic-bezier(.34, 1.56, .64, 1) .3s, opacity .2s ease-out .3s, visibility 0s .3s;
+        visibility: visible;
+    }
+}
+
+.mf-ra-bubble {
+    background: @mf-ra__bubble-background;
+    border: 1px solid @mf-ra__bubble-border;
+    border-radius: 14px;
+    bottom: 118px;
+    box-shadow: 0 8px 22px @mf-ra__shadow;
+    color: @mf-ra__bubble-text;
+    font-size: 13.5px;
+    font-weight: 600;
+    left: 138px;
+    line-height: 1.3;
+    max-width: 230px;
+    opacity: 0;
+    padding: 9px 13px;
+    pointer-events: auto;
+    position: absolute;
+    transform: scale(.5);
+    transform-origin: 0 100%;
+    //  Hide with a short delay, so the bubble does not disappear when the mouse slips out of it for a moment
+    transition: transform .15s ease-in .2s, opacity .15s ease-in .2s, visibility 0s .35s;
+    visibility: hidden;
+    width: max-content;
+
+    &::after {
+        background: @mf-ra__bubble-background;
+        border-bottom: 1px solid @mf-ra__bubble-border;
+        border-right: 1px solid @mf-ra__bubble-border;
+        bottom: -7px;
+        content: '';
+        height: 12px;
+        left: 12px;
+        position: absolute;
+        transform: rotate(45deg) skew(8deg, 8deg);
+        width: 12px;
+    }
+
+    button {
+        all: unset;
+        cursor: pointer;
+        display: block;
+
+        &:hover {
+            text-decoration: underline;
+        }
+
+        &:focus-visible {
+            border-radius: 4px;
+            outline: 2px solid @mf-ra__focus;
+            outline-offset: 2px;
+        }
+    }
+
+    //  Small extension icon to the left of the text
+    &.has-icon {
+        align-items: flex-start;
+        display: flex;
+        gap: 10px;
+        max-width: 270px;
+    }
+
+    .mf-ra-bubble-icon {
+        border-radius: 8px;
+        flex-shrink: 0;
+        height: 36px;
+        margin-top: 2px;
+        object-fit: cover;
+        width: 36px;
+    }
+
+    .mf-ra-bubble-actions {
+        align-items: baseline;
+        display: flex;
+        gap: 14px;
+        margin-top: 4px;
+        white-space: nowrap;
+    }
+
+    .mf-ra-rate {
+        color: @mf-ra__link;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    .mf-ra-later {
+        color: @mf-ra__muted;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+@keyframes mf-ra-blink {
+    0%,
+    86%,
+    99.5%,
+    100% {
+        transform: scaleY(0);
+    }
+    92.75% {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes mf-ra-wave {
+    0% {
+        transform: rotate(0);
+    }
+    12% {
+        transform: rotate(-10deg);
+    }
+    26% {
+        transform: rotate(2deg);
+    }
+    40% {
+        transform: rotate(-10deg);
+    }
+    54% {
+        transform: rotate(2deg);
+    }
+    66% {
+        transform: rotate(-7deg);
+    }
+    80%,
+    100% {
+        transform: rotate(0);
+    }
+}
+
+@keyframes mf-ra-sparkle {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(.3) rotate(0);
+    }
+    14% {
+        opacity: 1;
+        transform: translate(0, -4px) scale(1.15) rotate(25deg);
+    }
+    42%,
+    100% {
+        opacity: 0;
+        transform: translate(6px, -22px) scale(.6) rotate(60deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mf-ra-move,
+    .mf-ra.is-in:hover .mf-ra-move {
+        transition-duration: .01s;
+    }
+
+    .mf-ra .mf-ra-lid,
+    .mf-ra .mf-ra-tab,
+    .mf-ra .mf-ra-star {
+        animation: none !important;
+    }
+}
+
+//  Review form modal: wider than the default confirm modal (50rem)
+.modal-popup.confirm.mf-review-modal .modal-inner-wrap {
+    max-width: 86rem;
+    width: 90%;
+}
+
+.mf-review-form {
+    background: @mf-review-form__background;
+    border: 1px solid @mf-review-form__border;
+    border-radius: 16px;
+    box-shadow: 0 75px 150px 0 @mf-review-form__shadow;
+    box-sizing: border-box;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 24px 32px;
+    width: 100%;
+
+    //  Extension icon next to the rating, so the form fits the screen without scrolling
+    .mf-review-head {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        margin-bottom: 18px;
+
+        .field {
+            margin-bottom: 0;
+        }
+    }
+
+    .mf-review-product-link {
+        display: block;
+        flex-shrink: 0;
+    }
+
+    .mf-review-product-image {
+        border-radius: 12px;
+        display: block;
+        flex-shrink: 0;
+        height: 48px;
+        object-fit: cover;
+        width: 48px;
+    }
+
+    .mf-review-question {
+        font-size: 14px;
+        margin: 0 0 6px;
+    }
+
+    .mf-review-grid {
+        column-gap: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        @media (max-width: 640px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .fieldset {
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .field {
+        margin-bottom: 14px;
+    }
+
+    .label,
+    .label span {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .control input.input-text,
+    .control textarea {
+        background: @mf-review-form__background;
+        border: 1px solid @mf-review-form__input-border;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 14px;
+        padding: 10px 12px;
+        width: 100%;
+
+        &:focus {
+            border-color: @mf-review-form__input-border-focus;
+            outline: none;
+        }
+    }
+
+    .control textarea {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .field.gdpr {
+        align-items: flex-start;
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+
+        input[type='checkbox'] {
+            accent-color: @mf-review-form__accent;
+            cursor: pointer;
+            flex-shrink: 0;
+            height: 16px;
+            margin: 2px 0 0;
+            width: 16px;
+        }
+
+        .label {
+            color: @mf-review-form__muted;
+            display: inline;
+            font-size: 13px;
+            font-weight: 400;
+            margin: 0;
+
+            span {
+                display: inline;
+                font-weight: 400;
+            }
+        }
+
+        a {
+            color: @mf-review-form__accent;
+            text-decoration: underline;
+
+            &:hover {
+                color: @mf-review-form__accent-hover;
+            }
+        }
+    }
+
+    //  Stars are in reverse order, so '~ label' highlights the lower ones
+    .review-control-vote {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 6px;
+        justify-content: flex-end;
+        margin: 0;
+        overflow: hidden;
+
+        input[type='radio'] {
+            border: 0;
+            clip: rect(0, 0, 0, 0);
+            height: 1px;
+            margin: -1px;
+            opacity: 0;
+            overflow: hidden;
+            padding: 0;
+            pointer-events: none;
+            position: absolute;
+            width: 1px;
+        }
+
+        label {
+            cursor: pointer;
+            display: inline-block;
+            line-height: 12px;
+            padding-inline-start: 0;
+            user-select: none;
+        }
+
+        .star-icon {
+            -webkit-mask: url('../Magefan_Community/images/star.svg') no-repeat center / contain;
+            background-color: @mf-review-form__star;
+            display: block;
+            height: 32px;
+            mask: url('../Magefan_Community/images/star.svg') no-repeat center / contain;
+            transition: background-color .2s ease;
+            width: 32px;
+        }
+
+        label:hover .star-icon,
+        label:hover ~ label .star-icon,
+        input[type='radio']:checked + label .star-icon,
+        input[type='radio']:checked ~ label .star-icon {
+            background-color: @mf-review-form__star-active;
+        }
+    }
+}

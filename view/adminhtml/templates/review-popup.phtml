@@ -1,0 +1,201 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ */
+
+/**
+ * @var $block \Magefan\Community\Block\Adminhtml\ReviewPopup
+ * @var $escaper \Magento\Framework\Escaper
+ */
+?>
+<?php
+if (!isset($escaper)) {
+    $escaper = $block;
+}
+$productName = (string)$block->getProductName();
+$starPath = 'M0,-8 L2.12,-2.91 L7.61,-2.47 L3.42,1.11 L4.7,6.47 L0,3.6 '
+    . 'L-4.7,6.47 L-3.42,1.11 L-7.61,-2.47 L-2.12,-2.91 Z';
+$analystUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst.webp');
+$tabletUrl = $block->getViewFileUrl('Magefan_Community::images/review-analyst-tablet.webp');
+$productImage = $block->getProductImage();
+$productUrl = $block->getProductUrl();
+?>
+<div class="mf-review-popup" id="mf-review-popup">
+    <div class="mf-ra" hidden>
+        <div class="mf-ra-move">
+            <button type="button"
+                    class="mf-ra-btn mf-ra-open"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Rate %1', $productName)) ?>">
+                <span class="mf-ra-an">
+                    <img src="<?= $escaper->escapeUrl($analystUrl) ?>" alt="">
+                    <span class="mf-ra-lid l"></span><span class="mf-ra-lid r"></span>
+                    <span class="mf-ra-tab">
+                        <img src="<?= $escaper->escapeUrl($tabletUrl) ?>" alt="">
+                        <?php foreach (['s1', 's2', 's3'] as $starClass): ?>
+                            <span class="mf-ra-star <?= /* @noEscape */ $starClass ?>">
+                                <svg viewBox="-9 -9 18 18" aria-hidden="true">
+                                    <path d="<?= /* @noEscape */ $starPath ?>"/>
+                                </svg>
+                            </span>
+                        <?php endforeach; ?>
+                    </span>
+                </span>
+            </button>
+        </div>
+        <div class="mf-ra-bubble<?= $productImage ? ' has-icon' : '' ?>">
+            <?php if ($productImage): ?>
+                <img class="mf-ra-bubble-icon" src="<?= $escaper->escapeUrl($productImage) ?>" alt="">
+            <?php endif; ?>
+            <div class="mf-ra-bubble-text">
+                <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
+                <div class="mf-ra-bubble-actions">
+                    <button type="button" class="mf-ra-rate mf-ra-open">
+                        <?= $escaper->escapeHtml(__('Leave a review')) ?>
+                    </button>
+                    <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Maybe later')) ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template class="mf-review-form-template">
+        <form class="mf-review-form">
+            <div class="mf-review-head">
+                <?php if ($productImage): ?>
+                    <?php if ($productUrl): ?>
+                        <a class="mf-review-product-link"
+                           href="<?= $escaper->escapeUrl($productUrl) ?>"
+                           target="_blank"
+                           rel="noopener"
+                           title="<?= $escaper->escapeHtmlAttr($productName) ?>">
+                    <?php endif; ?>
+                    <img class="mf-review-product-image"
+                         src="<?= $escaper->escapeUrl($productImage) ?>"
+                         width="48"
+                         height="48"
+                         alt="<?= $escaper->escapeHtmlAttr($productName) ?>">
+                    <?php if ($productUrl): ?>
+                        </a>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <div class="field choice review-field-rating">
+                    <p class="mf-review-question" id="mf-review-question">
+                        <?= $escaper->escapeHtml(__('How would you rate your experience?')) ?>
+                    </p>
+                    <div class="control review-control-vote" role="radiogroup" aria-labelledby="mf-review-question">
+                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                            <?php $starTitle = $i > 1 ? __('%1 stars', $i) : __('%1 star', $i); ?>
+                            <input type="radio"
+                                   name="rating"
+                                   id="mf-review-rating-<?= (int)$i ?>"
+                                   value="<?= (int)$i ?>"
+                                   class="radio"
+                                   required>
+                            <label for="mf-review-rating-<?= (int)$i ?>"
+                                   title="<?= $escaper->escapeHtmlAttr($starTitle) ?>">
+                                <span class="star-icon"></span>
+                            </label>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+            <fieldset class="fieldset review-fieldset">
+                <div class="mf-review-grid">
+                    <div class="field review-field-firstname required">
+                        <label for="mf-review-firstname" class="label">
+                            <span><?= $escaper->escapeHtml(__('Firstname')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="text"
+                                   name="firstname"
+                                   id="mf-review-firstname"
+                                   class="input-text"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('firstname')) ?>"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="field review-field-lastname required">
+                        <label for="mf-review-lastname" class="label">
+                            <span><?= $escaper->escapeHtml(__('Lastname')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="text"
+                                   name="lastname"
+                                   id="mf-review-lastname"
+                                   class="input-text"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('lastname')) ?>"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="field review-field-email required">
+                        <label for="mf-review-email" class="label">
+                            <span><?= $escaper->escapeHtml(__('Email')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="email"
+                                   name="email"
+                                   id="mf-review-email"
+                                   class="input-text"
+                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Enter email')) ?>"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getAdminUserData('email')) ?>"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="field review-field-company">
+                        <label for="mf-review-company" class="label">
+                            <span><?= $escaper->escapeHtml(__('Company')) ?></span>
+                        </label>
+                        <div class="control">
+                            <input type="text"
+                                   name="company"
+                                   id="mf-review-company"
+                                   class="input-text"
+                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Company (optional)')) ?>"
+                                   maxlength="255">
+                        </div>
+                    </div>
+                </div>
+                <div class="field review-field-summary required">
+                    <label for="mf-review-title" class="label">
+                        <span><?= $escaper->escapeHtml(__('Summary')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="text"
+                               name="title"
+                               id="mf-review-title"
+                               class="input-text"
+                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>"
+                               maxlength="255"
+                               required>
+                    </div>
+                </div>
+                <div class="field review-field-text required">
+                    <label for="mf-review-detail" class="label">
+                        <span><?= $escaper->escapeHtml(__('Share detailed feedback?')) ?></span>
+                    </label>
+                    <div class="control">
+                        <textarea name="detail"
+                                  id="mf-review-detail"
+                                  rows="4"
+                                  placeholder="<?= $escaper->escapeHtmlAttr(__('Leave us a message...')) ?>"
+                                  maxlength="10000"
+                                  required></textarea>
+                    </div>
+                </div>
+                <div class="field gdpr required">
+                    <input type="checkbox" name="gdpr-consent" id="mf-review-gdpr" class="input-checkbox" required>
+                    <label for="mf-review-gdpr" class="label">&nbsp;<span>
+                        <?= $escaper->escapeHtml(__('I agree to the processing of my data in accordance with the')) ?>
+                        <a href="https://magefan.com/privacy-policy" target="_blank" rel="noopener">
+                            <?= $escaper->escapeHtml(__('Privacy Policy')) ?>
+                        </a>
+                    </span></label>
+                </div>
+            </fieldset>
+        </form>
+    </template>
+</div>
+<script type="text/x-magento-init">
+    {"#mf-review-popup": <?= /* @noEscape */ $block->getJsConfig() ?>}
+</script>
