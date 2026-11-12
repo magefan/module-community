@@ -5,7 +5,7 @@
 
 /**
  * Review popup: the Magefan analyst peeks from the bottom edge and pops out only on hover.
- * Click on him or "Rate it" opens the review form, "Not now" (or closing the form) postpones the module.
+ * Click on him or "Leave a review" opens the review form, "Maybe later" (or closing the form) postpones the module.
  */
 define([
     'jquery',

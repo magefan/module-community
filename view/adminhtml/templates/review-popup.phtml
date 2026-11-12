@@ -49,10 +49,12 @@ $productUrl = $block->getProductUrl();
             <?php endif; ?>
             <div class="mf-ra-bubble-text">
                 <?= $escaper->escapeHtml(__('Enjoying %1?', $productName)) ?>
-                <button type="button" class="mf-ra-rate mf-ra-open">
-                    <?= $escaper->escapeHtml(__('Rate it')) ?> ★
-                </button>
-                <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Not now')) ?></button>
+                <div class="mf-ra-bubble-actions">
+                    <button type="button" class="mf-ra-rate mf-ra-open">
+                        <?= $escaper->escapeHtml(__('Leave a review')) ?>
+                    </button>
+                    <button type="button" class="mf-ra-later"><?= $escaper->escapeHtml(__('Maybe later')) ?></button>
+                </div>
             </div>
         </div>
     </div>

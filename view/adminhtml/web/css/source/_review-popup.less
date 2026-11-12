@@ -89,7 +89,7 @@
     }
 
     //  Invisible bridge from the tablet to the bubble, so the mouse does not leave the analyst on its way
-    //  to "Rate it". Only while hovered, so it does not make the peeking analyst catch the mouse earlier.
+    //  to "Leave a review". Only while hovered, so it does not make the peeking analyst catch the mouse earlier.
     &::after {
         content: '';
         display: none;
@@ -274,17 +274,24 @@
         width: 36px;
     }
 
+    .mf-ra-bubble-actions {
+        align-items: baseline;
+        display: flex;
+        gap: 14px;
+        margin-top: 4px;
+        white-space: nowrap;
+    }
+
     .mf-ra-rate {
         color: @mf-ra__link;
         font-weight: 700;
-        margin-top: 2px;
+        text-decoration: underline;
     }
 
     .mf-ra-later {
         color: @mf-ra__muted;
         font-size: 12px;
         font-weight: 600;
-        margin-top: 6px;
     }
 }
 
