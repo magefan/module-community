@@ -142,19 +142,32 @@ $productUrl = $block->getProductUrl();
                                    required>
                         </div>
                     </div>
-                    <div class="field review-field-summary required">
-                        <label for="mf-review-title" class="label">
-                            <span><?= $escaper->escapeHtml(__('Summary')) ?></span>
+                    <div class="field review-field-company">
+                        <label for="mf-review-company" class="label">
+                            <span><?= $escaper->escapeHtml(__('Company')) ?></span>
                         </label>
                         <div class="control">
                             <input type="text"
-                                   name="title"
-                                   id="mf-review-title"
+                                   name="company"
+                                   id="mf-review-company"
                                    class="input-text"
-                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>"
-                                   maxlength="255"
-                                   required>
+                                   placeholder="<?= $escaper->escapeHtmlAttr(__('Company (optional)')) ?>"
+                                   maxlength="255">
                         </div>
+                    </div>
+                </div>
+                <div class="field review-field-summary required">
+                    <label for="mf-review-title" class="label">
+                        <span><?= $escaper->escapeHtml(__('Summary')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="text"
+                               name="title"
+                               id="mf-review-title"
+                               class="input-text"
+                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter summary')) ?>"
+                               maxlength="255"
+                               required>
                     </div>
                 </div>
                 <div class="field review-field-text required">

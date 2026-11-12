@@ -194,6 +194,12 @@ class Index extends \Magento\Backend\App\Action implements HttpPostActionInterfa
 
         $reviewData['nickname'] = $reviewData['firstname'] . ' ' . $reviewData['lastname'];
 
+        $company = $this->_request->getParam('company');
+        $company = is_scalar($company) ? trim((string)$company) : '';
+        if ($company !== '') {
+            $reviewData['company'] = mb_substr($company, 0, 255);
+        }
+
         if (!filter_var($reviewData['email'], FILTER_VALIDATE_EMAIL)) {
             return $result->setData(['success' => false, 'message' => __('Please enter a valid email address.')]);
         }
