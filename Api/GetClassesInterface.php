@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magefan\Community\Api;
 
-interface TailwindInterface
+interface GetClassesInterface
 {
     /**
      * Retrieve Tailwind classes by key.

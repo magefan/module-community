@@ -6,9 +6,9 @@
 
 declare(strict_types=1);
 
-namespace Magefan\Community\Model\Tailwind;
+namespace Magefan\Community\Model\GetClasses;
 
-use Magefan\Community\Model\Cache\Type\Tailwind as TailwindCache;
+use Magefan\Community\Model\Cache\Type\Classes as ClassesCache;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Component\ComponentRegistrarInterface;
 use Magento\Framework\Filesystem\Driver\File;
@@ -40,7 +40,7 @@ class ClassesManager
     private $design;
 
     /**
-     * @var TailwindCache
+     * @var ClassesCache
      */
     private $cache;
 
@@ -63,7 +63,7 @@ class ClassesManager
      * @param ModuleListInterface $moduleList
      * @param ComponentRegistrarInterface $componentRegistrar
      * @param DesignInterface $design
-     * @param TailwindCache $cache
+     * @param ClassesCache $cache
      * @param SerializerInterface $serializer
      * @param File $fileDriver
      */
@@ -71,7 +71,7 @@ class ClassesManager
         ModuleListInterface $moduleList,
         ComponentRegistrarInterface $componentRegistrar,
         DesignInterface $design,
-        TailwindCache $cache,
+        ClassesCache $cache,
         SerializerInterface $serializer,
         File $fileDriver
     ) {
@@ -94,7 +94,7 @@ class ClassesManager
         $themePath = $theme ? (string)$theme->getFullPath() : '';
 
         if (!isset($this->classes[$themePath])) {
-            $cacheKey = TailwindCache::CACHE_TAG . '_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $themePath);
+            $cacheKey = ClassesCache::CACHE_TAG . '_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $themePath);
             $cached = $this->cache->load($cacheKey);
             $classes = $cached ? $this->serializer->unserialize($cached) : null;
 

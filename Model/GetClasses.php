@@ -9,11 +9,11 @@ declare(strict_types=1);
 namespace Magefan\Community\Model;
 
 use Magefan\Community\Api\HyvaThemeDetectionInterface;
-use Magefan\Community\Api\TailwindInterface;
-use Magefan\Community\Model\Tailwind\ClassesManager;
+use Magefan\Community\Api\GetClassesInterface;
+use Magefan\Community\Model\GetClasses\ClassesManager;
 use Magento\Framework\Escaper;
 
-class Tailwind implements TailwindInterface
+class GetClasses implements GetClassesInterface
 {
     /**
      * @var ClassesManager
@@ -72,9 +72,9 @@ class Tailwind implements TailwindInterface
         $classes = preg_split('/\s+/', trim($class), -1, PREG_SPLIT_NO_EMPTY);
 
         foreach ($classes as $key) {
-            $tailwind = $this->get($key);
-            if ($tailwind !== '') {
-                $classes[] = $tailwind;
+            $mappedClasses = $this->get($key);
+            if ($mappedClasses !== '') {
+                $classes[] = $mappedClasses;
             }
         }
 

@@ -11,7 +11,7 @@ namespace Magefan\Community\Plugin\Magento\Framework\View\TemplateEngine;
 use Magefan\Community\Model\BreezeThemeDetection\Proxy as BreezeThemeDetection;
 use Magefan\Community\Model\View\Helper\SecureHtmlRenderer\Proxy as SecureHtmlRenderer;
 use Magefan\Community\Model\HyvaThemeDetection\Proxy as HyvaThemeDetection;
-use Magefan\Community\Model\Tailwind\Proxy as Tailwind;
+use Magefan\Community\Model\GetClasses\Proxy as GetClasses;
 use Magento\Framework\View\Element\BlockInterface;
 
 class Php
@@ -32,27 +32,27 @@ class Php
     private $mfBreezeThemeDetection;
 
     /**
-     * @var Tailwind
+     * @var GetClasses
      */
-    private $mfTailwind;
+    private $mfGetClasses;
 
     // @codingStandardsIgnoreStart
     /**
      * @param SecureHtmlRenderer $mfSecureRenderer
      * @param HyvaThemeDetection $mfHyvaThemeDetection
      * @param BreezeThemeDetection $mfBreezeThemeDetection
-     * @param Tailwind $mfTailwind
+     * @param GetClasses $mfGetClasses
      */
     public function __construct(
         SecureHtmlRenderer $mfSecureRenderer,
         HyvaThemeDetection $mfHyvaThemeDetection,
         BreezeThemeDetection $mfBreezeThemeDetection,
-        Tailwind $mfTailwind
+        GetClasses $mfGetClasses
     ) {
         $this->mfSecureRenderer  = $mfSecureRenderer;
         $this->mfHyvaThemeDetection = $mfHyvaThemeDetection;
         $this->mfBreezeThemeDetection = $mfBreezeThemeDetection;
-        $this->mfTailwind = $mfTailwind;
+        $this->mfGetClasses = $mfGetClasses;
     }
     // @codingStandardsIgnoreEnd
 
@@ -74,7 +74,7 @@ class Php
         $dictionary['mfSecureRenderer'] = $this->mfSecureRenderer;
         $dictionary['mfHyvaThemeDetection'] = $this->mfHyvaThemeDetection;
         $dictionary['mfBreezeThemeDetection'] = $this->mfBreezeThemeDetection;
-        $dictionary['mfTailwind'] = $this->mfTailwind;
+        $dictionary['mfGetClasses'] = $this->mfGetClasses;
 
         return [$block, $fileName, $dictionary];
     }

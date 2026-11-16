@@ -11,17 +11,17 @@ namespace Magefan\Community\Model\Cache\Type;
 use Magento\Framework\App\Cache\Type\FrontendPool;
 use Magento\Framework\Cache\Frontend\Decorator\TagScope;
 
-class Tailwind extends TagScope
+class Classes extends TagScope
 {
     /**
      * Cache type code.
      */
-    public const TYPE_IDENTIFIER = 'mf_tailwind';
+    public const TYPE_IDENTIFIER = 'mf_classes';
 
     /**
      * Cache tag.
      */
-    public const CACHE_TAG = 'MF_TAILWIND';
+    public const CACHE_TAG = 'MF_CLASSES';
 
     /**
      * @param FrontendPool $cacheFrontendPool

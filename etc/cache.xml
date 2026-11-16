@@ -6,8 +6,8 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
-    <type name="mf_tailwind" translate="label,description" instance="Magefan\Community\Model\Cache\Type\Tailwind">
-        <label>Magefan Tailwind Classes</label>
-        <description>Tailwind classes collected from tailwind.classes files of modules and themes.</description>
+    <type name="mf_classes" translate="label,description" instance="Magefan\Community\Model\Cache\Type\Classes">
+        <label>Magefan Classes</label>
+        <description>Classes collected from tailwind.classes files of modules and themes.</description>
     </type>
 </config>
