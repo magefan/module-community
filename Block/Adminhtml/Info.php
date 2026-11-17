@@ -26,6 +26,16 @@ use Magento\Framework\Module\Manager as ModuleManager;
 class Info extends \Magento\Backend\Block\Template
 {
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @var string
+     */
+    protected $_template = 'Magefan_Community::info.phtml';
+
+    /**
      * @var Structure
      */
     private $configStructure;
@@ -132,15 +142,6 @@ class Info extends \Magento\Backend\Block\Template
             ->get(SecureHtmlRendererInterface::class);
         $this->getModuleInfo = $getModuleInfo ?: \Magento\Framework\App\ObjectManager::getInstance()
             ->get(GetModuleInfoInterface::class);
-    }
-
-    /**
-     * Set default template
-     */
-    protected function _construct()
-    {
-        parent::_construct();
-        $this->setTemplate('Magefan_Community::info.phtml');
     }
 
     /**
