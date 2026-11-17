@@ -46,18 +46,6 @@ class GetClasses implements GetClassesInterface
     }
 
     /**
-     * Retrieve Tailwind classes by key.
-     *
-     * @param string $key
-     * @return string
-     */
-    public function get(string $key): string
-    {
-        $classes = $this->classesManager->getClasses();
-        return $classes[$key] ?? '';
-    }
-
-    /**
      * Retrieve escaped for HTML attribute classes with Tailwind classes of each of them added on Hyva themes.
      *
      * @param string $class
@@ -70,11 +58,11 @@ class GetClasses implements GetClassesInterface
         }
 
         $classes = preg_split('/\s+/', trim($class), -1, PREG_SPLIT_NO_EMPTY);
+        $classesMap = $this->classesManager->getClasses();
 
         foreach ($classes as $key) {
-            $mappedClasses = $this->get($key);
-            if ($mappedClasses !== '') {
-                $classes[] = $mappedClasses;
+            if (!empty($classesMap[$key])) {
+                $classes[] = $classesMap[$key];
             }
         }
 

@@ -11,14 +11,6 @@ namespace Magefan\Community\Api;
 interface GetClassesInterface
 {
     /**
-     * Retrieve Tailwind classes by key.
-     *
-     * @param string $key
-     * @return string
-     */
-    public function get(string $key): string;
-
-    /**
      * Retrieve escaped for HTML attribute classes with Tailwind classes of each of them added on Hyva themes.
      *
      * @param string $class
