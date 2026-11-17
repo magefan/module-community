@@ -15,7 +15,6 @@ use Magento\Framework\Mail\AddressConverter;
 use Magento\Framework\Mail\EmailMessageInterfaceFactory;
 use Magento\Framework\Mail\Exception\InvalidArgumentException;
 use Magento\Framework\Mail\MessageInterface;
-use Magento\Framework\Mail\MessageInterfaceFactory;
 use Magento\Framework\Mail\MimeInterface;
 use Magento\Framework\Mail\MimeMessageInterfaceFactory;
 use Magento\Framework\Mail\MimePartInterfaceFactory;
@@ -128,12 +127,10 @@ class TransportBuilder
 
     /**
      * @param FactoryInterface $templateFactory
-     * @param MessageInterface $message
      * @param SenderResolverInterface $senderResolver
      * @param ObjectManagerInterface $objectManager
      * @param TransportInterfaceFactory $mailTransportFactory
      * @param ProductMetadataInterface $productMetadata
-     * @param MessageInterfaceFactory|null $messageFactory
      * @param EmailMessageInterfaceFactory|null $emailMessageInterfaceFactory
      * @param MimeMessageInterfaceFactory|null $mimeMessageInterfaceFactory
      * @param MimePartInterfaceFactory|null $mimePartInterfaceFactory
@@ -141,12 +138,10 @@ class TransportBuilder
      */
     public function __construct(
         FactoryInterface $templateFactory,
-        MessageInterface $message,
         SenderResolverInterface $senderResolver,
         ObjectManagerInterface $objectManager,
         TransportInterfaceFactory $mailTransportFactory,
         ProductMetadataInterface $productMetadata,
-        ?MessageInterfaceFactory $messageFactory = null,
         ?EmailMessageInterfaceFactory $emailMessageInterfaceFactory = null,
         ?MimeMessageInterfaceFactory $mimeMessageInterfaceFactory = null,
         ?MimePartInterfaceFactory $mimePartInterfaceFactory = null,
@@ -371,11 +366,14 @@ class TransportBuilder
 
         foreach ($this->attachments as $attachmentData) {
 
-            $attachment = new \Laminas\Mime\Part($attachmentData['content']);
-            $attachment->filename = $attachmentData['name'];
-            $attachment->type = $attachmentData['type'];
-            $attachment->encoding = $attachmentData['encoding'] ?: \Laminas\Mime\Mime::ENCODING_BASE64;
-            $attachment->disposition = $attachmentData['disposition'] ?: \Laminas\Mime\Mime::DISPOSITION_ATTACHMENT;
+            $attachment = $this->mimePartInterfaceFactory->create([
+                'content' => $attachmentData['content'],
+                'fileName' => $attachmentData['name'],
+                'type' => $attachmentData['type'],
+                'encoding' => $attachmentData['encoding'] ?: MimeInterface::ENCODING_BASE64,
+                'disposition' => $attachmentData['disposition'] ?: MimeInterface::DISPOSITION_ATTACHMENT,
+                'charset' => null
+            ]);
 
             $parts[] = $attachment;
         }

@@ -11,10 +11,10 @@ namespace Magefan\Community\Controller\Adminhtml;
 use Exception;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Registry;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
 /**
  * Abstract admin controller
@@ -77,13 +77,21 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected $dataPersistor;
 
     /**
-     * @param Action\Context $context
+     * @var AbstractDb|null
+     */
+    private $modelResource;
+
+    /**
+     * @param Context $context
      * @param DataPersistorInterface $dataPersistor
+     * @param AbstractDb|null $modelResource
      */
     public function __construct(
         Context $context,
-        DataPersistorInterface $dataPersistor
+        DataPersistorInterface $dataPersistor,
+        ?AbstractDb $modelResource = null
     ) {
+        $this->modelResource = $modelResource;
         $this->dataPersistor = $dataPersistor;
         parent::__construct($context);
     }
@@ -91,7 +99,7 @@ abstract class Actions extends \Magento\Backend\App\Action
     /**
      * Action execute
      *
-     * @return ResultInterface
+     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute()
     {
@@ -104,6 +112,8 @@ abstract class Actions extends \Magento\Backend\App\Action
             $this->$method();
             $this->_afterAction();
         }
+
+        return $this->getResponse();
     }
 
     /**
@@ -242,11 +252,12 @@ abstract class Actions extends \Magento\Backend\App\Action
         }
         $model = $this->_getModel();
 
+        $params = [];
         try {
             $params = $this->_paramsHolder ? $request->getParam($this->_paramsHolder) : $request->getParams();
             $params = $this->filterParams($params);
 
-            $idFieldName = $model->getResource()->getIdFieldName();
+            $idFieldName = $this->getModelResource($model)->getIdFieldName();
             if (isset($params[$idFieldName]) && empty($params[$idFieldName])) {
                 unset($params[$idFieldName]);
             }
@@ -258,7 +269,7 @@ abstract class Actions extends \Magento\Backend\App\Action
             );
 
             $this->_beforeSave($model, $request);
-            $model->save();
+            $this->getModelResource($model)->save($model);
 
             $this->_afterSave($model, $request);
 
@@ -349,7 +360,7 @@ abstract class Actions extends \Magento\Backend\App\Action
                 )
             );
             // phpcs:ignore -- legacy action API kept for child controllers compatibility
-            $this->_redirect('*/*/edit', [$this->_idKey => $originModel->getId()]);
+            $this->_redirect('*/*/edit', [$this->_idKey => isset($originModel) ? $originModel->getId() : null]);
         }
     }
 
@@ -414,7 +425,10 @@ abstract class Actions extends \Magento\Backend\App\Action
         $error = false;
         try {
             foreach ($ids as $id) {
-                $this->_objectManager->create($this->_modelClass)->load($id)->delete();
+                $model = $this->_objectManager->create($this->_modelClass);
+                $resource = $this->getModelResource($model);
+                $resource->load($model, $id);
+                $resource->delete($model);
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $error = true;
@@ -478,9 +492,12 @@ abstract class Actions extends \Magento\Backend\App\Action
             }
 
             foreach ($ids as $id) {
-                $object = $this->_objectManager->create($this->_modelClass)->load($id);
+                $object = $this->_objectManager->create($this->_modelClass);
+                $resource = $this->getModelResource($object);
+                $resource->load($object, $id);
                 if ($object->getId()) {
-                    $object->setData($this->_statusField, $status)->save();
+                    $object->setData($this->_statusField, $status);
+                    $resource->save($object);
                 }
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -516,7 +533,7 @@ abstract class Actions extends \Magento\Backend\App\Action
     protected function _configAction()
     {
         // phpcs:ignore -- legacy action API kept for child controllers compatibility
-        $this->_redirect('admin/system_config/edit', ['section' => $this->_configSection()]);
+        $this->_redirect('admin/system_config/edit', ['section' => $this->_configSection]);
     }
 
     /**
@@ -557,7 +574,7 @@ abstract class Actions extends \Magento\Backend\App\Action
     /**
      * Get core registry
      *
-     * @return void
+     * @return Registry
      */
     protected function _getRegistry()
     {
@@ -590,7 +607,7 @@ abstract class Actions extends \Magento\Backend\App\Action
             $this->_model = $this->_objectManager->create($this->_modelClass);
 
             $id = (int)$this->getRequest()->getParam($this->_idKey);
-            $idFieldName = $this->_model->getResource()->getIdFieldName();
+            $idFieldName = $this->getModelResource($this->_model)->getIdFieldName();
             if (!$id && $this->_idKey !== $idFieldName) {
                 $id = (int)$this->getRequest()->getParam($idFieldName);
             }
@@ -598,7 +615,7 @@ abstract class Actions extends \Magento\Backend\App\Action
             if ($id && $load) {
                 $module = $this->getRequest()->getModuleName();
                 $controler = $this->getRequest()->getControllerName();
-                $this->_model->load($id);
+                $this->getModelResource($this->_model)->load($this->_model, $id);
                 $this->_eventManager->dispatch(
                     'magefan_' . $module . '_' . $controler  . '_form_load_model_after',
                     ['model' => $this->_model]
@@ -606,6 +623,17 @@ abstract class Actions extends \Magento\Backend\App\Action
             }
         }
         return $this->_model;
+    }
+
+    /**
+     * Resolve the resource for the model selected by the child controller.
+     *
+     * @param AbstractModel $model
+     * @return AbstractDb
+     */
+    protected function getModelResource(AbstractModel $model)
+    {
+        return $this->modelResource ?: $this->_objectManager->get($model->getResourceName());
     }
 
     /**
@@ -618,24 +646,7 @@ abstract class Actions extends \Magento\Backend\App\Action
      */
     protected function getFilterInput($filterRules, $validatorRules, $data)
     {
-        // @codingStandardsIgnoreLine
-        if (class_exists('\Magento\Framework\Filter\FilterInput')) {
-            $inputFilter = new \Magento\Framework\Filter\FilterInput(
-                $filterRules,
-                [],
-                $data
-            );
-        } else {
-            // @codingStandardsIgnoreStart
-            $inputFilter = new \Zend_Filter_Input(
-                $filterRules,
-                [],
-                $data
-            );
-            // @codingStandardsIgnoreEnd
-        }
-
-        return $inputFilter;
+        return new \Magento\Framework\Filter\FilterInput($filterRules, [], $data);
     }
 
     /**
