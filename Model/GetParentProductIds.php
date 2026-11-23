@@ -48,22 +48,23 @@ class GetParentProductIds implements GetParentProductIdsInterface
         /* Fix for configurable, bundle, grouped */
         if ($productIds) {
             $productTable = $this->resourceConnection->getTableName('catalog_product_entity');
-            $entityIdColumn = $this->connection->tableColumnExists($productTable, 'row_id') ? 'row_id' : 'entity_id';
+            // On Adobe Commerce relation parent_id is row_id, but return entity_id of the parent
+            $linkField = $this->connection->tableColumnExists($productTable, 'row_id') ? 'row_id' : 'entity_id';
 
             $select = $this->connection->select()
+                ->distinct()
                 ->from(
                     ['main_table' => $this->resourceConnection->getTableName('catalog_product_relation')],
                     []
                 )->join(
                     ['e' => $productTable],
-                    'e.' . $entityIdColumn . ' = main_table.parent_id',
-                    ['e.' .$entityIdColumn]
+                    'e.' . $linkField . ' = main_table.parent_id',
+                    ['e.entity_id']
                 )
-                ->where('main_table.child_id IN (?)', $productIds)
-                ->where('e.entity_id IS NOT NULL');
+                ->where('main_table.child_id IN (?)', $productIds);
 
-            foreach ($this->connection->fetchAll($select) as $product) {
-                $parentProductIds[$product[$entityIdColumn]] = $product[$entityIdColumn];
+            foreach ($this->connection->fetchCol($select) as $parentId) {
+                $parentProductIds[$parentId] = $parentId;
             }
         }
         /* End fix */
