@@ -27,6 +27,9 @@
             if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
                 var data = xmlhttp.responseText;
                 if (options.success) options.success(data);
+            } else if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                /* non-200 status or network error (status 0) */
+                if (options.error) options.error(xmlhttp);
             }
         };
 
