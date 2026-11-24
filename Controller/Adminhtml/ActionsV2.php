@@ -21,6 +21,7 @@ use Magento\Framework\Message\MessageInterface;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Registry;
 use Magento\Ui\Component\MassAction\Filter;
+use Magefan\Community\Model\Admin\RequestValidator;
 
 /**
  * Abstract admin CRUD controller that works through a repository.
@@ -69,6 +70,11 @@ abstract class ActionsV2 extends Action
     public const CONFIG_SECTION = null;
 
     /**
+     * Actions that change data and must be protected from CSRF
+     */
+    public const STATE_CHANGING_ACTIONS = ['save', 'duplicate', 'delete', 'massStatus'];
+
+    /**
      * Actions that can be handled by this controller.
      */
     public const PREPARED_ACTIONS = [
@@ -108,6 +114,11 @@ abstract class ActionsV2 extends Action
     protected $searchCriteriaBuilder;
 
     /**
+     * @var RequestValidator|null
+     */
+    private $requestValidator;
+
+    /**
      * @param Context $context
      * @param DataPersistorInterface $dataPersistor
      * @param Registry $registry
@@ -143,12 +154,36 @@ abstract class ActionsV2 extends Action
             return $this->resultFactory->create(ResultFactory::TYPE_FORWARD)->forward('noroute');
         }
 
+        if (in_array($action, static::STATE_CHANGING_ACTIONS, true)
+            && !$this->getRequestValidator()->isAllowed($this->getRequest())
+        ) {
+            $this->messageManager->addErrorMessage(__('Invalid request. Please refresh the page and try again.'));
+            return $this->resultRedirectFactory->create()->setPath('*/*');
+        }
+
         $method = $action . 'Action';
         $this->beforeAction();
         $result = $this->$method();
         $this->afterAction();
 
         return $result;
+    }
+
+    /**
+     * Get validator for state-changing requests
+     *
+     * Loaded lazily to keep the constructor signature of child controllers unchanged.
+     *
+     * @return RequestValidator
+     */
+    protected function getRequestValidator()
+    {
+        if (null === $this->requestValidator) {
+            $this->requestValidator = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(RequestValidator::class);
+        }
+
+        return $this->requestValidator;
     }
 
     /**
