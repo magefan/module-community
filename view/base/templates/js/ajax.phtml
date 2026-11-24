@@ -24,9 +24,14 @@
         options = window.MagefanJs.requestOptionsModifier(options);
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-                var data = xmlhttp.responseText;
-                if (options.success) options.success(data);
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    var data = xmlhttp.responseText;
+                    if (options.success) options.success(data);
+                } else if (options.error) {
+                    /* non-200 status or network error (status 0) */
+                    options.error(xmlhttp);
+                }
             }
         };
 
