@@ -87,16 +87,10 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     {
         $moduleName = $this->getModuleName();
 
-        $currentVersion = $this->getModuleVersion->execute($moduleName);
         $moduleInfo = $this->getModuleInfo->execute($moduleName);
-
-        $plan = '';
-        foreach (['Extra', 'Plus'] as $_plan) {
-            if ($_currentVersion = $this->getModuleVersion->execute($moduleName . $_plan)) {
-                $plan = $_plan;
-                $currentVersion = $_currentVersion;
-                break;
-            }
+        [$plan, $currentVersion] = $this->getPlanAndVersion($moduleName);
+        if (!$plan) {
+            $currentVersion = $this->getModuleVersion->execute($moduleName);
         }
 
         if ($latestVersion = $moduleInfo->getVersion()) {
@@ -106,8 +100,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             $moduleImage = $moduleInfo->getProductImage();
 
             $newVersionAvailable = version_compare($latestVersion, $currentVersion) > 0;
-            $moduleTitle = str_replace(['Magento 2', 'Magento'], ['', ''], (string)$fullModuleTitle);
-            $moduleTitle = trim($moduleTitle);
+            $moduleTitle = $this->getShortTitle((string)$fullModuleTitle);
 
         } else {
 
@@ -156,9 +149,10 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                         href="' . $this->escapeHtml($moduleUrl) .  $utmParam . '&utm_campaign=extension-name"
                         target="_blank"
                         >' .
-                            $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') .
-                        '</a> v' . $this->escapeHtml($currentVersion) . '
-                    </div>
+            $this->escapeHtml($moduleTitle) . ($plan ? ' (' . $plan . ')' : '') .
+            '</a> v' . $this->escapeHtml($currentVersion) . '
+                    </div>' .
+            $this->getPackageHtml($element, $moduleName, $utmParam) . '
                 </div>
                 <div class="row-2">
                     <span class="block-dev">developed by
@@ -167,7 +161,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
                         target="_blank"
                         >Mage' . 'fan</a>
                     </span>' .
-                    ($latestVersion ? '
+            ($latestVersion ? '
                     <span class="block-dot"></span>
                     <span class="block-guide">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -261,7 +255,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             />
             </svg></span></button>';
         }
-            $html .= '</div>
+        $html .= '</div>
            ';
         if ($newVersionAvailable) {
             $html .= '<div class="available-version">
@@ -269,8 +263,8 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             </div>';
         }
 
-         $fontPath = "Magefan_Community::fonts/variable/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2";
-         $html .= ' </div>
+        $fontPath = "Magefan_Community::fonts/variable/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2";
+        $html .= ' </div>
 </div>
         <style>
             @font-face {
@@ -303,6 +297,8 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
             .section-info .row-1 {margin-bottom: 14px;}
             .section-info .row-1 .block-title {color: #000000;font-size: 24px;line-height: 32px;font-weight: 600;}
             .section-info .row-1 .block-title a {color: #000000;text-decoration: none;}
+            .section-info .row-1 .block-sub-title {font-size: 85%;font-weight: 400;}
+            .section-info .row-1 .block-sub-title a {color: #000000;text-decoration: underline;}
             .section-info .row-2 {display: flex;align-items: center;}
             .section-info .row-2 .block-dev {color: #98A2B3;}
             .section-info .row-2 .block-dev a {color: #DA5D28;}
@@ -370,6 +366,89 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
     }
 
     /**
+     * Return "part of <package>" html if module is included into other extension plan
+     *
+     * @param AbstractElement $element
+     * @param string $moduleName
+     * @param string $utmParam
+     * @return string
+     */
+    protected function getPackageHtml(AbstractElement $element, string $moduleName, string $utmParam): string
+    {
+        $sectionName = $this->getSectionName($element);
+        if (!$sectionName) {
+            return '';
+        }
+
+        $planModuleName = $this->sectionFactory->create(['name' => $sectionName])->getModuleName();
+        if (!preg_match('/^(.+)(Plus|Extra)$/', $planModuleName, $matches)
+            || 'Magefan_' . $matches[1] === $moduleName
+        ) {
+            return '';
+        }
+
+        $parentModuleName = 'Magefan_' . $matches[1];
+        [$plan, $version] = $this->getPlanAndVersion($parentModuleName);
+        if (!$version) {
+            return '';
+        }
+
+        $parentInfo = $this->getModuleInfo->execute($parentModuleName);
+        $title = $this->getShortTitle((string)$parentInfo->getProductName());
+        if (!$title) {
+            $title = ucwords(str_replace('_', ' ', $parentModuleName)) . ' Extension';
+        }
+        $url = $parentInfo->getProductUrl() ?: 'https://mage' . 'fan.com/';
+
+        return '<div class="block-sub-title">
+            part of <a
+            href="' . $this->escapeHtml($url) . $utmParam . '&utm_campaign=package-extension-name"
+            target="_blank"
+            >' . $this->escapeHtml($title) . ($plan ? ' (' . $plan . ')' : '') . '</a> v'
+            . $this->escapeHtml($version) . '</div>';
+    }
+
+    /**
+     * Get the highest installed plan (Extra, Plus) of the module and its version
+     *
+     * @param string $moduleName
+     * @return array [plan, version], plan is empty if no plan module is installed
+     */
+    protected function getPlanAndVersion(string $moduleName): array
+    {
+        foreach (['Extra', 'Plus'] as $plan) {
+            if ($version = $this->getModuleVersion->execute($moduleName . $plan)) {
+                return [$plan, $version];
+            }
+        }
+
+        return ['', ''];
+    }
+
+    /**
+     * Remove "Magento 2" / "Magento" from the product name
+     *
+     * @param string $title
+     * @return string
+     */
+    protected function getShortTitle(string $title): string
+    {
+        return trim(str_replace(['Magento 2', 'Magento'], ['', ''], $title));
+    }
+
+    /**
+     * Get config section name of the element
+     *
+     * @param AbstractElement $element
+     * @return string
+     */
+    protected function getSectionName(AbstractElement $element): string
+    {
+        $fieldConfig = $element->getFieldConfig();
+        return !empty($fieldConfig['path']) ? explode('/', $fieldConfig['path'])[0] : '';
+    }
+
+    /**
      * Get configured product key for the current section, if any
      *
      * @param AbstractElement $element
@@ -377,9 +456,7 @@ class Info extends \Magento\Config\Block\System\Config\Form\Field
      */
     protected function getProductKey(AbstractElement $element)
     {
-        $fieldConfig = $element->getFieldConfig();
-        $sectionName = !empty($fieldConfig['path']) ? explode('/', $fieldConfig['path'])[0] : '';
-
+        $sectionName = $this->getSectionName($element);
         if (!$sectionName) {
             return null;
         }
