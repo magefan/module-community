@@ -11,7 +11,6 @@ namespace Magefan\Community\Model\Admin;
 use Magento\Backend\Model\UrlInterface as BackendUrlInterface;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
 
 /**
  * Protect admin state-changing actions (save, delete, duplicate, mass status) from CSRF
@@ -25,24 +24,16 @@ class RequestValidator
     private const ALLOWED_FETCH_SITES = ['same-origin', 'none'];
 
     /**
-     * @var FormKeyValidator
-     */
-    private $formKeyValidator;
-
-    /**
      * @var BackendUrlInterface
      */
     private $backendUrl;
 
     /**
-     * @param FormKeyValidator $formKeyValidator
      * @param BackendUrlInterface $backendUrl
      */
     public function __construct(
-        FormKeyValidator $formKeyValidator,
         BackendUrlInterface $backendUrl
     ) {
-        $this->formKeyValidator = $formKeyValidator;
         $this->backendUrl = $backendUrl;
     }
 
@@ -61,11 +52,13 @@ class RequestValidator
             return false;
         }
 
-        if ($request->isPost() || $this->backendUrl->useSecretKey()) {
+        if ($request->isPost()) {
+            /* Magento alrady has form key validation on POST */
             return true;
         }
-
-        if ($this->formKeyValidator->validate($request)) {
+            
+        if ($this->backendUrl->useSecretKey()) {
+            /* Magento alrady has validateion if secure key is enabled */
             return true;
         }
 
