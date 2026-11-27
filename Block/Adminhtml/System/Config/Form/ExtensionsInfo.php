@@ -18,6 +18,11 @@ use Magefan\Community\Api\GetModuleInfoInterface;
 class ExtensionsInfo extends Field
 {
     /**
+     * UTM parameters appended to all extension links
+     */
+    private const UTM_PARAMS = 'utm_source=admin&utm_medium=config&utm_campaign=all-extensions';
+
+    /**
      * @var ModuleListInterface
      */
     private $moduleList;
@@ -113,14 +118,17 @@ class ExtensionsInfo extends Field
                     $version = $this->getModuleVersion->execute($moduleName);
                 }
 
+                $productUrl = $this->addUtmParams((string)$moduleInfo->getProductUrl());
+                $changeLogUrl = $this->addUtmParams((string)$moduleInfo->getChangeLogUrl());
+                $documentationUrl = $this->addUtmParams((string)$moduleInfo->getDocumentationUrl());
+
                 $html .= '<tr>';
-                $html .= '<td><a target="_blank" href="' .
-                    $this->escapeHtml($moduleInfo->getProductUrl()) . '">' .
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($productUrl) . '">' .
                     $this->escapeHtml($moduleInfo->getProductName()) . '</a></td>';
                 $html .= '<td>' . $this->escapeHtml($version) . '</td>';
-                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getChangeLogUrl()) . '">'
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($changeLogUrl) . '">'
                     . $this->escapeHtml(__('Change Log')) . '</a></td>';
-                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($moduleInfo->getDocumentationUrl()) . '">'.
+                $html .= '<td><a target="_blank" href="' . $this->escapeHtml($documentationUrl) . '">'.
                     $this->escapeHtml(__('User Guide')). '</a></td>';
                 $html .= '</tr>';
             }
@@ -129,5 +137,20 @@ class ExtensionsInfo extends Field
             $html .= '</table></br>';
         }
         return $html;
+    }
+
+    /**
+     * Append UTM parameters to the URL
+     *
+     * @param string $url
+     * @return string
+     */
+    private function addUtmParams(string $url): string
+    {
+        if (!$url) {
+            return $url;
+        }
+
+        return $url . (strpos($url, '?') === false ? '?' : '&') . self::UTM_PARAMS;
     }
 }
