@@ -15,12 +15,23 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Registry;
+use Magefan\Community\Model\Admin\RequestValidator;
 
 /**
  * Abstract admin controller
  */
 abstract class Actions extends \Magento\Backend\App\Action
 {
+    /**
+     * Actions that change data and must be protected from CSRF
+     */
+    public const STATE_CHANGING_ACTIONS = ['save', 'duplicate', 'delete', 'massStatus'];
+
+    /**
+     * @var RequestValidator|null
+     */
+    private $requestValidator;
+
     /**
      * @var string
      */
@@ -98,12 +109,38 @@ abstract class Actions extends \Magento\Backend\App\Action
         $_preparedActions = ['index', 'grid', 'new', 'edit', 'save', 'duplicate', 'delete', 'config', 'massStatus'];
         $_action = $this->getRequest()->getActionName();
         if (in_array($_action, $_preparedActions)) {
+            if (in_array($_action, self::STATE_CHANGING_ACTIONS, true)
+                && !$this->getRequestValidator()->isAllowed($this->getRequest())
+            ) {
+                $this->messageManager->addErrorMessage(__('Invalid request. Please refresh the page and try again.'));
+                // phpcs:ignore -- legacy action API kept for child controllers compatibility
+                $this->_redirect('*/*');
+                return;
+            }
+
             $method = '_'.$_action.'Action';
 
             $this->_beforeAction();
             $this->$method();
             $this->_afterAction();
         }
+    }
+
+    /**
+     * Get validator for state-changing requests
+     *
+     * Loaded lazily to keep the constructor signature of child controllers unchanged.
+     *
+     * @return RequestValidator
+     */
+    protected function getRequestValidator()
+    {
+        if (null === $this->requestValidator) {
+            $this->requestValidator = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(RequestValidator::class);
+        }
+
+        return $this->requestValidator;
     }
 
     /**
@@ -239,6 +276,7 @@ abstract class Actions extends \Magento\Backend\App\Action
         $request = $this->getRequest();
         if (!$request->isPost()) {
             $this->getResponse()->setRedirect($this->getUrl('*/*'));
+            return;
         }
         $model = $this->_getModel();
 
